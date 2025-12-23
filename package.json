@@ -1,0 +1,20 @@
+{
+  "name": "faktory",
+  "version": "1.0.0",
+  "description": "Turn Invoices into Yield. Automatically. Built for Mantle Global Hackathon 2025.",
+  "private": true,
+  "workspaces": [
+    "app",
+    "agent"
+  ],
+  "scripts": {
+    "dev": "pnpm --parallel run dev",
+    "dev:app": "pnpm --filter faktory-app dev",
+    "dev:agent": "pnpm --filter faktory-agent dev",
+    "build": "pnpm --parallel run build",
+    "build:contracts": "cd contracts && forge build",
+    "test:contracts": "cd contracts && forge test",
+    "deploy:local": "cd contracts && PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 forge script script/Deploy.s.sol --rpc-url http://127.0.0.1:8545 --broadcast",
+    "deploy:mantle-sepolia": "cd contracts && forge script script/Deploy.s.sol --rpc-url https://rpc.sepolia.mantle.xyz --broadcast"
+  }
+}
