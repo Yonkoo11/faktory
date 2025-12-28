@@ -299,13 +299,36 @@ export default function DashboardPage() {
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : displayInvoices.length === 0 ? (
-              <div className="text-center py-12">
-                <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No invoices yet</h3>
-                <p className="text-muted-foreground mb-4">Mint your first invoice to start earning yield</p>
-                <Button asChild className="bg-gradient-to-r from-primary to-accent hover:opacity-90">
-                  <Link href="/dashboard/mint">Mint Invoice</Link>
-                </Button>
+              <div className="text-center py-16 px-8">
+                <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/20 via-accent/20 to-success/20 flex items-center justify-center mx-auto mb-6 animate-pulse">
+                  <FileText className="w-12 h-12 text-primary" />
+                </div>
+                <h3 className="text-2xl font-bold mb-3">Ready to earn yield?</h3>
+                <p className="text-muted-foreground max-w-md mx-auto mb-6">
+                  Tokenize your business invoices and put them to work. Earn 3-7% APY while waiting for payment.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
+                  <Button asChild size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90">
+                    <Link href="/dashboard/mint">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Mint Your First Invoice
+                    </Link>
+                  </Button>
+                </div>
+                <div className="flex items-center justify-center gap-8 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-success" />
+                    <span>Privacy preserved</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                    <span>AI optimized</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-accent" />
+                    <span>Real yield</span>
+                  </div>
+                </div>
               </div>
             ) : (
               <Table>
