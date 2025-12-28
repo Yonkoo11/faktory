@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -8,12 +8,20 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { DepositModal } from "@/components/deposit-modal"
-import { Copy, Shield, TrendingUp, Clock, CheckCircle2, ArrowLeft, ExternalLink, Zap, Calendar, Loader2 } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Copy, Shield, TrendingUp, Clock, CheckCircle2, ArrowLeft, ExternalLink, Zap, Calendar, Loader2, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { useInvoice } from "@/hooks/use-invoice-nft"
-import { useDeposit } from "@/hooks/use-yield-vault"
+import { useDeposit, useWithdrawFromVault, useChangeStrategy } from "@/hooks/use-yield-vault"
 import { StrategyNames } from "@/lib/abi"
+import { Strategy } from "@/lib/contracts/abis"
 
 const STRATEGY_APY = ["0%", "3.5%", "7%"]
 
@@ -25,7 +33,38 @@ export default function InvoiceDetailPage() {
   const { deposit, isLoading: isLoadingDeposit } = useDeposit(tokenId)
 
   const [depositModalOpen, setDepositModalOpen] = useState(false)
+  const [withdrawModalOpen, setWithdrawModalOpen] = useState(false)
+  const [strategyModalOpen, setStrategyModalOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  // Withdraw and strategy change hooks
+  const { withdraw, isPending: isWithdrawing, isConfirming: isWithdrawConfirming, isSuccess: isWithdrawSuccess, error: withdrawError } = useWithdrawFromVault()
+  const { changeStrategy, isPending: isChangingStrategy, isConfirming: isStrategyConfirming, isSuccess: isStrategySuccess, error: strategyError } = useChangeStrategy()
+
+  // Reset modals on success
+  useEffect(() => {
+    if (isWithdrawSuccess) {
+      setTimeout(() => setWithdrawModalOpen(false), 2000)
+    }
+  }, [isWithdrawSuccess])
+
+  useEffect(() => {
+    if (isStrategySuccess) {
+      setTimeout(() => setStrategyModalOpen(false), 2000)
+    }
+  }, [isStrategySuccess])
+
+  const handleWithdraw = () => {
+    if (tokenId) {
+      withdraw(tokenId)
+    }
+  }
+
+  const handleChangeStrategy = (newStrategy: Strategy) => {
+    if (tokenId) {
+      changeStrategy(tokenId, newStrategy)
+    }
+  }
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -156,14 +195,30 @@ export default function InvoiceDetailPage() {
           </div>
 
           <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setDepositModalOpen(true)}
-              className="border-glass-border bg-background/50"
-            >
-              Change Strategy
-            </Button>
-            <Button className="bg-gradient-to-r from-primary to-accent hover:opacity-90">Withdraw Yield</Button>
+            {isDeposited ? (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setStrategyModalOpen(true)}
+                  className="border-glass-border bg-background/50"
+                >
+                  Change Strategy
+                </Button>
+                <Button
+                  onClick={() => setWithdrawModalOpen(true)}
+                  className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                >
+                  Withdraw
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={() => setDepositModalOpen(true)}
+                className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
+              >
+                Deposit for Yield
+              </Button>
+            )}
           </div>
         </div>
 
@@ -392,6 +447,132 @@ export default function InvoiceDetailPage() {
         invoiceAmount={principalValue > 0 ? principalValue.toString() : "10000"}
         tokenId={tokenId}
       />
+
+      {/* Withdraw Modal */}
+      <Dialog open={withdrawModalOpen} onOpenChange={setWithdrawModalOpen}>
+        <DialogContent className="glass border-glass-border">
+          <DialogHeader>
+            <DialogTitle>Withdraw Invoice {invoiceData.id}</DialogTitle>
+            <DialogDescription>
+              Withdraw your invoice NFT and claim accrued yield.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-lg">
+              <div>
+                <p className="text-sm text-muted-foreground">Principal</p>
+                <p className="text-lg font-bold">{invoiceData.principal}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Accrued Yield</p>
+                <p className="text-lg font-bold text-success">{invoiceData.accruedYield}</p>
+              </div>
+            </div>
+
+            {withdrawError && (
+              <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-lg">
+                <AlertCircle className="w-4 h-4" />
+                <p className="text-sm">{withdrawError.message}</p>
+              </div>
+            )}
+
+            {isWithdrawSuccess && (
+              <div className="flex items-center gap-2 p-3 bg-success/10 text-success rounded-lg">
+                <CheckCircle2 className="w-4 h-4" />
+                <p className="text-sm">Withdrawal successful! NFT returned to your wallet.</p>
+              </div>
+            )}
+
+            <Button
+              onClick={handleWithdraw}
+              disabled={isWithdrawing || isWithdrawConfirming}
+              className="w-full bg-gradient-to-r from-primary to-accent"
+            >
+              {isWithdrawing || isWithdrawConfirming ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {isWithdrawConfirming ? "Confirming..." : "Withdrawing..."}
+                </>
+              ) : (
+                "Confirm Withdrawal"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Strategy Modal */}
+      <Dialog open={strategyModalOpen} onOpenChange={setStrategyModalOpen}>
+        <DialogContent className="glass border-glass-border">
+          <DialogHeader>
+            <DialogTitle>Change Strategy for {invoiceData.id}</DialogTitle>
+            <DialogDescription>
+              Select a new yield strategy for this invoice.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="p-3 bg-muted/30 rounded-lg">
+              <p className="text-sm text-muted-foreground">Current Strategy</p>
+              <Badge variant="outline" className="mt-1 bg-primary/10 text-primary border-primary/30">
+                {invoiceData.strategy} ({invoiceData.apy} APY)
+              </Badge>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Select New Strategy</p>
+              {[
+                { strategy: Strategy.Hold, name: "Hold", apy: "0%", desc: "No yield optimization" },
+                { strategy: Strategy.Conservative, name: "Conservative", apy: "3.5%", desc: "Low-risk lending" },
+                { strategy: Strategy.Aggressive, name: "Aggressive", apy: "7%", desc: "Higher yield pools" },
+              ].map((s) => (
+                <button
+                  key={s.strategy}
+                  onClick={() => handleChangeStrategy(s.strategy)}
+                  disabled={strategyIndex === s.strategy || isChangingStrategy || isStrategyConfirming}
+                  className={`w-full p-4 rounded-lg border text-left transition-colors ${
+                    strategyIndex === s.strategy
+                      ? "border-primary/50 bg-primary/10 opacity-50"
+                      : "border-glass-border hover:border-primary/30 hover:bg-primary/5"
+                  } disabled:opacity-50`}
+                >
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-medium">{s.name}</p>
+                      <p className="text-sm text-muted-foreground">{s.desc}</p>
+                    </div>
+                    <Badge variant="outline">{s.apy}</Badge>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {strategyError && (
+              <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-lg">
+                <AlertCircle className="w-4 h-4" />
+                <p className="text-sm">{strategyError.message}</p>
+              </div>
+            )}
+
+            {isStrategySuccess && (
+              <div className="flex items-center gap-2 p-3 bg-success/10 text-success rounded-lg">
+                <CheckCircle2 className="w-4 h-4" />
+                <p className="text-sm">Strategy changed successfully!</p>
+              </div>
+            )}
+
+            {(isChangingStrategy || isStrategyConfirming) && (
+              <div className="flex items-center justify-center gap-2 p-3">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <p className="text-sm text-muted-foreground">
+                  {isStrategyConfirming ? "Confirming transaction..." : "Changing strategy..."}
+                </p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
