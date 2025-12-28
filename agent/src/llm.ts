@@ -2,20 +2,60 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import { AnalysisResult, Strategy, AgentThought } from './types.js';
+import { STRATEGY_NAMES } from './constants.js';
 
-const STRATEGY_NAMES = ['Hold', 'Conservative', 'Aggressive'];
+// Configuration
+const LLM_CONFIG = {
+  model: 'claude-3-5-haiku-20241022', // Latest fast model
+  maxTokens: 300,
+  timeoutMs: 30000, // 30 second timeout
+  maxRetries: 2,
+};
+
+// Timeout wrapper for API calls
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, operationName: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error(`${operationName} timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+
+    promise
+      .then((result) => {
+        clearTimeout(timeout);
+        resolve(result);
+      })
+      .catch((error) => {
+        clearTimeout(timeout);
+        reject(error);
+      });
+  });
+}
 
 export class LLMService {
   private client: Anthropic | null = null;
   private enabled: boolean = false;
+  private callCount: number = 0;
+  private lastCallTime: number = 0;
+  private rateLimitWindowMs: number = 60000; // 1 minute
+  private maxCallsPerWindow: number = 30;
 
   constructor(apiKey?: string) {
     if (apiKey) {
       this.client = new Anthropic({ apiKey });
       this.enabled = true;
+      console.log(`LLM Service initialized with model: ${LLM_CONFIG.model}`);
     } else {
       console.warn('No Anthropic API key provided. Using template-based explanations.');
     }
+  }
+
+  private checkRateLimit(): boolean {
+    const now = Date.now();
+    if (now - this.lastCallTime > this.rateLimitWindowMs) {
+      this.callCount = 0;
+      this.lastCallTime = now;
+    }
+    return this.callCount < this.maxCallsPerWindow;
   }
 
   async generateExplanation(analysis: AnalysisResult): Promise<string> {
@@ -23,12 +63,18 @@ export class LLMService {
       return this.generateTemplateExplanation(analysis);
     }
 
+    // Check rate limit
+    if (!this.checkRateLimit()) {
+      console.warn('LLM rate limit reached, using template');
+      return this.generateTemplateExplanation(analysis);
+    }
+
     try {
       const prompt = this.buildPrompt(analysis);
 
-      const response = await this.client.messages.create({
-        model: 'claude-3-haiku-20240307',
-        max_tokens: 300,
+      const apiCall = this.client.messages.create({
+        model: LLM_CONFIG.model,
+        max_tokens: LLM_CONFIG.maxTokens,
         messages: [
           {
             role: 'user',
@@ -41,10 +87,14 @@ Keep explanations under 3 sentences. Be direct and actionable.
 Never use jargon without explanation. Focus on the "why" behind recommendations.`,
       });
 
+      const response = await withTimeout(apiCall, LLM_CONFIG.timeoutMs, 'LLM generateExplanation');
+      this.callCount++;
+
       const textBlock = response.content.find((block) => block.type === 'text');
       return textBlock?.text || this.generateTemplateExplanation(analysis);
     } catch (error) {
-      console.error('LLM error, falling back to template:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('LLM error, falling back to template:', errorMessage);
       return this.generateTemplateExplanation(analysis);
     }
   }
