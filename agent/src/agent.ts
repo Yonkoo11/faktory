@@ -3,10 +3,9 @@
 import { BlockchainService, ContractAddresses } from './blockchain.js';
 import { LLMService } from './llm.js';
 import { AgentWebSocket } from './websocket.js';
-import { analyzeInvoice } from './optimizer.js';
-import { AgentConfig, AgentThought, Strategy, AnalysisResult } from './types.js';
-
-const STRATEGY_NAMES = ['Hold', 'Conservative', 'Aggressive'];
+import { analyzeInvoice, applyMarketAdjustment } from './optimizer.js';
+import { AgentConfig, AgentThought, Strategy, AnalysisResult, MarketConditions, MarketAlert } from './types.js';
+import { STRATEGY_NAMES } from './constants.js';
 
 export class FaktoryAgent {
   private blockchain: BlockchainService;
@@ -41,6 +40,11 @@ export class FaktoryAgent {
     // Handle manual analysis requests from frontend
     this.ws.onAnalysisRequest = (tokenId) => {
       this.analyzeInvoice(tokenId);
+    };
+
+    // Handle demo scenario triggers from frontend
+    this.ws.onDemoScenario = (scenario) => {
+      this.triggerDemoScenario(scenario);
     };
   }
 
@@ -105,47 +109,117 @@ export class FaktoryAgent {
     }, this.config.analysisInterval);
   }
 
+  private currentMarketConditions: MarketConditions | null = null;
+  private currentMarketAlert: MarketAlert | null = null;
+
   private async runAnalysisCycle(): Promise<void> {
     try {
+      // Step 1: Check market conditions FIRST (the killer demo moment)
       this.broadcastThought({
         type: 'thinking',
         tokenId: 'system',
-        message: '🔍 Scanning for active invoices...',
+        message: '📡 Checking market conditions via Pyth Oracle...',
         timestamp: Date.now(),
       });
 
-      // Get active deposits (invoices currently in yield strategies)
-      const activeDeposits = await this.blockchain.getActiveDeposits();
+      this.currentMarketConditions = await this.blockchain.getMarketConditions();
+      this.currentMarketAlert = this.blockchain.checkMarketAlert(this.currentMarketConditions);
 
-      if (activeDeposits.length === 0) {
+      // Broadcast market status with drama
+      if (this.currentMarketAlert) {
+        const alertEmoji = this.currentMarketAlert.level === 'critical' ? '🚨' :
+                          this.currentMarketAlert.level === 'warning' ? '⚠️' : 'ℹ️';
+
+        this.broadcastThought({
+          type: this.currentMarketAlert.level === 'critical' ? 'error' : 'analysis',
+          tokenId: 'market',
+          message: `${alertEmoji} ${this.currentMarketAlert.message}`,
+          timestamp: Date.now(),
+          data: {
+            priceChange: this.currentMarketConditions.ethPriceChange24h,
+            volatility: this.currentMarketConditions.volatilityLevel,
+            ethPrice: this.currentMarketConditions.ethPrice,
+          },
+        });
+
+        await this.delay(800);
+
+        this.broadcastThought({
+          type: 'decision',
+          tokenId: 'market',
+          message: `🤖 ${this.currentMarketAlert.recommendation}`,
+          timestamp: Date.now(),
+        });
+
+        await this.delay(500);
+      } else {
+        const priceInfo = this.currentMarketConditions.ethPrice
+          ? `ETH: $${this.currentMarketConditions.ethPrice.toFixed(2)}`
+          : 'Prices: Simulated mode';
+
         this.broadcastThought({
           type: 'thinking',
           tokenId: 'system',
-          message: '📭 No active deposits found. Waiting for new invoices...',
+          message: `✅ Market stable (${priceInfo}) - volatility: ${this.currentMarketConditions.volatilityLevel}`,
+          timestamp: Date.now(),
+        });
+      }
+
+      await this.delay(300);
+
+      // Step 2: Scan for invoices
+      this.broadcastThought({
+        type: 'thinking',
+        tokenId: 'system',
+        message: '🔍 Scanning blockchain for invoices...',
+        timestamp: Date.now(),
+      });
+
+      // Get ALL active invoices (not just those in yield strategies)
+      const [activeInvoices, activeDeposits] = await Promise.all([
+        this.blockchain.getActiveInvoices(),
+        this.blockchain.getActiveDeposits(),
+      ]);
+
+      // Combine and deduplicate - prioritize all invoices
+      const allTokenIds = [...new Set([...activeInvoices, ...activeDeposits])];
+
+      if (allTokenIds.length === 0) {
+        this.broadcastThought({
+          type: 'thinking',
+          tokenId: 'system',
+          message: '📭 No invoices found. Waiting for new invoices to be minted...',
           timestamp: Date.now(),
         });
         return;
       }
 
+      const depositCount = activeDeposits.length;
+      const pendingCount = allTokenIds.length - depositCount;
+
       this.broadcastThought({
         type: 'thinking',
         tokenId: 'system',
-        message: `📊 Found ${activeDeposits.length} active deposit(s). Beginning analysis...`,
+        message: `📊 Found ${allTokenIds.length} invoice(s): ${depositCount} earning yield, ${pendingCount} pending. Analyzing...`,
         timestamp: Date.now(),
       });
 
-      // Analyze each deposit
-      const analysisPromises = activeDeposits
+      // Analyze each invoice (with market context)
+      const analysisPromises = allTokenIds
         .slice(0, this.config.maxConcurrentAnalyses)
         .map((tokenId) => this.analyzeInvoice(tokenId));
 
       await Promise.allSettled(analysisPromises);
 
+      // Get transaction cost for Mantle value prop
+      const txCost = await this.blockchain.getEstimatedTxCost();
+
       this.broadcastThought({
         type: 'thinking',
         tokenId: 'system',
-        message: `✅ Analysis cycle complete. Next scan in ${this.config.analysisInterval / 1000}s`,
+        message: `✅ Cycle complete. Next scan in ${this.config.analysisInterval / 1000}s | Tx cost on Mantle: ${txCost.costUsd}`,
         timestamp: Date.now(),
+        data: { txCostUsd: txCost.costUsd },
       });
     } catch (error) {
       console.error('Error in analysis cycle:', error);
@@ -166,25 +240,32 @@ export class FaktoryAgent {
         return null;
       }
 
+      const isDeposited = deposit !== null;
+
       // Broadcast thinking start
       this.broadcastThought({
         type: 'thinking',
         tokenId,
-        message: `🔍 Analyzing Invoice #${tokenId.slice(0, 8)}...`,
+        message: `🔍 Analyzing Invoice #${tokenId}${isDeposited ? ' (earning yield)' : ' (awaiting deposit)'}...`,
         timestamp: Date.now(),
-        data: { step: 1, total: 4 },
+        data: { step: 1, total: 4, isDeposited },
       });
 
       // Analyze using optimizer
       const currentTimestamp = Math.floor(Date.now() / 1000);
-      const analysis = analyzeInvoice(invoice, deposit || undefined, currentTimestamp);
+      let analysis = analyzeInvoice(invoice, deposit || undefined, currentTimestamp);
+
+      // Apply market adjustments (THE KILLER DEMO FEATURE)
+      const originalStrategy = analysis.recommendedStrategy;
+      analysis = applyMarketAdjustment(analysis, this.currentMarketConditions, this.currentMarketAlert);
+      const wasAdjusted = originalStrategy !== analysis.recommendedStrategy;
 
       // Broadcast risk assessment
-      await this.delay(500);
+      await this.delay(400);
       this.broadcastThought({
         type: 'analysis',
         tokenId,
-        message: `📈 Risk Score: ${analysis.riskScore}/100 | Payment Probability: ${analysis.paymentProbability}%`,
+        message: `📈 Risk Score: ${analysis.riskScore}/100 | Payment Prob: ${analysis.paymentProbability}% | Days to due: ${analysis.daysUntilDue}`,
         timestamp: Date.now(),
         data: {
           riskScore: analysis.riskScore,
@@ -193,23 +274,42 @@ export class FaktoryAgent {
         },
       });
 
-      // Broadcast strategy evaluation
-      await this.delay(500);
-      this.broadcastThought({
-        type: 'analysis',
-        tokenId,
-        message: `🎯 Evaluating: ${STRATEGY_NAMES[analysis.currentStrategy]} → ${STRATEGY_NAMES[analysis.recommendedStrategy]} (${analysis.confidence}% confidence)`,
-        timestamp: Date.now(),
-        data: {
-          currentStrategy: STRATEGY_NAMES[analysis.currentStrategy],
-          recommendedStrategy: STRATEGY_NAMES[analysis.recommendedStrategy],
-          confidence: analysis.confidence,
-          shouldAct: analysis.shouldAct,
-        },
-      });
+      // Broadcast strategy evaluation with market context
+      await this.delay(400);
+
+      if (wasAdjusted && this.currentMarketAlert) {
+        // DRAMATIC: Show the market override happening
+        this.broadcastThought({
+          type: 'analysis',
+          tokenId,
+          message: `⚡ MARKET OVERRIDE: ${STRATEGY_NAMES[analysis.currentStrategy]} → ${STRATEGY_NAMES[analysis.recommendedStrategy]} (was ${STRATEGY_NAMES[originalStrategy]})`,
+          timestamp: Date.now(),
+          data: {
+            currentStrategy: STRATEGY_NAMES[analysis.currentStrategy],
+            recommendedStrategy: STRATEGY_NAMES[analysis.recommendedStrategy],
+            originalRecommendation: STRATEGY_NAMES[originalStrategy],
+            confidence: analysis.confidence,
+            shouldAct: analysis.shouldAct,
+            marketOverride: true,
+          },
+        });
+      } else {
+        this.broadcastThought({
+          type: 'analysis',
+          tokenId,
+          message: `🎯 Strategy: ${STRATEGY_NAMES[analysis.currentStrategy]} → ${STRATEGY_NAMES[analysis.recommendedStrategy]} (${analysis.confidence}% confidence)`,
+          timestamp: Date.now(),
+          data: {
+            currentStrategy: STRATEGY_NAMES[analysis.currentStrategy],
+            recommendedStrategy: STRATEGY_NAMES[analysis.recommendedStrategy],
+            confidence: analysis.confidence,
+            shouldAct: analysis.shouldAct,
+          },
+        });
+      }
 
       // Generate LLM explanation
-      await this.delay(500);
+      await this.delay(400);
       const explanation = await this.llm.generateExplanation(analysis);
 
       // Broadcast decision
@@ -225,7 +325,7 @@ export class FaktoryAgent {
       });
 
       // Execute if conditions met
-      if (analysis.shouldAct && this.config.autoExecute) {
+      if (analysis.shouldAct && this.config.autoExecute && isDeposited) {
         await this.executeDecision(tokenId, analysis);
       }
 
@@ -306,5 +406,69 @@ export class FaktoryAgent {
       connectedClients: this.ws.getConnectedClients(),
       config: this.config,
     };
+  }
+
+  // DEMO MODE: Simulate a market crash for presentations
+  async triggerDemoScenario(scenario: 'market_crash' | 'market_rally' | 'reset'): Promise<void> {
+    this.broadcastThought({
+      type: 'thinking',
+      tokenId: 'demo',
+      message: `🎬 DEMO MODE: Triggering ${scenario} scenario...`,
+      timestamp: Date.now(),
+    });
+
+    await this.delay(500);
+
+    switch (scenario) {
+      case 'market_crash':
+        // Simulate 7% drop - triggers WARNING level
+        this.blockchain.simulateMarketDrop(7);
+        this.broadcastThought({
+          type: 'error',
+          tokenId: 'demo',
+          message: '📉 Simulating market stress: ETH -7% in 4 hours...',
+          timestamp: Date.now(),
+        });
+        break;
+
+      case 'market_rally':
+        // Simulate positive movement
+        this.blockchain.simulateMarketDrop(-5); // negative drop = rally
+        this.broadcastThought({
+          type: 'analysis',
+          tokenId: 'demo',
+          message: '📈 Simulating market rally: ETH +5% in 4 hours...',
+          timestamp: Date.now(),
+        });
+        break;
+
+      case 'reset':
+        // Reset to neutral
+        this.blockchain.simulateMarketDrop(0);
+        this.broadcastThought({
+          type: 'thinking',
+          tokenId: 'demo',
+          message: '🔄 Market conditions reset to stable...',
+          timestamp: Date.now(),
+        });
+        break;
+    }
+
+    await this.delay(1000);
+
+    // Trigger immediate analysis cycle to show the effect
+    this.broadcastThought({
+      type: 'thinking',
+      tokenId: 'demo',
+      message: '⚡ Running immediate analysis to show agent response...',
+      timestamp: Date.now(),
+    });
+
+    await this.runAnalysisCycle();
+  }
+
+  // Get blockchain service for external access (e.g., WebSocket commands)
+  getBlockchainService(): BlockchainService {
+    return this.blockchain;
   }
 }
