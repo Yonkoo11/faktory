@@ -241,13 +241,13 @@ export default function DashboardPage() {
             <AreaChart data={yieldData}>
               <defs>
                 <linearGradient id="yieldGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="oklch(0.6 0.22 265)" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="oklch(0.6 0.22 265)" stopOpacity={0} />
+                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <XAxis dataKey="date" stroke="oklch(0.55 0 0)" fontSize={12} tickLine={false} axisLine={false} />
+              <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
               <YAxis
-                stroke="oklch(0.55 0 0)"
+                stroke="hsl(var(--muted-foreground))"
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
@@ -255,17 +255,17 @@ export default function DashboardPage() {
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "oklch(0.08 0 0)",
-                  border: "1px solid oklch(0.95 0 0 / 0.05)",
+                  backgroundColor: "hsl(var(--card))",
+                  border: "1px solid hsl(var(--border))",
                   borderRadius: "0.5rem",
-                  color: "oklch(0.95 0 0)",
+                  color: "hsl(var(--foreground))",
                 }}
                 formatter={(value) => [`$${Number(value).toFixed(2)}`, "Yield"]}
               />
               <Area
                 type="monotone"
                 dataKey="value"
-                stroke="oklch(0.6 0.22 265)"
+                stroke="hsl(var(--primary))"
                 strokeWidth={2}
                 fill="url(#yieldGradient)"
               />
@@ -346,9 +346,12 @@ export default function DashboardPage() {
                 </TableHeader>
                 <TableBody>
                   {displayInvoices.map((invoice) => (
-                    <TableRow key={invoice.id} className="border-glass-border hover:bg-muted/5 cursor-pointer">
+                    <TableRow key={invoice.id} className="border-glass-border hover:bg-muted/10 cursor-pointer transition-colors group">
                       <TableCell className="font-mono font-medium">
-                        <Link href={`/dashboard/invoice/${invoice.tokenId || invoice.id}`} className="hover:text-primary">
+                        <Link href={`/dashboard/invoice/${invoice.tokenId || invoice.id}`} className="hover:text-primary flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <FileText className="w-4 h-4 text-primary" />
+                          </div>
                           {invoice.id}
                         </Link>
                       </TableCell>
@@ -369,7 +372,7 @@ export default function DashboardPage() {
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
                               <MoreVertical className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
