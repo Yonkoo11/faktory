@@ -2,7 +2,7 @@
 
 > **Your invoices shouldn't just sit there. They should work for you.**
 
-Built for Mantle Global Hackathon 2025 | RWA/RealFi Track
+**[Live Demo](https://faktory-app.vercel.app/)** | Built for Mantle Global Hackathon 2025 | RWA/RealFi Track
 
 ## The Problem
 
