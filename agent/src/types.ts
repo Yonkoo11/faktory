@@ -79,3 +79,22 @@ export interface WebSocketMessage {
   type: 'thought' | 'decision' | 'execution' | 'status' | 'error';
   payload: AgentThought | AgentDecision | { status: string };
 }
+
+// Market conditions for real-time risk assessment
+export interface MarketConditions {
+  ethPrice: number | null;
+  mntPrice: number | null;
+  ethPriceChange24h: number; // percentage
+  volatilityLevel: 'low' | 'medium' | 'high' | 'extreme';
+  lastUpdated: number;
+}
+
+// Alert levels for dramatic agent responses
+export type AlertLevel = 'info' | 'warning' | 'critical';
+
+export interface MarketAlert {
+  level: AlertLevel;
+  message: string;
+  priceChange: number;
+  recommendation: string;
+}

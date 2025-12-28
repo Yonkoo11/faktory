@@ -4,6 +4,62 @@ import 'dotenv/config';
 import { FaktoryAgent } from './agent.js';
 import { ContractAddresses } from './blockchain.js';
 
+// Environment validation
+interface EnvValidation {
+  name: string;
+  value: string | undefined;
+  required: boolean;
+  description: string;
+}
+
+function validateEnvironment(): { valid: boolean; warnings: string[]; errors: string[] } {
+  const warnings: string[] = [];
+  const errors: string[] = [];
+
+  const envVars: EnvValidation[] = [
+    { name: 'MANTLE_RPC_URL', value: process.env.MANTLE_RPC_URL, required: false, description: 'RPC endpoint' },
+    { name: 'AGENT_PRIVATE_KEY', value: process.env.AGENT_PRIVATE_KEY, required: false, description: 'Agent wallet key' },
+    { name: 'ANTHROPIC_API_KEY', value: process.env.ANTHROPIC_API_KEY, required: false, description: 'Claude AI API key' },
+    { name: 'WS_PORT', value: process.env.WS_PORT, required: false, description: 'WebSocket port' },
+    { name: 'INVOICE_NFT_ADDRESS', value: process.env.INVOICE_NFT_ADDRESS, required: true, description: 'InvoiceNFT contract' },
+    { name: 'YIELD_VAULT_ADDRESS', value: process.env.YIELD_VAULT_ADDRESS, required: true, description: 'YieldVault contract' },
+    { name: 'AGENT_ROUTER_ADDRESS', value: process.env.AGENT_ROUTER_ADDRESS, required: true, description: 'AgentRouter contract' },
+    { name: 'MOCK_ORACLE_ADDRESS', value: process.env.MOCK_ORACLE_ADDRESS, required: true, description: 'Oracle contract' },
+  ];
+
+  const zeroAddress = '0x0000000000000000000000000000000000000000';
+
+  for (const env of envVars) {
+    if (env.required) {
+      if (!env.value || env.value === zeroAddress) {
+        errors.push(`${env.name} (${env.description}) is required but not set`);
+      }
+    } else if (!env.value) {
+      warnings.push(`${env.name} (${env.description}) not set, using defaults`);
+    }
+  }
+
+  // Validate RPC URL format
+  const rpcUrl = process.env.MANTLE_RPC_URL || 'https://rpc.sepolia.mantle.xyz';
+  if (!rpcUrl.startsWith('http://') && !rpcUrl.startsWith('https://')) {
+    errors.push('MANTLE_RPC_URL must be a valid HTTP(S) URL');
+  }
+
+  // Validate private key format if provided
+  const privateKey = process.env.AGENT_PRIVATE_KEY;
+  if (privateKey && !privateKey.startsWith('0x')) {
+    warnings.push('AGENT_PRIVATE_KEY should start with 0x');
+  }
+
+  // Validate port number
+  const wsPort = parseInt(process.env.WS_PORT || '8080');
+  if (isNaN(wsPort) || wsPort < 1 || wsPort > 65535) {
+    errors.push('WS_PORT must be a valid port number (1-65535)');
+  }
+
+  return { valid: errors.length === 0, warnings, errors };
+}
+
 // Load configuration from environment
 const RPC_URL = process.env.MANTLE_RPC_URL || 'https://rpc.sepolia.mantle.xyz';
 const PRIVATE_KEY = process.env.AGENT_PRIVATE_KEY;
@@ -16,7 +72,13 @@ const ADDRESSES: ContractAddresses = {
   yieldVault: process.env.YIELD_VAULT_ADDRESS || '0x0000000000000000000000000000000000000000',
   agentRouter: process.env.AGENT_ROUTER_ADDRESS || '0x0000000000000000000000000000000000000000',
   mockOracle: process.env.MOCK_ORACLE_ADDRESS || '0x0000000000000000000000000000000000000000',
+  // Production addresses (optional - enables real data)
+  pythOracle: process.env.PYTH_ORACLE_ADDRESS,
+  lendleYieldSource: process.env.LENDLE_YIELD_ADDRESS,
 };
+
+// Check if using production data sources
+const isProduction = !!ADDRESSES.pythOracle || !!ADDRESSES.lendleYieldSource;
 
 async function main() {
   console.log('');
@@ -27,13 +89,41 @@ async function main() {
   console.log('  ██║     ██║  ██║██║  ██╗   ██║   ╚██████╔╝██║  ██║   ██║   ');
   console.log('  ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ');
   console.log('');
+
+  // Validate environment before starting
+  const validation = validateEnvironment();
+
+  if (validation.warnings.length > 0) {
+    console.log('⚠️  Environment Warnings:');
+    validation.warnings.forEach((w) => console.log(`   - ${w}`));
+    console.log('');
+  }
+
+  if (!validation.valid) {
+    console.error('❌ Environment Validation Failed:');
+    validation.errors.forEach((e) => console.error(`   - ${e}`));
+    console.error('');
+    console.error('Please configure the required environment variables.');
+    console.error('See .env.example for reference.');
+    process.exit(1);
+  }
   console.log('  Autonomous Invoice Yield Optimization on Mantle');
   console.log('');
   console.log('='.repeat(60));
   console.log(`  📡 RPC: ${RPC_URL}`);
   console.log(`  🔌 WebSocket: ws://localhost:${WS_PORT}`);
   console.log(`  🔑 Wallet: ${PRIVATE_KEY ? '✅ Configured' : '❌ Read-only mode'}`);
-  console.log(`  🤖 LLM: ${ANTHROPIC_API_KEY ? '✅ Claude API' : '⚡ Template mode'}`);
+  console.log(`  🤖 LLM: ${ANTHROPIC_API_KEY ? '✅ Claude AI (Real)' : '⚡ Template mode'}`);
+  console.log('='.repeat(60));
+  console.log('');
+  console.log('  Data Sources:');
+  console.log(`  📊 Oracle: ${ADDRESSES.pythOracle ? '✅ Pyth Network (Real-time)' : '⚠️  Mock Oracle (Simulated)'}`);
+  console.log(`  💰 Yield: ${ADDRESSES.lendleYieldSource ? '✅ Lendle (Real DeFi)' : '⚠️  Simulated Yield'}`);
+  if (!isProduction) {
+    console.log('');
+    console.log('  ⚠️  Running with SIMULATED data for demo.');
+    console.log('  Set PYTH_ORACLE_ADDRESS and LENDLE_YIELD_ADDRESS for production.');
+  }
   console.log('='.repeat(60));
 
   // Validate contract addresses
