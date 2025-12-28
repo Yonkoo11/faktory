@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import confetti from "canvas-confetti"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -217,13 +218,36 @@ function MintInvoiceContent() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-3xl font-bold">Mint Invoice NFT</h1>
-              <span className="text-sm text-muted-foreground">Step {step} of 3</span>
+              <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">
+                Step {step} of 3
+              </Badge>
             </div>
             <Progress value={progress} className="h-2" />
-            <div className="flex justify-between mt-3 text-sm">
-              <span className={step >= 1 ? "text-primary font-medium" : "text-muted-foreground"}>Invoice Details</span>
-              <span className={step >= 2 ? "text-primary font-medium" : "text-muted-foreground"}>Privacy Settings</span>
-              <span className={step >= 3 ? "text-primary font-medium" : "text-muted-foreground"}>Review & Mint</span>
+            <div className="flex justify-between mt-4">
+              <div className="flex items-center gap-2">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
+                  step >= 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                }`}>
+                  {step > 1 ? <CheckCircle2 className="w-3 h-3" /> : "1"}
+                </div>
+                <span className={`text-sm ${step >= 1 ? "text-primary font-medium" : "text-muted-foreground"}`}>Details</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
+                  step >= 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                }`}>
+                  {step > 2 ? <CheckCircle2 className="w-3 h-3" /> : "2"}
+                </div>
+                <span className={`text-sm ${step >= 2 ? "text-primary font-medium" : "text-muted-foreground"}`}>Privacy</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
+                  step >= 3 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                }`}>
+                  3
+                </div>
+                <span className={`text-sm ${step >= 3 ? "text-primary font-medium" : "text-muted-foreground"}`}>Review</span>
+              </div>
             </div>
           </div>
 
