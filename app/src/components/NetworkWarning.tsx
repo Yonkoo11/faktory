@@ -3,6 +3,7 @@
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { SUPPORTED_CHAINS, anvil } from '@/lib/wagmi';
 import { mantleSepoliaTestnet } from 'wagmi/chains';
+import { areContractsDeployed } from '@/lib/contracts/addresses';
 
 export function NetworkWarning() {
   const { isConnected } = useAccount();
@@ -11,7 +12,31 @@ export function NetworkWarning() {
 
   if (!isConnected) return null;
 
-  const isSupported = SUPPORTED_CHAINS.includes(chainId);
+  const isSupported = (SUPPORTED_CHAINS as readonly number[]).includes(chainId);
+  const contractsDeployed = areContractsDeployed(chainId);
+
+  // Show contract deployment warning if on supported network but contracts not deployed
+  if (isSupported && !contractsDeployed) {
+    return (
+      <div className="bg-red-900/50 border-b border-red-700">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-red-400">
+            <span>⚠️</span>
+            <span className="text-sm">
+              Contracts not deployed on this network. Please deploy contracts or switch to Local (Anvil) for testing.
+            </span>
+          </div>
+          <button
+            onClick={() => switchChain({ chainId: anvil.id })}
+            disabled={isPending}
+            className="px-3 py-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 rounded text-xs font-medium transition-colors"
+          >
+            {isPending ? 'Switching...' : 'Switch to Local'}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (isSupported) return null;
 
@@ -24,20 +49,22 @@ export function NetworkWarning() {
             Please switch to a supported network (Anvil Local, Mantle Sepolia, or Mantle)
           </span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2" role="group" aria-label="Network selection">
           <button
             onClick={() => switchChain({ chainId: anvil.id })}
             disabled={isPending}
-            className="px-3 py-1 bg-gray-800 hover:bg-gray-700 rounded text-xs font-medium transition-colors"
+            aria-label="Switch to Anvil local development network"
+            className="px-3 py-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 rounded text-xs font-medium transition-colors"
           >
-            Anvil (Local)
+            {isPending ? 'Switching...' : 'Anvil (Local)'}
           </button>
           <button
             onClick={() => switchChain({ chainId: mantleSepoliaTestnet.id })}
             disabled={isPending}
-            className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded text-xs font-medium transition-colors"
+            aria-label="Switch to Mantle Sepolia testnet"
+            className="px-3 py-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded text-xs font-medium transition-colors"
           >
-            Mantle Sepolia
+            {isPending ? 'Switching...' : 'Mantle Sepolia'}
           </button>
         </div>
       </div>
