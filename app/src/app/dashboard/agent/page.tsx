@@ -144,14 +144,32 @@ export default function AgentPage() {
           </div>
 
           <div className="p-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center mx-auto mb-4">
-              <Bot className="w-8 h-8 text-muted-foreground" />
+            <div className="relative mx-auto w-24 h-24 mb-6">
+              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-accent/20 via-primary/20 to-success/20 animate-pulse" />
+              <div className="absolute inset-2 rounded-2xl bg-background flex items-center justify-center">
+                <Bot className="w-10 h-10 text-accent" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-success animate-ping" />
+              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-success" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">No Decisions Yet</h3>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              The agent will analyze your deposited invoices and make strategy recommendations here.
-              Deposit invoices to the yield vault to see the agent in action.
+            <h3 className="text-xl font-bold mb-3">Agent Standing By</h3>
+            <p className="text-muted-foreground max-w-md mx-auto mb-6">
+              When you deposit invoices to the yield vault, the AI agent will continuously monitor market conditions and optimize your strategy for maximum yield.
             </p>
+            <div className="grid grid-cols-3 gap-4 max-w-md mx-auto text-center">
+              <div className="p-3 rounded-lg bg-muted/30">
+                <div className="text-lg font-bold text-primary">30s</div>
+                <div className="text-xs text-muted-foreground">Check interval</div>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/30">
+                <div className="text-lg font-bold text-accent">24/7</div>
+                <div className="text-xs text-muted-foreground">Monitoring</div>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/30">
+                <div className="text-lg font-bold text-success">80%+</div>
+                <div className="text-xs text-muted-foreground">Confidence</div>
+              </div>
+            </div>
           </div>
         </Card>
 
