@@ -27,32 +27,42 @@ interface AgentActivityProps {
 const typeConfig = {
   thinking: {
     icon: Brain,
-    bgClass: 'bg-muted/50',
-    borderClass: 'border-muted',
+    label: 'Thinking',
+    bgClass: 'bg-gradient-to-r from-muted/50 to-muted/30',
+    borderClass: 'border-muted/50',
+    iconBgClass: 'bg-muted/30',
     iconClass: 'text-muted-foreground',
   },
   analysis: {
     icon: BarChart3,
-    bgClass: 'bg-primary/10',
-    borderClass: 'border-primary/30',
+    label: 'Analysis',
+    bgClass: 'bg-gradient-to-r from-primary/15 to-primary/5',
+    borderClass: 'border-primary/40',
+    iconBgClass: 'bg-primary/20',
     iconClass: 'text-primary',
   },
   decision: {
     icon: Target,
-    bgClass: 'bg-success/10',
-    borderClass: 'border-success/30',
+    label: 'Decision',
+    bgClass: 'bg-gradient-to-r from-success/15 to-success/5',
+    borderClass: 'border-success/40',
+    iconBgClass: 'bg-success/20',
     iconClass: 'text-success',
   },
   execution: {
     icon: Zap,
-    bgClass: 'bg-warning/10',
-    borderClass: 'border-warning/30',
+    label: 'Execution',
+    bgClass: 'bg-gradient-to-r from-warning/15 to-warning/5',
+    borderClass: 'border-warning/40',
+    iconBgClass: 'bg-warning/20',
     iconClass: 'text-warning',
   },
   error: {
     icon: AlertCircle,
-    bgClass: 'bg-destructive/10',
-    borderClass: 'border-destructive/30',
+    label: 'Error',
+    bgClass: 'bg-gradient-to-r from-destructive/15 to-destructive/5',
+    borderClass: 'border-destructive/40',
+    iconBgClass: 'bg-destructive/20',
     iconClass: 'text-destructive',
   },
 };
@@ -255,17 +265,32 @@ export function AgentActivity({ showDemoControls = false }: AgentActivityProps) 
             const config = typeConfig[thought.type];
             const Icon = config.icon;
             const isNew = index === thoughts.length - 1;
+
+            // Calculate risk color for visual indicator
+            const riskScore = thought.data?.riskScore as number | undefined;
+            const getRiskColor = (score: number) => {
+              if (score <= 30) return 'text-success';
+              if (score <= 60) return 'text-warning';
+              return 'text-destructive';
+            };
+
             return (
               <div
                 key={`${thought.timestamp}-${index}`}
-                className={`p-3 rounded-lg border ${config.bgClass} ${config.borderClass} ${isNew ? 'animate-in fade-in slide-in-from-bottom-2 duration-300' : ''}`}
+                className={`p-4 rounded-xl border ${config.bgClass} ${config.borderClass} transition-all duration-300 hover:scale-[1.01] ${isNew ? 'animate-in fade-in slide-in-from-bottom-3 duration-500 ring-2 ring-primary/20' : ''}`}
               >
-                <div className="flex items-start gap-3">
-                  <div className={`mt-0.5 ${config.iconClass}`}>
-                    <Icon className="w-4 h-4" />
+                <div className="flex items-start gap-4">
+                  {/* Larger icon with background */}
+                  <div className={`w-10 h-10 rounded-xl ${config.iconBgClass} flex items-center justify-center flex-shrink-0`}>
+                    <Icon className={`w-5 h-5 ${config.iconClass}`} />
                   </div>
+
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    {/* Header row */}
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <Badge variant="outline" className={`text-xs ${config.borderClass} ${config.iconClass} font-medium`}>
+                        {config.label}
+                      </Badge>
                       <span className="text-xs text-muted-foreground">{formatTime(thought.timestamp)}</span>
                       {thought.tokenId === 'market' && (
                         <Badge variant="outline" className="text-xs border-primary/30 bg-primary/10 text-primary">
@@ -273,52 +298,85 @@ export function AgentActivity({ showDemoControls = false }: AgentActivityProps) 
                         </Badge>
                       )}
                       {thought.tokenId === 'demo' && (
-                        <Badge variant="outline" className="text-xs border-accent/30 bg-accent/10 text-accent">
+                        <Badge variant="outline" className="text-xs border-accent/30 bg-accent/10 text-accent animate-pulse">
                           Demo
                         </Badge>
                       )}
                       {thought.tokenId !== 'system' && thought.tokenId !== 'market' && thought.tokenId !== 'demo' && (
-                        <Badge variant="secondary" className="text-xs">
-                          Invoice #{thought.tokenId.slice(0, 8)}
+                        <Badge variant="secondary" className="text-xs font-mono">
+                          #{thought.tokenId.slice(0, 8)}
                         </Badge>
                       )}
                       {Boolean(thought.data?.marketOverride) && (
-                        <Badge variant="destructive" className="text-xs animate-pulse">
-                          Override
+                        <Badge variant="destructive" className="text-xs animate-pulse font-medium">
+                          Emergency
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm text-foreground">{thought.message}</p>
+
+                    {/* Message */}
+                    <p className="text-sm text-foreground leading-relaxed">{thought.message}</p>
+
+                    {/* AI Scoring Breakdown - Enhanced visual display */}
                     {thought.data && thought.type === 'analysis' && (
-                      <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                        {thought.data.riskScore !== undefined && (
-                          <span>Risk: {String(thought.data.riskScore)}/100</span>
-                        )}
-                        {thought.data.paymentProbability !== undefined && (
-                          <span>Payment: {String(thought.data.paymentProbability)}%</span>
-                        )}
-                        {thought.data.confidence !== undefined && (
-                          <span>Confidence: {String(thought.data.confidence)}%</span>
-                        )}
-                        {thought.data.priceChange !== undefined && (
-                          <span className={Number(thought.data.priceChange) < 0 ? 'text-destructive' : 'text-success'}>
-                            ETH: {Number(thought.data.priceChange) > 0 ? '+' : ''}{Number(thought.data.priceChange).toFixed(1)}%
-                          </span>
-                        )}
+                      <div className="mt-3 p-3 rounded-lg bg-background/50 border border-glass-border">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {riskScore !== undefined && (
+                            <div className="text-center">
+                              <div className={`text-lg font-bold ${getRiskColor(riskScore)}`}>
+                                {riskScore}
+                              </div>
+                              <div className="text-xs text-muted-foreground">Risk Score</div>
+                            </div>
+                          )}
+                          {thought.data.paymentProbability !== undefined && (
+                            <div className="text-center">
+                              <div className="text-lg font-bold text-success">
+                                {String(thought.data.paymentProbability)}%
+                              </div>
+                              <div className="text-xs text-muted-foreground">Payment Prob</div>
+                            </div>
+                          )}
+                          {thought.data.confidence !== undefined && (
+                            <div className="text-center">
+                              <div className="text-lg font-bold text-primary">
+                                {String(thought.data.confidence)}%
+                              </div>
+                              <div className="text-xs text-muted-foreground">Confidence</div>
+                            </div>
+                          )}
+                          {thought.data.priceChange !== undefined && (
+                            <div className="text-center">
+                              <div className={`text-lg font-bold ${Number(thought.data.priceChange) < 0 ? 'text-destructive' : 'text-success'}`}>
+                                {Number(thought.data.priceChange) > 0 ? '+' : ''}{Number(thought.data.priceChange).toFixed(1)}%
+                              </div>
+                              <div className="text-xs text-muted-foreground">ETH Price</div>
+                            </div>
+                          )}
+                        </div>
                         {Boolean(thought.data.volatility) && (
-                          <span className={
-                            String(thought.data.volatility) === 'extreme' ? 'text-destructive' :
-                            String(thought.data.volatility) === 'high' ? 'text-warning' :
-                            String(thought.data.volatility) === 'medium' ? 'text-warning' : 'text-success'
-                          }>
-                            Volatility: {String(thought.data.volatility)}
-                          </span>
+                          <div className="mt-2 pt-2 border-t border-glass-border flex items-center justify-center gap-2">
+                            <span className="text-xs text-muted-foreground">Market Volatility:</span>
+                            <Badge
+                              variant="outline"
+                              className={`text-xs ${
+                                String(thought.data.volatility) === 'extreme' ? 'border-destructive text-destructive animate-pulse' :
+                                String(thought.data.volatility) === 'high' ? 'border-warning text-warning' :
+                                String(thought.data.volatility) === 'medium' ? 'border-warning/70 text-warning' : 'border-success text-success'
+                              }`}
+                            >
+                              {String(thought.data.volatility).toUpperCase()}
+                            </Badge>
+                          </div>
                         )}
                       </div>
                     )}
+
+                    {/* Mantle cost benefit */}
                     {Boolean(thought.data?.txCostUsd) && (
-                      <div className="mt-2 text-xs text-success">
-                        Mantle tx cost: {String(thought.data?.txCostUsd)}
+                      <div className="mt-2 inline-flex items-center gap-2 text-xs bg-success/10 text-success px-2 py-1 rounded-md">
+                        <Zap className="w-3 h-3" />
+                        Mantle tx: {String(thought.data?.txCostUsd)} (99% cheaper than L1)
                       </div>
                     )}
                   </div>

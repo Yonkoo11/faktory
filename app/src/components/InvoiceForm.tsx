@@ -1,28 +1,59 @@
 'use client';
 
-import { useState } from 'react';
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useState, useEffect, useCallback } from 'react';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
 import { parseEther, keccak256, encodePacked, toHex } from 'viem';
-import { CONTRACTS } from '@/lib/wagmi';
+import { getContractAddresses, areContractsDeployed } from '@/lib/wagmi';
 import { InvoiceNFTABI } from '@/lib/abi';
+
+const INITIAL_FORM_STATE = {
+  clientName: '',
+  amount: '',
+  dueDate: '',
+  description: '',
+};
 
 export function InvoiceForm() {
   const { isConnected } = useAccount();
-  const [formData, setFormData] = useState({
-    clientName: '',
-    amount: '',
-    dueDate: '',
-    description: '',
-  });
+  const chainId = useChainId();
+  const contracts = getContractAddresses(chainId);
+  const contractsDeployed = areContractsDeployed(chainId);
 
-  const { writeContract, data: hash, isPending, error } = useWriteContract();
+  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const { writeContract, data: hash, isPending, error, reset: resetWrite } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
+
+  // Auto-clear form after successful mint
+  const handleSuccessfulMint = useCallback(() => {
+    setShowSuccess(true);
+    setFormData(INITIAL_FORM_STATE);
+    // Hide success message after 5 seconds
+    const timer = setTimeout(() => {
+      setShowSuccess(false);
+      resetWrite();
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [resetWrite]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      handleSuccessfulMint();
+    }
+  }, [isSuccess, handleSuccessfulMint]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Generate salt for privacy
-    const salt = keccak256(toHex(crypto.randomUUID()));
+    if (!contractsDeployed) {
+      console.error('Contracts not deployed on this chain');
+      return;
+    }
+
+    // Generate salt for privacy using cryptographically secure random bytes
+    const randomBytes = crypto.getRandomValues(new Uint8Array(32));
+    const salt = keccak256(toHex(randomBytes));
 
     // Create data commitment (hash of invoice data)
     const invoiceData = JSON.stringify({
@@ -43,7 +74,7 @@ export function InvoiceForm() {
     const dueDate = BigInt(Math.floor(new Date(formData.dueDate).getTime() / 1000));
 
     writeContract({
-      address: CONTRACTS.invoiceNFT as `0x${string}`,
+      address: contracts.invoiceNFT,
       abi: InvoiceNFTABI,
       functionName: 'mint',
       args: [dataCommitment, amountCommitment, dueDate],
@@ -75,50 +106,57 @@ export function InvoiceForm() {
         <span>📄</span> Tokenize Invoice
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" aria-label="Tokenize invoice form">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Client Name</label>
+          <label htmlFor="clientName" className="block text-sm text-gray-400 mb-1">Client Name</label>
           <input
+            id="clientName"
             type="text"
             value={formData.clientName}
             onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             placeholder="Acme Corporation"
             required
+            aria-required="true"
           />
         </div>
 
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Amount (USD)</label>
+          <label htmlFor="amount" className="block text-sm text-gray-400 mb-1">Amount (USD)</label>
           <input
+            id="amount"
             type="number"
             value={formData.amount}
             onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             placeholder="10000"
             min="1"
             required
+            aria-required="true"
           />
         </div>
 
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Due Date</label>
+          <label htmlFor="dueDate" className="block text-sm text-gray-400 mb-1">Due Date</label>
           <input
+            id="dueDate"
             type="date"
             value={formData.dueDate}
             onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             min={new Date().toISOString().split('T')[0]}
             required
+            aria-required="true"
           />
         </div>
 
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Description</label>
+          <label htmlFor="description" className="block text-sm text-gray-400 mb-1">Description</label>
           <textarea
+            id="description"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 h-20 resize-none"
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 h-20 resize-none"
             placeholder="Web development services - Q4 2024"
           />
         </div>
@@ -135,19 +173,21 @@ export function InvoiceForm() {
         <button
           type="submit"
           disabled={isPending || isConfirming}
+          aria-busy={isPending || isConfirming}
+          aria-label={isPending ? 'Waiting for wallet confirmation' : isConfirming ? 'Minting invoice on blockchain' : 'Submit form to tokenize invoice'}
           className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:cursor-not-allowed py-3 rounded-lg font-medium transition-colors"
         >
           {isPending ? 'Confirm in Wallet...' : isConfirming ? 'Minting...' : 'Tokenize Invoice'}
         </button>
 
         {error && (
-          <div className="bg-red-900/20 border border-red-800 rounded-lg p-3 text-sm text-red-400">
+          <div className="bg-red-900/20 border border-red-800 rounded-lg p-3 text-sm text-red-400" role="alert">
             {error.message}
           </div>
         )}
 
-        {isSuccess && (
-          <div className="bg-green-900/20 border border-green-800 rounded-lg p-3 text-sm text-green-400">
+        {showSuccess && (
+          <div className="bg-green-900/20 border border-green-800 rounded-lg p-3 text-sm text-green-400" role="status" aria-live="polite">
             Invoice tokenized successfully! View it in your portfolio.
           </div>
         )}

@@ -1,21 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Faktory - AI-Powered Invoice Yield on Mantle",
-  description: "Autonomous privacy-preserving AI agent for tokenized invoice yield optimization. Turn invoices into yield.",
+  title: "Faktory Protocol - Turn Unpaid Invoices Into Yield",
+  description: "Tokenize business invoices as NFTs and generate yield through DeFi lending on Mantle Network",
+  icons: {
+    icon: [
+      {
+        url: "/icon-light-32x32.png",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/icon-dark-32x32.png",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -25,9 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white min-h-screen`}
-      >
+      <body className="font-sans antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>
