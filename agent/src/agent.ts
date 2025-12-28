@@ -15,6 +15,17 @@ export class FaktoryAgent {
   private isRunning = false;
   private analysisLoop: NodeJS.Timeout | null = null;
 
+  // Rate limiting: track last analysis time per invoice
+  private lastAnalysisTime: Map<string, number> = new Map();
+  private readonly ANALYSIS_COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+
+  // Circuit breaker for analysis cycles
+  private consecutiveFailures = 0;
+  private readonly MAX_CONSECUTIVE_FAILURES = 3;
+  private circuitBreakerOpen = false;
+  private circuitBreakerResetTime = 0;
+  private readonly CIRCUIT_BREAKER_TIMEOUT_MS = 60 * 1000; // 1 minute
+
   constructor(
     rpcUrl: string,
     addresses: ContractAddresses,
@@ -71,6 +82,9 @@ export class FaktoryAgent {
 
     this.isRunning = true;
 
+    // Set up contract event listeners
+    this.setupEventListeners();
+
     // Broadcast startup
     this.broadcastThought({
       type: 'thinking',
@@ -99,6 +113,63 @@ export class FaktoryAgent {
     console.log('🤖 Faktory Agent stopped');
   }
 
+  private setupEventListeners(): void {
+    // Listen for on-chain decision events
+    this.blockchain.onDecisionRecorded((tokenId, strategy, confidence) => {
+      console.log(`📡 Event: DecisionRecorded for #${tokenId}`);
+      this.broadcastThought({
+        type: 'execution',
+        tokenId,
+        message: `📡 On-chain: Decision recorded - ${STRATEGY_NAMES[strategy]} (${confidence}% confidence)`,
+        timestamp: Date.now(),
+        data: { strategy: STRATEGY_NAMES[strategy], confidence },
+      });
+    });
+
+    this.blockchain.onDecisionExecuted((tokenId, strategy) => {
+      console.log(`📡 Event: DecisionExecuted for #${tokenId}`);
+      this.broadcastThought({
+        type: 'execution',
+        tokenId,
+        message: `📡 On-chain: Strategy changed to ${STRATEGY_NAMES[strategy]}`,
+        timestamp: Date.now(),
+        data: { strategy: STRATEGY_NAMES[strategy] },
+      });
+    });
+
+    console.log('✅ Contract event listeners initialized');
+  }
+
+  private isRateLimited(tokenId: string): boolean {
+    const lastTime = this.lastAnalysisTime.get(tokenId);
+    if (!lastTime) return false;
+    return Date.now() - lastTime < this.ANALYSIS_COOLDOWN_MS;
+  }
+
+  private recordAnalysisTime(tokenId: string): void {
+    this.lastAnalysisTime.set(tokenId, Date.now());
+  }
+
+  private checkCircuitBreaker(): boolean {
+    if (!this.circuitBreakerOpen) return false;
+
+    // Check if we should reset the circuit breaker
+    if (Date.now() > this.circuitBreakerResetTime) {
+      this.circuitBreakerOpen = false;
+      this.consecutiveFailures = 0;
+      console.log('🔄 Circuit breaker reset');
+      return false;
+    }
+
+    return true;
+  }
+
+  private tripCircuitBreaker(): void {
+    this.circuitBreakerOpen = true;
+    this.circuitBreakerResetTime = Date.now() + this.CIRCUIT_BREAKER_TIMEOUT_MS;
+    console.warn(`⚠️ Circuit breaker tripped after ${this.consecutiveFailures} failures. Pausing for ${this.CIRCUIT_BREAKER_TIMEOUT_MS / 1000}s`);
+  }
+
   private startAnalysisLoop(): void {
     // Run initial analysis
     this.runAnalysisCycle();
@@ -113,6 +184,12 @@ export class FaktoryAgent {
   private currentMarketAlert: MarketAlert | null = null;
 
   private async runAnalysisCycle(): Promise<void> {
+    // Check circuit breaker
+    if (this.checkCircuitBreaker()) {
+      console.log('⏸️ Circuit breaker is open, skipping cycle');
+      return;
+    }
+
     try {
       // Step 1: Check market conditions FIRST (the killer demo moment)
       this.broadcastThought({
@@ -221,13 +298,32 @@ export class FaktoryAgent {
         timestamp: Date.now(),
         data: { txCostUsd: txCost.costUsd },
       });
+      // Reset failure count on success
+      this.consecutiveFailures = 0;
     } catch (error) {
       console.error('Error in analysis cycle:', error);
       this.ws.broadcastError('system', `Analysis cycle error: ${error}`);
+
+      // Track consecutive failures for circuit breaker
+      this.consecutiveFailures++;
+      if (this.consecutiveFailures >= this.MAX_CONSECUTIVE_FAILURES) {
+        this.tripCircuitBreaker();
+        this.broadcastThought({
+          type: 'error',
+          tokenId: 'system',
+          message: `⚠️ Too many failures (${this.consecutiveFailures}). Pausing analysis for 1 minute...`,
+          timestamp: Date.now(),
+        });
+      }
     }
   }
 
   async analyzeInvoice(tokenId: string): Promise<AnalysisResult | null> {
+    // Check rate limiting
+    if (this.isRateLimited(tokenId)) {
+      console.log(`⏳ Invoice #${tokenId} is rate-limited, skipping`);
+      return null;
+    }
     try {
       // Fetch invoice and deposit data
       const [invoice, deposit] = await Promise.all([
@@ -325,9 +421,23 @@ export class FaktoryAgent {
       });
 
       // Execute if conditions met
-      if (analysis.shouldAct && this.config.autoExecute && isDeposited) {
-        await this.executeDecision(tokenId, analysis);
+      if (analysis.shouldAct && this.config.autoExecute) {
+        if (isDeposited) {
+          await this.executeDecision(tokenId, analysis);
+        } else {
+          // Invoice not in YieldVault - provide guidance
+          this.broadcastThought({
+            type: 'thinking',
+            tokenId,
+            message: `💡 Invoice #${tokenId} not yet deposited. Deposit it to start earning with ${STRATEGY_NAMES[analysis.recommendedStrategy]} strategy.`,
+            timestamp: Date.now(),
+            data: { recommendedStrategy: STRATEGY_NAMES[analysis.recommendedStrategy], awaitingDeposit: true },
+          });
+        }
       }
+
+      // Record analysis time for rate limiting
+      this.recordAnalysisTime(tokenId);
 
       return analysis;
     } catch (error) {
