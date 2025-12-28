@@ -37,6 +37,9 @@ contract InvoiceAgentTest is Test {
         // Authorize agent
         agentRouter.authorizeAgent(agent);
 
+        // Disable rate limiting for tests
+        agentRouter.setDecisionCooldown(0);
+
         // Fund users
         vm.deal(user1, 10 ether);
         vm.deal(user2, 10 ether);
@@ -315,5 +318,217 @@ contract InvoiceAgentTest is Test {
 
         console.log("Full flow completed successfully!");
         console.log("Accrued yield:", yield);
+    }
+
+    // ============ Security Tests ============
+
+    function test_RevertOnZeroAddress() public {
+        // Test InvoiceNFT zero-address checks
+        vm.expectRevert("Invalid address: zero");
+        invoiceNFT.setYieldVault(address(0));
+
+        vm.expectRevert("Invalid address: zero");
+        invoiceNFT.setAgentRouter(address(0));
+
+        vm.expectRevert("Invalid address: zero");
+        invoiceNFT.setOracle(address(0));
+
+        // Test YieldVault zero-address check
+        vm.expectRevert("Invalid address: zero");
+        yieldVault.setAgentRouter(address(0));
+    }
+
+    function test_RevertUnauthorizedAgent() public {
+        address unauthorizedAgent = address(0x999);
+
+        vm.startPrank(user1);
+        bytes32 dataCommitment = keccak256("test");
+        uint256 tokenId = invoiceNFT.mint(dataCommitment, dataCommitment, block.timestamp + 60 days);
+        invoiceNFT.approve(address(yieldVault), tokenId);
+        yieldVault.deposit(tokenId, YieldVault.Strategy.Hold, 10000 ether);
+        vm.stopPrank();
+
+        // Unauthorized agent tries to record decision
+        vm.startPrank(unauthorizedAgent);
+        vm.expectRevert("Not authorized agent");
+        agentRouter.recordDecision(tokenId, YieldVault.Strategy.Aggressive, 80, "Trying to hack");
+        vm.stopPrank();
+    }
+
+    function test_RevertNotDepositOwner() public {
+        // User1 mints and deposits
+        vm.startPrank(user1);
+        bytes32 dataCommitment = keccak256("test");
+        uint256 tokenId = invoiceNFT.mint(dataCommitment, dataCommitment, block.timestamp + 60 days);
+        invoiceNFT.approve(address(yieldVault), tokenId);
+        yieldVault.deposit(tokenId, YieldVault.Strategy.Hold, 10000 ether);
+        vm.stopPrank();
+
+        // User2 tries to withdraw
+        vm.startPrank(user2);
+        vm.expectRevert("Not deposit owner");
+        yieldVault.withdraw(tokenId);
+        vm.stopPrank();
+    }
+
+    function test_RevertMintPastDueDate() public {
+        vm.startPrank(user1);
+        bytes32 dataCommitment = keccak256("test");
+
+        // Try to mint with past due date
+        vm.expectRevert("Due date must be in future");
+        invoiceNFT.mint(dataCommitment, dataCommitment, block.timestamp - 1);
+        vm.stopPrank();
+    }
+
+    function test_RevertInvalidCommitment() public {
+        vm.startPrank(user1);
+
+        // Try to mint with zero commitment
+        vm.expectRevert("Invalid data commitment");
+        invoiceNFT.mint(bytes32(0), keccak256("amount"), block.timestamp + 60 days);
+        vm.stopPrank();
+    }
+
+    function test_RevertDoubleDeposit() public {
+        vm.startPrank(user1);
+        bytes32 dataCommitment = keccak256("test");
+        uint256 tokenId = invoiceNFT.mint(dataCommitment, dataCommitment, block.timestamp + 60 days);
+        invoiceNFT.approve(address(yieldVault), tokenId);
+        yieldVault.deposit(tokenId, YieldVault.Strategy.Hold, 10000 ether);
+
+        // Try to deposit again (should fail because token is now owned by vault)
+        vm.expectRevert();
+        yieldVault.deposit(tokenId, YieldVault.Strategy.Aggressive, 5000 ether);
+        vm.stopPrank();
+    }
+
+    // ============ Edge Case Tests ============
+
+    function test_OverdueInvoice() public {
+        vm.startPrank(user1);
+        bytes32 dataCommitment = keccak256("test");
+        uint256 tokenId = invoiceNFT.mint(dataCommitment, dataCommitment, block.timestamp + 1 days);
+        vm.stopPrank();
+
+        // Fast forward past due date
+        vm.warp(block.timestamp + 5 days);
+
+        // Check days until due is negative
+        int256 daysUntilDue = invoiceNFT.getDaysUntilDue(tokenId);
+        assertLt(daysUntilDue, 0);
+    }
+
+    function test_MultipleDepositsFromSameUser() public {
+        vm.startPrank(user1);
+
+        // Mint and deposit multiple invoices
+        for (uint256 i = 0; i < 3; i++) {
+            bytes32 dataCommitment = keccak256(abi.encodePacked("invoice", i));
+            uint256 tokenId = invoiceNFT.mint(dataCommitment, dataCommitment, block.timestamp + 60 days);
+            invoiceNFT.approve(address(yieldVault), tokenId);
+            yieldVault.deposit(tokenId, YieldVault.Strategy.Conservative, 10000 ether);
+        }
+
+        // Verify all deposits
+        assertEq(invoiceNFT.totalInvoices(), 3);
+        assertEq(yieldVault.totalValueLocked(), 30000 ether);
+
+        vm.stopPrank();
+    }
+
+    function test_YieldAccumulationOverTime() public {
+        uint256 startTime = block.timestamp;
+
+        vm.startPrank(user1);
+        bytes32 dataCommitment = keccak256("test");
+        uint256 tokenId = invoiceNFT.mint(dataCommitment, dataCommitment, startTime + 365 days);
+        invoiceNFT.approve(address(yieldVault), tokenId);
+        yieldVault.deposit(tokenId, YieldVault.Strategy.Aggressive, 10000 ether);
+        vm.stopPrank();
+
+        // Check yield at different time points
+        uint256 yield1 = yieldVault.getAccruedYield(tokenId);
+        assertEq(yield1, 0); // No time passed
+
+        vm.warp(startTime + 30 days);
+        uint256 yield30 = yieldVault.getAccruedYield(tokenId);
+
+        vm.warp(startTime + 60 days); // Now 60 days total from start
+        uint256 yield60 = yieldVault.getAccruedYield(tokenId);
+
+        assertGt(yield60, yield30);
+        console.log("Yield at 30 days:", yield30);
+        console.log("Yield at 60 days:", yield60);
+    }
+
+    // ============ Fuzz Tests ============
+
+    function testFuzz_MintWithValidDueDate(uint256 daysFromNow) public {
+        vm.assume(daysFromNow > 0 && daysFromNow < 365 * 10); // Up to 10 years
+
+        vm.startPrank(user1);
+        bytes32 dataCommitment = keccak256(abi.encodePacked("fuzz", daysFromNow));
+        uint256 dueDate = block.timestamp + (daysFromNow * 1 days);
+
+        uint256 tokenId = invoiceNFT.mint(dataCommitment, dataCommitment, dueDate);
+
+        assertEq(invoiceNFT.ownerOf(tokenId), user1);
+        vm.stopPrank();
+    }
+
+    function testFuzz_RiskScoreValidation(uint8 riskScore, uint8 paymentProb) public {
+        vm.startPrank(user1);
+        bytes32 dataCommitment = keccak256("test");
+        uint256 tokenId = invoiceNFT.mint(dataCommitment, dataCommitment, block.timestamp + 60 days);
+        vm.stopPrank();
+
+        if (riskScore > 100 || paymentProb > 100) {
+            // Should revert for invalid values
+            if (riskScore > 100) {
+                vm.expectRevert("Risk score > 100");
+            } else {
+                vm.expectRevert("Payment prob > 100");
+            }
+            mockOracle.setRiskData(tokenId, riskScore, paymentProb);
+        } else {
+            // Should succeed for valid values
+            mockOracle.setRiskData(tokenId, riskScore, paymentProb);
+            assertEq(mockOracle.getRiskScore(tokenId), riskScore);
+            assertEq(mockOracle.getPaymentProbability(tokenId), paymentProb);
+        }
+    }
+
+    function testFuzz_DepositPrincipal(uint256 principal) public {
+        vm.assume(principal > 0 && principal < type(uint128).max);
+
+        vm.startPrank(user1);
+        bytes32 dataCommitment = keccak256(abi.encodePacked("fuzz", principal));
+        uint256 tokenId = invoiceNFT.mint(dataCommitment, dataCommitment, block.timestamp + 60 days);
+        invoiceNFT.approve(address(yieldVault), tokenId);
+        yieldVault.deposit(tokenId, YieldVault.Strategy.Conservative, principal);
+
+        YieldVault.Deposit memory deposit = yieldVault.getDeposit(tokenId);
+        assertEq(deposit.principal, principal);
+        vm.stopPrank();
+    }
+
+    // ============ Gas Optimization Tests ============
+
+    function test_GasOptimization_BatchMint() public {
+        vm.startPrank(user1);
+
+        uint256 gasStart = gasleft();
+
+        for (uint256 i = 0; i < 10; i++) {
+            bytes32 dataCommitment = keccak256(abi.encodePacked("batch", i));
+            invoiceNFT.mint(dataCommitment, dataCommitment, block.timestamp + 60 days);
+        }
+
+        uint256 gasUsed = gasStart - gasleft();
+        console.log("Gas used for 10 mints:", gasUsed);
+        console.log("Average gas per mint:", gasUsed / 10);
+
+        vm.stopPrank();
     }
 }

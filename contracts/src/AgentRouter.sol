@@ -2,13 +2,14 @@
 pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "./InvoiceNFT.sol";
 import "./YieldVault.sol";
 
 /// @title FaktoryAgent - Executes AI agent decisions on-chain
 /// @notice Routes agent actions to appropriate contracts
 /// @dev Part of Faktory Protocol - Agent service calls this contract to execute yield strategies
-contract AgentRouter is Ownable {
+contract AgentRouter is Ownable, Pausable {
 
     // ============ Structs ============
 
@@ -45,6 +46,9 @@ contract AgentRouter is Ownable {
 
     // Last analysis timestamp per invoice
     mapping(uint256 => uint256) public lastAnalysis;
+
+    // Rate limiting: minimum seconds between decisions for same invoice
+    uint256 public decisionCooldown = 5 minutes;
 
     // ============ Events ============
 
@@ -128,6 +132,20 @@ contract AgentRouter is Ownable {
         config.active = active;
     }
 
+    function setDecisionCooldown(uint256 cooldownSeconds) external onlyOwner {
+        decisionCooldown = cooldownSeconds;
+    }
+
+    /// @notice Pause the agent router - blocks all decision recording and execution
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /// @notice Unpause the agent router
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
     // ============ Agent Functions ============
 
     /// @notice Record an agent decision
@@ -140,9 +158,13 @@ contract AgentRouter is Ownable {
         YieldVault.Strategy strategy,
         uint256 confidence,
         string calldata reasoning
-    ) external onlyAuthorizedAgent returns (uint256 decisionIndex) {
+    ) external onlyAuthorizedAgent whenNotPaused returns (uint256 decisionIndex) {
         require(config.active, "Agent not active");
         require(confidence <= 100, "Invalid confidence");
+        require(
+            block.timestamp >= lastAnalysis[tokenId] + decisionCooldown,
+            "Decision cooldown not elapsed"
+        );
 
         AgentDecision memory decision = AgentDecision({
             tokenId: tokenId,
@@ -171,7 +193,7 @@ contract AgentRouter is Ownable {
     /// @notice Execute a recorded decision
     /// @param tokenId The invoice token ID
     /// @param decisionIndex Index in decision history
-    function executeDecision(uint256 tokenId, uint256 decisionIndex) external {
+    function executeDecision(uint256 tokenId, uint256 decisionIndex) external whenNotPaused {
         require(config.active, "Agent not active");
         _executeDecision(tokenId, decisionIndex);
     }
@@ -182,7 +204,7 @@ contract AgentRouter is Ownable {
         YieldVault.Strategy[] calldata strategies,
         uint256[] calldata confidences,
         string[] calldata reasonings
-    ) external onlyAuthorizedAgent {
+    ) external onlyAuthorizedAgent whenNotPaused {
         require(config.active, "Agent not active");
         require(
             tokenIds.length == strategies.length &&

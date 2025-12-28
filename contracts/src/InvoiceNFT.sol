@@ -94,14 +94,17 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
     // ============ Admin Functions ============
 
     function setYieldVault(address _yieldVault) external onlyOwner {
+        require(_yieldVault != address(0), "Invalid address: zero");
         yieldVault = _yieldVault;
     }
 
     function setAgentRouter(address _agentRouter) external onlyOwner {
+        require(_agentRouter != address(0), "Invalid address: zero");
         agentRouter = _agentRouter;
     }
 
     function setOracle(address _oracle) external onlyOwner {
+        require(_oracle != address(0), "Invalid address: zero");
         oracle = _oracle;
     }
 
@@ -206,6 +209,38 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
 
     function isActive(uint256 tokenId) external view returns (bool) {
         return invoices[tokenId].status == InvoiceStatus.Active;
+    }
+
+    /// @notice Check if an invoice is overdue
+    /// @param tokenId The invoice token ID
+    /// @return bool True if invoice is past due date
+    function isOverdue(uint256 tokenId) external view returns (bool) {
+        Invoice storage invoice = invoices[tokenId];
+        return block.timestamp > invoice.dueDate &&
+               (invoice.status == InvoiceStatus.Active || invoice.status == InvoiceStatus.InYield);
+    }
+
+    /// @notice Mark an overdue invoice as defaulted (callable by anyone after grace period)
+    /// @param tokenId The invoice token ID
+    /// @param gracePeriodDays Days after due date before marking as defaulted
+    function markDefaulted(uint256 tokenId, uint256 gracePeriodDays) external {
+        Invoice storage invoice = invoices[tokenId];
+
+        require(
+            invoice.status == InvoiceStatus.Active || invoice.status == InvoiceStatus.InYield,
+            "Invoice not active"
+        );
+
+        uint256 gracePeriod = gracePeriodDays * 1 days;
+        require(
+            block.timestamp > invoice.dueDate + gracePeriod,
+            "Grace period not expired"
+        );
+
+        InvoiceStatus oldStatus = invoice.status;
+        invoice.status = InvoiceStatus.Defaulted;
+
+        emit InvoiceStatusUpdated(tokenId, oldStatus, InvoiceStatus.Defaulted);
     }
 
     function totalInvoices() external view returns (uint256) {
