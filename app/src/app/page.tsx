@@ -4,10 +4,11 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Shield, Zap, Lock, TrendingUp, Wallet } from "lucide-react"
+import { ArrowRight, Shield, Zap, Lock, TrendingUp, Wallet, Radio } from "lucide-react"
 import Link from "next/link"
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { injected } from 'wagmi/connectors'
+import { useLendleMarkets } from '@/hooks/use-lendle'
 
 // Animated counter that counts up from 0 to target value
 function AnimatedCounter({
@@ -78,6 +79,7 @@ export default function LandingPage() {
   const { address, isConnected } = useAccount()
   const { connect, isPending } = useConnect()
   const { disconnect } = useDisconnect()
+  const lendleMarkets = useLendleMarkets()
 
   useEffect(() => {
     setMounted(true)
@@ -244,6 +246,47 @@ export default function LandingPage() {
               <span>Secured by Pyth</span>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Live Lendle Rates */}
+      <section className="py-12 px-4 border-y border-glass-border bg-gradient-to-r from-primary/5 via-transparent to-accent/5">
+        <div className="container mx-auto max-w-4xl">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Radio className="w-4 h-4 text-success animate-pulse" />
+            <h3 className="text-lg font-semibold">Live Lendle Rates on Mantle</h3>
+            {lendleMarkets.hasLiveData && (
+              <Badge variant="outline" className="border-success/30 bg-success/10 text-success text-xs">
+                Live
+              </Badge>
+            )}
+          </div>
+          <div className="grid grid-cols-3 gap-6">
+            <Card className="glass border-glass-border p-4 text-center">
+              <div className="text-xs text-muted-foreground uppercase mb-1">USDC</div>
+              <div className="text-2xl font-bold text-success">
+                {lendleMarkets.isLoading ? '...' : lendleMarkets.USDC.supplyAPY ? `${lendleMarkets.USDC.supplyAPY}%` : 'N/A'}
+              </div>
+              <div className="text-xs text-muted-foreground">Supply APY</div>
+            </Card>
+            <Card className="glass border-glass-border p-4 text-center">
+              <div className="text-xs text-muted-foreground uppercase mb-1">USDT</div>
+              <div className="text-2xl font-bold text-success">
+                {lendleMarkets.isLoading ? '...' : lendleMarkets.USDT.supplyAPY ? `${lendleMarkets.USDT.supplyAPY}%` : 'N/A'}
+              </div>
+              <div className="text-xs text-muted-foreground">Supply APY</div>
+            </Card>
+            <Card className="glass border-glass-border p-4 text-center">
+              <div className="text-xs text-muted-foreground uppercase mb-1">WETH</div>
+              <div className="text-2xl font-bold text-success">
+                {lendleMarkets.isLoading ? '...' : lendleMarkets.WETH.supplyAPY ? `${lendleMarkets.WETH.supplyAPY}%` : 'N/A'}
+              </div>
+              <div className="text-xs text-muted-foreground">Supply APY</div>
+            </Card>
+          </div>
+          <p className="text-center text-xs text-muted-foreground mt-4">
+            Real-time data from Lendle Protocol on Mantle Mainnet
+          </p>
         </div>
       </section>
 
