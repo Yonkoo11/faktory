@@ -3,13 +3,14 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "./InvoiceNFT.sol";
 
 /// @title FaktoryVault - Manages yield strategies for tokenized invoices
 /// @notice Holds invoice NFTs and simulates yield accrual based on strategies
 /// @dev Part of Faktory Protocol - In production, integrates with Lendle on Mantle
-contract YieldVault is Ownable, ReentrancyGuard, IERC721Receiver {
+contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
 
     // ============ Enums ============
 
@@ -36,9 +37,11 @@ contract YieldVault is Ownable, ReentrancyGuard, IERC721Receiver {
 
     InvoiceNFT public invoiceNFT;
     address public agentRouter;
+    address public yieldSource; // Optional: LendleYieldSource for real yields
 
     mapping(uint256 => Deposit) public deposits;
     uint256[] public activeDeposits;
+    mapping(uint256 => uint256) private activeDepositIndex; // tokenId => index+1 (0 means not in array)
 
     // APY rates in basis points (100 = 1%)
     uint256 public constant HOLD_APY = 0;
@@ -83,6 +86,19 @@ contract YieldVault is Ownable, ReentrancyGuard, IERC721Receiver {
         bytes data
     );
 
+    event EmergencyWithdraw(
+        uint256 indexed tokenId,
+        address indexed owner,
+        address indexed rescuer
+    );
+
+    event DefaultHandled(
+        uint256 indexed tokenId,
+        address indexed owner,
+        uint256 principal,
+        uint256 yieldForfeited
+    );
+
     // ============ Modifiers ============
 
     modifier onlyAgentRouter() {
@@ -98,13 +114,87 @@ contract YieldVault is Ownable, ReentrancyGuard, IERC721Receiver {
     // ============ Constructor ============
 
     constructor(address _invoiceNFT) Ownable(msg.sender) {
+        require(_invoiceNFT != address(0), "Invalid address: zero");
         invoiceNFT = InvoiceNFT(_invoiceNFT);
     }
 
     // ============ Admin Functions ============
 
     function setAgentRouter(address _agentRouter) external onlyOwner {
+        require(_agentRouter != address(0), "Invalid address: zero");
         agentRouter = _agentRouter;
+    }
+
+    /// @notice Set yield source for real DeFi yields (optional)
+    /// @param _yieldSource LendleYieldSource contract address (0x0 for simulated yields)
+    function setYieldSource(address _yieldSource) external onlyOwner {
+        yieldSource = _yieldSource;
+    }
+
+    /// @notice Pause the vault - blocks deposits and strategy changes
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /// @notice Unpause the vault
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    /// @notice Emergency withdraw for owner to rescue stuck NFTs
+    /// @param tokenId The invoice NFT to rescue
+    function emergencyWithdraw(uint256 tokenId) external onlyOwner {
+        Deposit storage dep = deposits[tokenId];
+        require(dep.active, "Not active");
+
+        address originalOwner = dep.owner;
+        uint256 principal = dep.principal;
+
+        // Mark as inactive
+        dep.active = false;
+        totalValueLocked -= principal;
+
+        // Remove from active deposits
+        _removeFromActiveDeposits(tokenId);
+
+        // Update invoice status
+        invoiceNFT.updateStatus(tokenId, InvoiceNFT.InvoiceStatus.Active);
+
+        // Transfer NFT back to original owner
+        invoiceNFT.transferFrom(address(this), originalOwner, tokenId);
+
+        emit EmergencyWithdraw(tokenId, originalOwner, msg.sender);
+    }
+
+    /// @notice Handle defaulted invoice - force withdrawal with forfeited yield
+    /// @param tokenId The invoice NFT that defaulted
+    function handleDefault(uint256 tokenId) external nonReentrant {
+        Deposit storage dep = deposits[tokenId];
+        require(dep.active, "Not active");
+
+        // Verify invoice is actually defaulted
+        InvoiceNFT.Invoice memory invoice = invoiceNFT.getInvoice(tokenId);
+        require(
+            invoice.status == InvoiceNFT.InvoiceStatus.Defaulted,
+            "Invoice not defaulted"
+        );
+
+        address originalOwner = dep.owner;
+        uint256 principal = dep.principal;
+        uint256 forfeitedYield = dep.accruedYield;
+
+        // Mark as inactive - yield is forfeited
+        dep.active = false;
+        dep.accruedYield = 0;
+        totalValueLocked -= principal;
+
+        // Remove from active deposits
+        _removeFromActiveDeposits(tokenId);
+
+        // Transfer NFT back to original owner (they keep the NFT but lose yield)
+        invoiceNFT.transferFrom(address(this), originalOwner, tokenId);
+
+        emit DefaultHandled(tokenId, originalOwner, principal, forfeitedYield);
     }
 
     // ============ Core Functions ============
@@ -117,7 +207,7 @@ contract YieldVault is Ownable, ReentrancyGuard, IERC721Receiver {
         uint256 tokenId,
         Strategy strategy,
         uint256 simulatedPrincipal
-    ) external nonReentrant {
+    ) external nonReentrant whenNotPaused {
         require(invoiceNFT.ownerOf(tokenId) == msg.sender, "Not NFT owner");
         require(!deposits[tokenId].active, "Already deposited");
         require(simulatedPrincipal > 0, "Invalid principal");
@@ -141,6 +231,7 @@ contract YieldVault is Ownable, ReentrancyGuard, IERC721Receiver {
         });
 
         activeDeposits.push(tokenId);
+        activeDepositIndex[tokenId] = activeDeposits.length; // Store index+1
         totalValueLocked += simulatedPrincipal;
 
         emit Deposited(tokenId, msg.sender, strategy, simulatedPrincipal);
@@ -175,7 +266,7 @@ contract YieldVault is Ownable, ReentrancyGuard, IERC721Receiver {
     }
 
     /// @notice Change yield strategy for a deposit (by owner or agent)
-    function changeStrategy(uint256 tokenId, Strategy newStrategy) external {
+    function changeStrategy(uint256 tokenId, Strategy newStrategy) external whenNotPaused {
         Deposit storage dep = deposits[tokenId];
         require(dep.active, "Not active");
         require(
@@ -197,7 +288,7 @@ contract YieldVault is Ownable, ReentrancyGuard, IERC721Receiver {
         uint256 tokenId,
         Strategy strategy,
         string calldata actionDescription
-    ) external onlyAgentRouter {
+    ) external onlyAgentRouter whenNotPaused {
         Deposit storage dep = deposits[tokenId];
         require(dep.active, "Not active");
 
@@ -246,13 +337,20 @@ contract YieldVault is Ownable, ReentrancyGuard, IERC721Receiver {
     }
 
     function _removeFromActiveDeposits(uint256 tokenId) internal {
-        for (uint256 i = 0; i < activeDeposits.length; i++) {
-            if (activeDeposits[i] == tokenId) {
-                activeDeposits[i] = activeDeposits[activeDeposits.length - 1];
-                activeDeposits.pop();
-                break;
-            }
+        uint256 indexPlusOne = activeDepositIndex[tokenId];
+        if (indexPlusOne == 0) return; // Not in array
+
+        uint256 index = indexPlusOne - 1;
+        uint256 lastIndex = activeDeposits.length - 1;
+
+        if (index != lastIndex) {
+            uint256 lastTokenId = activeDeposits[lastIndex];
+            activeDeposits[index] = lastTokenId;
+            activeDepositIndex[lastTokenId] = indexPlusOne; // Update index of moved element
         }
+
+        activeDeposits.pop();
+        delete activeDepositIndex[tokenId];
     }
 
     // ============ View Functions ============
