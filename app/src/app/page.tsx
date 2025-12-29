@@ -10,6 +10,7 @@ import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { useLendleMarkets } from '@/hooks/use-lendle'
 import { useProtocolStats } from '@/hooks/use-protocol-stats'
+import { CostCalculator } from '@/components/cost-calculator'
 
 // Animated counter that counts up from 0 to target value
 function AnimatedCounter({
@@ -430,6 +431,11 @@ export default function LandingPage() {
           <p className="text-center text-xs text-muted-foreground mt-6">
             Faktory: Privacy-first invoice yield on Mantle Network
           </p>
+
+          {/* Cost Calculator */}
+          <div className="mt-12">
+            <CostCalculator />
+          </div>
         </div>
       </section>
 
