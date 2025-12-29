@@ -9,6 +9,7 @@ import Link from "next/link"
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { useLendleMarkets } from '@/hooks/use-lendle'
+import { useProtocolStats } from '@/hooks/use-protocol-stats'
 
 // Animated counter that counts up from 0 to target value
 function AnimatedCounter({
@@ -80,6 +81,7 @@ export default function LandingPage() {
   const { connect, isPending } = useConnect()
   const { disconnect } = useDisconnect()
   const lendleMarkets = useLendleMarkets()
+  const protocolStats = useProtocolStats()
 
   useEffect(() => {
     setMounted(true)
@@ -213,22 +215,54 @@ export default function LandingPage() {
             style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
           >
             <div className="absolute top-2 right-2">
-              <span className="text-xs text-muted-foreground/60 bg-muted/50 px-2 py-0.5 rounded">Demo Data</span>
+              {protocolStats.hasData ? (
+                <Badge variant="outline" className="border-success/30 bg-success/10 text-success text-xs">
+                  <Radio className="w-3 h-3 mr-1 animate-pulse" />
+                  Live on Mantle
+                </Badge>
+              ) : (
+                <span className="text-xs text-muted-foreground/60 bg-muted/50 px-2 py-0.5 rounded">
+                  {protocolStats.isLoading ? 'Loading...' : 'Connecting...'}
+                </span>
+              )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center space-y-2">
                 <div className="text-sm text-muted-foreground uppercase tracking-wider">Total Value Locked</div>
-                <AnimatedCounter value={12400000} prefix="$" />
+                {protocolStats.isLoading ? (
+                  <span className="text-4xl md:text-5xl font-bold text-muted-foreground">...</span>
+                ) : (
+                  <span className="text-4xl md:text-5xl font-bold gradient-text">
+                    {protocolStats.tvlFormatted}
+                  </span>
+                )}
               </div>
               <div className="text-center space-y-2">
-                <div className="text-sm text-muted-foreground uppercase tracking-wider">Active Invoices</div>
-                <AnimatedCounter value={1247} />
+                <div className="text-sm text-muted-foreground uppercase tracking-wider">Invoices Minted</div>
+                {protocolStats.isLoading ? (
+                  <span className="text-4xl md:text-5xl font-bold text-muted-foreground">...</span>
+                ) : (
+                  <span className="text-4xl md:text-5xl font-bold gradient-text">
+                    {protocolStats.totalInvoices}
+                  </span>
+                )}
               </div>
               <div className="text-center space-y-2">
-                <div className="text-sm text-muted-foreground uppercase tracking-wider">Average APY</div>
-                <AnimatedCounter value={5.8} suffix="%" />
+                <div className="text-sm text-muted-foreground uppercase tracking-wider">Target APY</div>
+                {protocolStats.isLoading ? (
+                  <span className="text-4xl md:text-5xl font-bold text-muted-foreground">...</span>
+                ) : (
+                  <span className="text-4xl md:text-5xl font-bold gradient-text">
+                    3-7%
+                  </span>
+                )}
               </div>
             </div>
+            {protocolStats.hasData && protocolStats.tvl === 0 && (
+              <p className="text-center text-xs text-muted-foreground mt-4">
+                Be the first to deposit and earn yield on your invoices
+              </p>
+            )}
           </Card>
 
           {/* Trust Indicators */}
