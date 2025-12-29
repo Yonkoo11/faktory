@@ -80,7 +80,12 @@ export function InvoiceForm() {
       args: [dataCommitment, amountCommitment, dueDate],
     });
 
-    // Store salt locally (in production, would use secure storage)
+    // Store salt locally for demo purposes
+    // SECURITY NOTE: In production, use one of these alternatives:
+    // 1. Server-side encrypted storage with user authentication
+    // 2. Client-side encryption using Web Crypto API with wallet-derived key
+    // 3. Hardware wallet storage or secure enclave
+    // localStorage is used here for demo simplicity - data is accessible to page JS
     if (typeof window !== 'undefined') {
       const salts = JSON.parse(localStorage.getItem('invoiceSalts') || '{}');
       salts[dataCommitment] = {
@@ -89,6 +94,14 @@ export function InvoiceForm() {
         createdAt: Date.now(),
       };
       localStorage.setItem('invoiceSalts', JSON.stringify(salts));
+
+      // Warn in development about security limitation
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(
+          '[Faktory Security] Invoice salt stored in localStorage. ' +
+          'For production, implement encrypted storage or server-side solution.'
+        );
+      }
     }
   };
 

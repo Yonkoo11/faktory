@@ -2,10 +2,29 @@
 
 import { WebSocketServer, WebSocket } from 'ws';
 import { AgentThought, WebSocketMessage, AgentDecision } from './types.js';
+import { IncomingMessage } from 'http';
 
 // Heartbeat configuration
 const HEARTBEAT_INTERVAL_MS = 30000; // 30 seconds
 const CLIENT_TIMEOUT_MS = 60000; // 60 seconds without pong = dead
+
+// Authentication token (optional - if set, clients must provide it)
+const AUTH_TOKEN = process.env.WS_AUTH_TOKEN || null;
+
+// Validate client authentication
+function isAuthorized(req: IncomingMessage): boolean {
+  // If no auth token configured, allow all connections (development mode)
+  if (!AUTH_TOKEN) {
+    return true;
+  }
+
+  // Check for token in query string or header
+  const url = new URL(req.url || '', `http://${req.headers.host}`);
+  const queryToken = url.searchParams.get('token');
+  const headerToken = req.headers['x-auth-token'] as string | undefined;
+
+  return queryToken === AUTH_TOKEN || headerToken === AUTH_TOKEN;
+}
 
 interface ClientInfo {
   ws: WebSocket;
@@ -32,6 +51,14 @@ export class AgentWebSocket {
 
     this.wss.on('connection', (ws, req) => {
       const clientIp = req.socket.remoteAddress;
+
+      // Check authentication if enabled
+      if (!isAuthorized(req)) {
+        console.warn(`📡 Unauthorized connection attempt from ${clientIp}`);
+        ws.close(4001, 'Unauthorized');
+        return;
+      }
+
       console.log(`📡 Client connected from ${clientIp}`);
 
       // Register client with heartbeat info
@@ -75,8 +102,19 @@ export class AgentWebSocket {
         try {
           const message = JSON.parse(data.toString());
           this.handleClientMessage(ws, message);
-        } catch {
-          console.warn('Invalid message received:', data.toString());
+        } catch (error) {
+          // Log parse errors with details for debugging
+          console.error('Failed to parse WebSocket message:', error instanceof Error ? error.message : 'Unknown parse error');
+          console.warn('Raw message that failed to parse:', data.toString().slice(0, 100));
+          this.sendToClient(ws, {
+            type: 'error',
+            payload: {
+              type: 'error',
+              tokenId: 'system',
+              message: 'Invalid message format - could not parse JSON',
+              timestamp: Date.now(),
+            },
+          });
         }
       });
     });
@@ -169,7 +207,8 @@ export class AgentWebSocket {
     // Keep last 50 messages in queue for new connections
     this.messageQueue.push(message);
     if (this.messageQueue.length > 50) {
-      this.messageQueue.shift();
+      const dropped = this.messageQueue.shift();
+      console.log(`[WebSocket] Message queue full, dropped oldest message: ${dropped?.type || 'unknown'}`);
     }
   }
 

@@ -20,10 +20,26 @@ contract DeployProductionScript is Script {
     address constant LENDLE_LENDING_POOL = 0xCFa5aE7c2CE8Fadc6426C1ff872cA45378Fb7cF3;
     address constant LENDLE_DATA_PROVIDER = 0x552b9e4bae485C4B7F540777d7D25614CdB84773;
 
+    // Chain IDs
+    uint256 constant MANTLE_MAINNET_CHAIN_ID = 5000;
+    uint256 constant MANTLE_SEPOLIA_CHAIN_ID = 5003;
+
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(deployerPrivateKey);
         bool isMainnet = vm.envOr("MAINNET", false);
+
+        // Validate chain ID to prevent deploying to wrong network
+        uint256 expectedChainId = isMainnet ? MANTLE_MAINNET_CHAIN_ID : MANTLE_SEPOLIA_CHAIN_ID;
+        require(
+            block.chainid == expectedChainId,
+            string.concat(
+                "Wrong chain! Expected ",
+                isMainnet ? "Mantle Mainnet (5000)" : "Mantle Sepolia (5003)",
+                " but connected to chain ",
+                vm.toString(block.chainid)
+            )
+        );
 
         address pythAddress = isMainnet ? PYTH_MANTLE_MAINNET : PYTH_MANTLE_SEPOLIA;
 

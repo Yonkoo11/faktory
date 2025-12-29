@@ -263,10 +263,25 @@ export class FaktoryAgent {
       });
 
       // Get ALL active invoices (not just those in yield strategies)
-      const [activeInvoices, activeDeposits] = await Promise.all([
+      const [invoicesResult, depositsResult] = await Promise.all([
         this.blockchain.getActiveInvoices(),
         this.blockchain.getActiveDeposits(),
       ]);
+
+      // Check for contract errors (distinguish from empty results)
+      if (invoicesResult.error || depositsResult.error) {
+        const errors = [invoicesResult.error, depositsResult.error].filter(Boolean).join(', ');
+        this.broadcastThought({
+          type: 'error',
+          tokenId: 'system',
+          message: `⚠️ Contract call failed: ${errors}. Will retry next cycle.`,
+          timestamp: Date.now(),
+        });
+        return;
+      }
+
+      const activeInvoices = invoicesResult.ids;
+      const activeDeposits = depositsResult.ids;
 
       // Combine and deduplicate - prioritize all invoices
       const allTokenIds = [...new Set([...activeInvoices, ...activeDeposits])];
@@ -593,8 +608,7 @@ export class FaktoryAgent {
     await this.runAnalysisCycle();
   }
 
-  // Get blockchain service for external access (e.g., WebSocket commands)
-  getBlockchainService(): BlockchainService {
-    return this.blockchain;
-  }
+  // NOTE: Direct blockchain service access removed for security
+  // WebSocket commands should go through specific, validated methods on the agent
+  // If you need to add a new command, add a specific method here with proper validation
 }

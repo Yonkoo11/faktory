@@ -260,6 +260,11 @@ contract AgentRouter is Ownable, Pausable {
         string calldata reasoning
     ) internal returns (uint256 decisionIndex) {
         require(confidence <= 100, "Invalid confidence");
+        // Check cooldown to prevent spam (also catches duplicates in same batch since timestamp updates)
+        require(
+            block.timestamp >= lastAnalysis[tokenId] + decisionCooldown,
+            "Decision cooldown not elapsed"
+        );
 
         AgentDecision memory decision = AgentDecision({
             tokenId: tokenId,

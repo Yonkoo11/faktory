@@ -1,6 +1,8 @@
 // Contract addresses for Faktory Protocol
 // Update these after deploying to Mantle testnet
 
+import { isAddress } from 'viem'
+
 export const CHAIN_IDS = {
   MANTLE_TESTNET: 5003,
   MANTLE_MAINNET: 5000,
@@ -73,4 +75,36 @@ export function areContractsDeployed(chainId: number): boolean {
     addrs.yieldVault !== zeroAddress &&
     addrs.agentRouter !== zeroAddress
   )
+}
+
+// Validate that an address is a valid Ethereum address
+export function isValidContractAddress(address: string): boolean {
+  if (!address) return false
+  if (address === "0x0000000000000000000000000000000000000000") return false
+  return isAddress(address)
+}
+
+// Validate all contract addresses and log warnings
+export function validateContractAddresses(chainId: number): {
+  valid: boolean
+  errors: string[]
+} {
+  const addrs = getContractAddresses(chainId)
+  const errors: string[] = []
+
+  if (!isValidContractAddress(addrs.invoiceNFT)) {
+    errors.push(`InvoiceNFT address is invalid: ${addrs.invoiceNFT}`)
+  }
+  if (!isValidContractAddress(addrs.yieldVault)) {
+    errors.push(`YieldVault address is invalid: ${addrs.yieldVault}`)
+  }
+  if (!isValidContractAddress(addrs.agentRouter)) {
+    errors.push(`AgentRouter address is invalid: ${addrs.agentRouter}`)
+  }
+
+  if (errors.length > 0 && typeof window !== 'undefined') {
+    console.warn('[Faktory] Contract address validation errors:', errors)
+  }
+
+  return { valid: errors.length === 0, errors }
 }

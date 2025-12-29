@@ -141,12 +141,12 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
         emit InvoiceMinted(tokenId, msg.sender, dataCommitment, dueDate);
     }
 
-    /// @notice Update invoice status (by YieldVault or owner)
+    /// @notice Update invoice status (by YieldVault or token owner only)
+    /// @dev Removed contract owner from authorized callers for security
     function updateStatus(uint256 tokenId, InvoiceStatus newStatus) external {
         require(
             msg.sender == yieldVault ||
-            msg.sender == ownerOf(tokenId) ||
-            msg.sender == owner(),
+            msg.sender == ownerOf(tokenId),
             "Not authorized"
         );
 
@@ -155,6 +155,19 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
         invoice.status = newStatus;
 
         emit InvoiceStatusUpdated(tokenId, oldStatus, newStatus);
+    }
+
+    /// @notice Emergency status update (owner only, with restrictions)
+    /// @dev Can only set to Defaulted status for overdue invoices
+    function emergencyDefault(uint256 tokenId) external onlyOwner {
+        Invoice storage invoice = invoices[tokenId];
+        require(invoice.dueDate < block.timestamp, "Not overdue");
+        require(invoice.status != InvoiceStatus.Paid, "Already paid");
+
+        InvoiceStatus oldStatus = invoice.status;
+        invoice.status = InvoiceStatus.Defaulted;
+
+        emit InvoiceStatusUpdated(tokenId, oldStatus, InvoiceStatus.Defaulted);
     }
 
     /// @notice Update risk metrics (by oracle or agent)
@@ -247,6 +260,41 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
         return _nextTokenId;
     }
 
+    /// @notice Get active invoices with pagination to prevent DoS
+    /// @param offset Starting index
+    /// @param limit Maximum number of results (capped at 100)
+    /// @return activeIds Array of active invoice token IDs
+    /// @return total Total number of invoices (for pagination calculation)
+    function getActiveInvoicesPaginated(uint256 offset, uint256 limit) external view returns (uint256[] memory activeIds, uint256 total) {
+        total = _nextTokenId;
+        if (limit > 100) limit = 100; // Cap to prevent gas issues
+        if (offset >= total) return (new uint256[](0), total);
+
+        // Collect active invoices within range
+        uint256[] memory temp = new uint256[](limit);
+        uint256 count = 0;
+        uint256 skipped = 0;
+
+        for (uint256 i = 0; i < total && count < limit; i++) {
+            if (invoices[i].status == InvoiceStatus.Active ||
+                invoices[i].status == InvoiceStatus.InYield) {
+                if (skipped >= offset) {
+                    temp[count++] = i;
+                } else {
+                    skipped++;
+                }
+            }
+        }
+
+        // Trim array to actual size
+        activeIds = new uint256[](count);
+        for (uint256 i = 0; i < count; i++) {
+            activeIds[i] = temp[i];
+        }
+    }
+
+    /// @notice Get all active invoices (legacy - use paginated version for large datasets)
+    /// @dev Warning: May run out of gas with many invoices
     function getActiveInvoices() external view returns (uint256[] memory) {
         uint256 total = _nextTokenId;
         uint256 activeCount = 0;

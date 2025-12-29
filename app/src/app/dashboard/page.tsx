@@ -131,6 +131,7 @@ export default function DashboardPage() {
 
   // Use mock data if no real data available
   const displayInvoices = invoices.length > 0 ? invoices : mockInvoices
+  const isUsingMockData = invoices.length === 0 && displayInvoices.length > 0
 
   return (
     <div className="min-h-screen bg-background">
@@ -274,7 +275,12 @@ export default function DashboardPage() {
         </Card>
 
         {/* Invoice Table */}
-        <Card className="glass border-glass-border">
+        <Card className="glass border-glass-border relative">
+          {isUsingMockData && (
+            <div className="absolute top-4 right-4">
+              <span className="text-xs text-muted-foreground/60 bg-muted/50 px-2 py-0.5 rounded">Demo Data</span>
+            </div>
+          )}
           <div className="p-6 border-b border-glass-border">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>

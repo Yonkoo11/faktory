@@ -500,7 +500,8 @@ contract InvoiceAgentTest is Test {
     }
 
     function testFuzz_DepositPrincipal(uint256 principal) public {
-        vm.assume(principal > 0 && principal < type(uint128).max);
+        // Bound to valid range: 1 to MAX_PRINCIPAL
+        vm.assume(principal > 0 && principal <= yieldVault.MAX_PRINCIPAL());
 
         vm.startPrank(user1);
         bytes32 dataCommitment = keccak256(abi.encodePacked("fuzz", principal));

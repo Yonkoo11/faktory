@@ -52,20 +52,31 @@ contract LendleYieldSource is Ownable {
         uint256 principal;
         uint256 depositTime;
         address aToken;
+        address owner; // Who deposited - only they can withdraw
     }
+
+    // Authorized vault that can deposit/withdraw on behalf of users
+    address public authorizedVault;
 
     mapping(uint256 => YieldPosition) public positions;
 
     // RAY constant for Aave/Lendle math (27 decimals)
     uint256 constant RAY = 1e27;
 
-    event Deposited(uint256 indexed tokenId, address asset, uint256 amount, address aToken);
+    event Deposited(uint256 indexed tokenId, address asset, uint256 amount, address aToken, address owner);
     event Withdrawn(uint256 indexed tokenId, address asset, uint256 amount, uint256 yield);
     event AssetSupported(address asset, bool supported);
+    event AuthorizedVaultSet(address vault);
 
     constructor(address _lendingPool, address _dataProvider) Ownable(msg.sender) {
         lendingPool = _lendingPool;
         dataProvider = _dataProvider;
+    }
+
+    /// @notice Set the authorized vault that can deposit/withdraw
+    function setAuthorizedVault(address vault) external onlyOwner {
+        authorizedVault = vault;
+        emit AuthorizedVaultSet(vault);
     }
 
     /// @notice Add support for an asset
@@ -95,15 +106,16 @@ contract LendleYieldSource is Ownable {
         // Deposit to Lendle
         ILendingPool(lendingPool).deposit(asset, amount, address(this), 0);
 
-        // Record position
+        // Record position with owner
         positions[tokenId] = YieldPosition({
             asset: asset,
             principal: amount,
             depositTime: block.timestamp,
-            aToken: aToken
+            aToken: aToken,
+            owner: msg.sender
         });
 
-        emit Deposited(tokenId, asset, amount, aToken);
+        emit Deposited(tokenId, asset, amount, aToken, msg.sender);
     }
 
     /// @notice Withdraw assets and yield from Lendle
@@ -112,6 +124,12 @@ contract LendleYieldSource is Ownable {
     function withdraw(uint256 tokenId, address to) external returns (uint256 totalAmount, uint256 yieldAmount) {
         YieldPosition memory pos = positions[tokenId];
         require(pos.principal > 0, "No position");
+
+        // Only the position owner or authorized vault can withdraw
+        require(
+            msg.sender == pos.owner || msg.sender == authorizedVault || msg.sender == owner(),
+            "Not authorized to withdraw"
+        );
 
         // Get current aToken balance (includes accrued yield)
         uint256 aTokenBalance = IERC20(pos.aToken).balanceOf(address(this));
@@ -144,22 +162,30 @@ contract LendleYieldSource is Ownable {
     /// @param asset The asset address
     /// @return apy The current supply APY in basis points (100 = 1%)
     function getCurrentAPY(address asset) external view returns (uint256 apy) {
-        // Use low-level call to avoid stack too deep
+        // Use low-level call to avoid stack too deep with complex Aave v2 structs
         (bool success, bytes memory data) = lendingPool.staticcall(
             abi.encodeWithSignature("getReserveData(address)", asset)
         );
         require(success, "Failed to get reserve data");
 
-        // currentLiquidityRate is at offset 96 (after configuration, liquidityIndex, variableBorrowIndex)
-        // Each uint128 is 16 bytes, but ABI encoding uses 32 bytes per element
-        uint128 currentLiquidityRate;
+        // Aave v2 / Lendle ReserveData struct layout:
+        // [0-31]:   configuration (ReserveConfigurationMap)
+        // [32-63]:  liquidityIndex (uint128, packed)
+        // [64-95]:  variableBorrowIndex (uint128, packed)
+        // [96-127]: currentLiquidityRate (uint128)
+        // ABI encoding uses 32 bytes per slot + 32 byte length prefix
+        require(data.length >= 128, "Invalid reserve data length");
+
+        uint256 currentLiquidityRate;
+        // solhint-disable-next-line no-inline-assembly
         assembly {
-            // Skip first 32 bytes (length) + 96 bytes (3 x 32 for first 3 values)
+            // Load from: data pointer + 32 (length prefix) + 96 (4th slot)
             currentLiquidityRate := mload(add(data, 128))
         }
 
         // Convert from ray (27 decimals) to basis points (2 decimals)
-        apy = uint256(currentLiquidityRate) / 1e23;
+        // Safe: currentLiquidityRate is uint128, division cannot overflow
+        apy = currentLiquidityRate / 1e23;
     }
 
     /// @notice Get position details
