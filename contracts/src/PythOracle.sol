@@ -43,6 +43,10 @@ contract PythOracle is Ownable {
     uint256 public consecutiveFailures = 0;
     uint256 public constant MAX_FAILURES_BEFORE_FALLBACK = 3;
 
+    // Automatic fallback timeout (24 hours default)
+    uint256 public fallbackTimeout = 24 hours;
+    uint256 public fallbackActivatedAt = 0;
+
     event FallbackActivated(string reason);
     event FallbackDeactivated();
     event FallbackPricesUpdated(int64 ethPrice, int64 mntPrice);
@@ -60,7 +64,7 @@ contract PythOracle is Ownable {
     /// @notice Get the current ETH/USD price from Pyth with fallback
     /// @return price The price with 8 decimal places
     function getEthUsdPrice() public view returns (int64) {
-        if (useFallback) {
+        if (isFallbackActive()) {
             return fallbackEthPrice;
         }
         try pyth.getPriceNoOlderThan(ETH_USD_FEED, MAX_PRICE_AGE) returns (PythStructs.Price memory price) {
@@ -73,7 +77,7 @@ contract PythOracle is Ownable {
     /// @notice Get the current MNT/USD price from Pyth with fallback
     /// @return price The price with 8 decimal places
     function getMntUsdPrice() public view returns (int64) {
-        if (useFallback) {
+        if (isFallbackActive()) {
             return fallbackMntPrice;
         }
         try pyth.getPriceNoOlderThan(MNT_USD_FEED, MAX_PRICE_AGE) returns (PythStructs.Price memory price) {
@@ -86,6 +90,7 @@ contract PythOracle is Ownable {
     /// @notice Activate fallback mode (owner only)
     function activateFallback(string calldata reason) external onlyOwner {
         useFallback = true;
+        fallbackActivatedAt = block.timestamp;
         emit FallbackActivated(reason);
     }
 
@@ -93,7 +98,28 @@ contract PythOracle is Ownable {
     function deactivateFallback() external onlyOwner {
         useFallback = false;
         consecutiveFailures = 0;
+        fallbackActivatedAt = 0;
         emit FallbackDeactivated();
+    }
+
+    /// @notice Set fallback timeout duration (owner only)
+    function setFallbackTimeout(uint256 timeout) external onlyOwner {
+        require(timeout >= 1 hours, "Timeout too short");
+        fallbackTimeout = timeout;
+    }
+
+    /// @notice Check if fallback mode has timed out and should be auto-deactivated
+    function isFallbackTimedOut() public view returns (bool) {
+        if (!useFallback || fallbackActivatedAt == 0) return false;
+        return block.timestamp > fallbackActivatedAt + fallbackTimeout;
+    }
+
+    /// @notice Check if fallback is currently active (accounts for timeout)
+    function isFallbackActive() public view returns (bool) {
+        if (!useFallback) return false;
+        // Auto-deactivate if timed out
+        if (isFallbackTimedOut()) return false;
+        return true;
     }
 
     /// @notice Update fallback prices (owner only)

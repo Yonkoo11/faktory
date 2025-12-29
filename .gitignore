@@ -39,3 +39,6 @@ coverage/
 
 # Misc
 *.tsbuildinfo
+
+# Internal planning docs
+.planning/

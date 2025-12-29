@@ -183,13 +183,15 @@ export class BlockchainService {
     return this.lendleYieldSource !== null;
   }
 
-  async getActiveInvoices(): Promise<string[]> {
+  async getActiveInvoices(): Promise<{ ids: string[]; error?: string }> {
     try {
       const ids: bigint[] = await this.invoiceNFT.getActiveInvoices();
-      return ids.map((id) => id.toString());
+      return { ids: ids.map((id) => id.toString()) };
     } catch (error) {
-      console.error('Error fetching active invoices:', error);
-      return [];
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Error fetching active invoices:', errorMsg);
+      // Return error info so callers can distinguish between "no invoices" and "call failed"
+      return { ids: [], error: errorMsg };
     }
   }
 
@@ -236,13 +238,15 @@ export class BlockchainService {
     }
   }
 
-  async getActiveDeposits(): Promise<string[]> {
+  async getActiveDeposits(): Promise<{ ids: string[]; error?: string }> {
     try {
       const ids: bigint[] = await this.yieldVault.getActiveDeposits();
-      return ids.map((id) => id.toString());
+      return { ids: ids.map((id) => id.toString()) };
     } catch (error) {
-      console.error('Error fetching active deposits:', error);
-      return [];
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Error fetching active deposits:', errorMsg);
+      // Return error info so callers can distinguish between "no deposits" and "call failed"
+      return { ids: [], error: errorMsg };
     }
   }
 
@@ -313,7 +317,9 @@ export class BlockchainService {
       return await this.agentRouter.needsAnalysis(tokenId, maxAgeSeconds);
     } catch (error) {
       console.error(`Error checking analysis need for ${tokenId}:`, error);
-      return true; // Default to needing analysis on error
+      // Return false on error to avoid triggering unnecessary analysis when we can't verify
+      // This prevents infinite retry loops when contract is unavailable
+      return false;
     }
   }
 

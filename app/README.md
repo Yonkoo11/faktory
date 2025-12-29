@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Faktory Frontend
 
-## Getting Started
+Next.js 15 dashboard for the Faktory Protocol - tokenized invoice yield optimization on Mantle.
 
-First, run the development server:
+## Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Dashboard**: Portfolio overview with real-time yield tracking
+- **Invoice Minting**: Tokenize invoices with privacy-preserving commitments
+- **Agent Monitor**: Watch AI agent decisions in real-time via WebSocket
+- **Issuer Controls**: Privacy settings and selective disclosure
 
-## Learn More
+## Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Required for contract interaction
+NEXT_PUBLIC_INVOICE_NFT_ADDRESS=0x...
+NEXT_PUBLIC_YIELD_VAULT_ADDRESS=0x...
+NEXT_PUBLIC_AGENT_ROUTER_ADDRESS=0x...
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Optional
+NEXT_PUBLIC_CHAIN_ID=5003  # Mantle Sepolia
+NEXT_PUBLIC_AGENT_WS_URL=ws://localhost:8080
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Tech Stack
 
-## Deploy on Vercel
+- Next.js 15 (App Router)
+- wagmi v3 + viem for Web3
+- TailwindCSS + shadcn/ui
+- React Query for data fetching
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+pnpm dev        # Development server
+pnpm build      # Production build
+pnpm lint       # ESLint
+pnpm tsc        # Type check
+```

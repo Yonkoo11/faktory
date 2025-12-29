@@ -47,6 +47,7 @@ contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
     uint256 public constant HOLD_APY = 0;
     uint256 public constant CONSERVATIVE_APY = 350;  // 3.5%
     uint256 public constant AGGRESSIVE_APY = 700;    // 7%
+    uint256 public constant MAX_PRINCIPAL = 1e27;    // 1 billion tokens (18 decimals) - prevents overflow
 
     // Simulated total value for demo
     uint256 public totalValueLocked;
@@ -211,6 +212,7 @@ contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
         require(invoiceNFT.ownerOf(tokenId) == msg.sender, "Not NFT owner");
         require(!deposits[tokenId].active, "Already deposited");
         require(simulatedPrincipal > 0, "Invalid principal");
+        require(simulatedPrincipal <= MAX_PRINCIPAL, "Principal too large");
 
         // Transfer NFT to vault
         invoiceNFT.transferFrom(msg.sender, address(this), tokenId);

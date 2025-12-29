@@ -12,19 +12,23 @@ contract MantleYieldStrategy is Ownable {
     using SafeERC20 for IERC20;
 
     // ============ Mantle Native Tokens ============
+    // Mainnet addresses are canonical constants; testnet addresses are configurable
 
-    // mETH - Mantle Staked Ether (liquid staking token)
-    // ~3-4% base yield from ETH staking
+    // mETH - Mantle Staked Ether (liquid staking token) ~3-4% base yield
     address public constant METH_MAINNET = 0xcDA86A272531e8640cD7F1a92c01839911B90bb0;
-    address public constant METH_SEPOLIA = 0x9EF6f9160Ba00B6621e5CB3217BB8b54a92B2828;
+    address public methTestnet;  // Configurable for testnets
 
-    // Stablecoins on Mantle
+    // Stablecoins on Mantle (mainnet canonical addresses)
     address public constant USDC_MAINNET = 0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9;
     address public constant USDT_MAINNET = 0x201EBa5CC46D216Ce6DC03F6a759e8E766e956aE;
     address public constant WETH_MAINNET = 0xdEAddEaDdeadDEadDEADDEAddEADDEAddead1111;
-
-    // MNT - Native Mantle token
     address public constant WMNT_MAINNET = 0x78c1b0C915c4FAA5FffA6CAbf0219DA63d7f4cb8;
+
+    // Configurable testnet token addresses
+    address public usdcTestnet;
+    address public usdtTestnet;
+    address public wethTestnet;
+    address public wmntTestnet;
 
     // ============ Yield Strategy Types ============
 
@@ -60,7 +64,11 @@ contract MantleYieldStrategy is Ownable {
 
     // ============ Constructor ============
 
-    constructor() Ownable(msg.sender) {}
+    /// @param _methTestnet mETH address for testnet (use address(0) for mainnet-only deployment)
+    constructor(address _methTestnet) Ownable(msg.sender) {
+        // Set default Sepolia testnet address if not provided
+        methTestnet = _methTestnet != address(0) ? _methTestnet : 0x9EF6f9160Ba00B6621e5CB3217BB8b54a92B2828;
+    }
 
     // ============ Configuration ============
 
@@ -70,6 +78,21 @@ contract MantleYieldStrategy is Ownable {
 
     function setCmethVault(address _vault) external onlyOwner {
         cmethVault = _vault;
+    }
+
+    /// @notice Configure testnet token addresses (owner only)
+    function setTestnetAddresses(
+        address _meth,
+        address _usdc,
+        address _usdt,
+        address _weth,
+        address _wmnt
+    ) external onlyOwner {
+        if (_meth != address(0)) methTestnet = _meth;
+        if (_usdc != address(0)) usdcTestnet = _usdc;
+        if (_usdt != address(0)) usdtTestnet = _usdt;
+        if (_weth != address(0)) wethTestnet = _weth;
+        if (_wmnt != address(0)) wmntTestnet = _wmnt;
     }
 
     // ============ Yield Source Info ============
@@ -195,7 +218,8 @@ contract MantleYieldStrategy is Ownable {
     /// @notice Get mETH address for current network
     function getMethAddress() public view returns (address) {
         if (block.chainid == 5000) return METH_MAINNET;
-        if (block.chainid == 5003) return METH_SEPOLIA;
-        return address(0); // Not on Mantle
+        // Use configurable testnet address for non-mainnet chains
+        if (methTestnet != address(0)) return methTestnet;
+        return address(0); // Not configured
     }
 }

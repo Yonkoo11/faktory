@@ -1,67 +1,61 @@
-## Foundry
+# Faktory Contracts
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+Solidity smart contracts for the Faktory Protocol on Mantle Network.
 
-Foundry consists of:
+## Contracts
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+| Contract | Description |
+|----------|-------------|
+| `InvoiceNFT` | ERC-721 tokenized invoices with privacy commitments |
+| `YieldVault` | Manages yield strategies (Hold/Conservative/Aggressive) |
+| `AgentRouter` | Routes AI agent decisions to execute strategies |
+| `PythOracle` | Real-time price feeds via Pyth Network |
+| `LendleYieldSource` | Integration with Lendle lending protocol |
+| `FaktoryFactory` | Atomic deployment of entire protocol |
 
-## Documentation
+## Deployed (Mantle Sepolia)
 
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
+```
+InvoiceNFT:   0xf35be6ffebf91acc27a78696cf912595c6b08aaa
+YieldVault:   0xd2cad31a080b0dae98d9d6427e500b50bcb92774
+AgentRouter:  0xec5bfee9d17e25cc8d52b8cb7fb81d8cabb53c5f
 ```
 
-### Test
+## Quick Start
 
-```shell
-$ forge test
+```bash
+# Build
+forge build
+
+# Test (46 tests)
+forge test
+
+# Deploy locally
+anvil &
+forge script script/DeployFactory.s.sol --rpc-url http://localhost:8545 --broadcast
+
+# Deploy to Mantle Sepolia
+forge script script/DeployProduction.s.sol --rpc-url https://rpc.sepolia.mantle.xyz --broadcast
 ```
 
-### Format
+## Architecture
 
-```shell
-$ forge fmt
+```
+InvoiceNFT ←→ YieldVault ←→ AgentRouter
+     ↓            ↓
+  Oracle    LendleYieldSource
 ```
 
-### Gas Snapshots
+## Key Features
 
-```shell
-$ forge snapshot
-```
+- **Privacy**: Invoice data stored as cryptographic commitments
+- **Yield Strategies**: Simulated 0-7% APY based on strategy
+- **AI Agent**: Authorized agents can execute strategy changes
+- **Pagination**: Scalable queries with `getActiveInvoicesPaginated()`
 
-### Anvil
+## Security
 
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
-
+- OpenZeppelin contracts for access control
+- Pausable for emergency stops
+- Rate limiting on agent decisions
+- MAX_PRINCIPAL bounds on deposits
