@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Wallet, Plus, Bot } from "lucide-react"
+import { Wallet, Plus, Bot, Shield } from "lucide-react"
 import Link from "next/link"
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { injected } from 'wagmi/connectors'
@@ -41,6 +41,12 @@ export function DashboardHeader() {
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
               Agent
+            </Link>
+            <Link
+              href="/dashboard/issuer"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Privacy
             </Link>
           </nav>
         </div>
