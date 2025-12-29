@@ -163,16 +163,16 @@ export default function LandingPage() {
               className="text-5xl md:text-7xl font-bold leading-tight text-balance animate-fade-in"
               style={{ animationDelay: '0.2s', animationFillMode: 'backwards' }}
             >
-              Turn Unpaid Invoices <br />
-              <span className="gradient-text">Into Yield</span>
+              Your Invoices. Your Data. <br />
+              <span className="gradient-text">Your Yield.</span>
             </h1>
 
             <p
               className="text-xl text-muted-foreground max-w-2xl mx-auto text-pretty animate-fade-in"
               style={{ animationDelay: '0.3s', animationFillMode: 'backwards' }}
             >
-              Tokenize business invoices as NFTs and generate real DeFi yield through AI-optimized lending strategies on
-              Mantle Network
+              The first privacy-preserving invoice protocol. Tokenize invoices as NFTs, earn real DeFi yield,
+              and keep your business data confidential with cryptographic commitments.
             </p>
 
             <div
@@ -332,14 +332,22 @@ export default function LandingPage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="glass border-glass-border p-8 hover:border-primary/30 transition-all hover:shadow-lg hover:shadow-primary/10 group">
+            <Card className="glass border-glass-border p-8 hover:border-primary/30 transition-all hover:shadow-lg hover:shadow-primary/10 group relative overflow-hidden">
+              <div className="absolute top-2 right-2">
+                <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary text-[10px]">
+                  Unique
+                </Badge>
+              </div>
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Lock className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-xl font-bold mb-3">Privacy-First</h3>
-              <p className="text-muted-foreground text-pretty">
-                Your invoice data is encrypted as commitment hashes. Only you control who sees what.
+              <h3 className="text-xl font-bold mb-3">Privacy by Default</h3>
+              <p className="text-muted-foreground text-pretty mb-4">
+                Your invoice data stays yours. We use cryptographic commitment hashes—only you decide who sees the details.
               </p>
+              <div className="text-xs text-muted-foreground border-t border-glass-border pt-3">
+                <span className="text-primary font-medium">Unlike competitors</span>: No public disclosure of clients, amounts, or contracts required.
+              </div>
             </Card>
 
             <Card className="glass border-glass-border p-8 hover:border-accent/30 transition-all hover:shadow-lg hover:shadow-accent/10 group">
@@ -362,6 +370,66 @@ export default function LandingPage() {
               </p>
             </Card>
           </div>
+        </div>
+      </section>
+
+      {/* Comparison Section */}
+      <section className="py-16 px-4 bg-gradient-to-b from-muted/10 to-background">
+        <div className="container mx-auto max-w-4xl">
+          <h2 className="text-3xl font-bold text-center mb-4">
+            Why <span className="gradient-text">Privacy</span> Matters
+          </h2>
+          <p className="text-center text-muted-foreground mb-10">
+            Traditional invoice protocols expose your business data. Faktory doesn&apos;t.
+          </p>
+
+          <Card className="glass border-glass-border overflow-hidden">
+            <div className="grid grid-cols-4 text-sm">
+              {/* Header */}
+              <div className="p-4 bg-muted/30 font-semibold">Feature</div>
+              <div className="p-4 bg-muted/30 font-semibold text-center">
+                <span className="gradient-text">Faktory</span>
+              </div>
+              <div className="p-4 bg-muted/30 font-semibold text-center text-muted-foreground">Centrifuge</div>
+              <div className="p-4 bg-muted/30 font-semibold text-center text-muted-foreground">Goldfinch</div>
+
+              {/* Privacy Row */}
+              <div className="p-4 border-t border-glass-border">Invoice Privacy</div>
+              <div className="p-4 border-t border-glass-border text-center">
+                <span className="text-success font-medium">Commitment hashes</span>
+              </div>
+              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">Public on-chain</div>
+              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">Disclosed to pool</div>
+
+              {/* Real-time Row */}
+              <div className="p-4 border-t border-glass-border">Strategy Updates</div>
+              <div className="p-4 border-t border-glass-border text-center">
+                <span className="text-success font-medium">Every 30 seconds</span>
+              </div>
+              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">Days (governance)</div>
+              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">Manual</div>
+
+              {/* Cost Row */}
+              <div className="p-4 border-t border-glass-border">Tx Cost</div>
+              <div className="p-4 border-t border-glass-border text-center">
+                <span className="text-success font-medium">&lt;$0.01</span>
+              </div>
+              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">$5-50</div>
+              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">$10-100</div>
+
+              {/* AI Row */}
+              <div className="p-4 border-t border-glass-border">AI Optimization</div>
+              <div className="p-4 border-t border-glass-border text-center">
+                <span className="text-success font-medium">24/7 Autonomous</span>
+              </div>
+              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">None</div>
+              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">None</div>
+            </div>
+          </Card>
+
+          <p className="text-center text-xs text-muted-foreground mt-6">
+            Faktory: Privacy-first invoice yield on Mantle Network
+          </p>
         </div>
       </section>
 
