@@ -251,6 +251,27 @@ export function AgentActivity({ showDemoControls = false }: AgentActivityProps) 
         </div>
       )}
 
+      {/* Disconnect Warning Banner */}
+      {!connected && !connecting && (
+        <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/30 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-destructive">
+            <AlertCircle className="w-4 h-4" />
+            <span>Connection lost. {maxRetriesReached ? 'Agent service may be offline.' : 'Attempting to reconnect...'}</span>
+          </div>
+          {maxRetriesReached && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={manualReconnect}
+              className="h-7 px-3 text-xs border-destructive/30 hover:bg-destructive/10"
+            >
+              <RotateCcw className="w-3 h-3 mr-1" />
+              Try Again
+            </Button>
+          )}
+        </div>
+      )}
+
       <div ref={scrollRef} className="h-96 overflow-y-auto p-4 space-y-3">
         {thoughts.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
