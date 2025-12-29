@@ -3,7 +3,7 @@
 import { BlockchainService, ContractAddresses } from './blockchain.js';
 import { LLMService } from './llm.js';
 import { AgentWebSocket } from './websocket.js';
-import { analyzeInvoice, applyMarketAdjustment } from './optimizer.js';
+import { analyzeInvoice, applyMarketAdjustment, updateMarketRegime, applyRegimeAdjustment, getCurrentRegime, getRegimeStats } from './optimizer.js';
 import { AgentConfig, AgentThought, Strategy, AnalysisResult, MarketConditions, MarketAlert } from './types.js';
 import { STRATEGY_NAMES } from './constants.js';
 
@@ -202,6 +202,9 @@ export class FaktoryAgent {
       this.currentMarketConditions = await this.blockchain.getMarketConditions();
       this.currentMarketAlert = this.blockchain.checkMarketAlert(this.currentMarketConditions);
 
+      // Update market regime detection
+      const regime = updateMarketRegime(this.currentMarketConditions);
+
       // Broadcast market status with drama
       if (this.currentMarketAlert) {
         const alertEmoji = this.currentMarketAlert.level === 'critical' ? '🚨' :
@@ -234,11 +237,18 @@ export class FaktoryAgent {
           ? `ETH: $${this.currentMarketConditions.ethPrice.toFixed(2)}`
           : 'Prices: Simulated mode';
 
+        const regimeEmoji = regime === 'bull' ? '📈' : regime === 'bear' ? '📉' : regime === 'volatile' ? '🌊' : '⚖️';
+        const regimeLabel = regime.charAt(0).toUpperCase() + regime.slice(1);
+
         this.broadcastThought({
           type: 'thinking',
           tokenId: 'system',
-          message: `✅ Market stable (${priceInfo}) - volatility: ${this.currentMarketConditions.volatilityLevel}`,
+          message: `✅ Market ${regimeLabel} ${regimeEmoji} (${priceInfo}) - volatility: ${this.currentMarketConditions.volatilityLevel}`,
           timestamp: Date.now(),
+          data: {
+            regime,
+            volatility: this.currentMarketConditions.volatilityLevel,
+          },
         });
       }
 
@@ -354,6 +364,12 @@ export class FaktoryAgent {
       // Apply market adjustments (THE KILLER DEMO FEATURE)
       const originalStrategy = analysis.recommendedStrategy;
       analysis = applyMarketAdjustment(analysis, this.currentMarketConditions, this.currentMarketAlert);
+
+      // Apply regime-based adjustments
+      const preRegimeStrategy = analysis.recommendedStrategy;
+      analysis = applyRegimeAdjustment(analysis);
+      const wasRegimeAdjusted = preRegimeStrategy !== analysis.recommendedStrategy;
+
       const wasAdjusted = originalStrategy !== analysis.recommendedStrategy;
 
       // Broadcast risk assessment

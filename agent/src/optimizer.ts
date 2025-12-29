@@ -16,9 +16,22 @@ interface DecisionRecord {
   outcome?: 'success' | 'suboptimal'; // Track if decision was good
 }
 
-// In-memory learning store (would be persisted in production)
+// Market regime detection
+export type MarketRegime = 'bull' | 'bear' | 'volatile' | 'stable' | 'unknown';
+
+interface MarketDataPoint {
+  timestamp: number;
+  ethPrice: number;
+  priceChange24h: number;
+  volatility: string;
+}
+
+// In-memory stores
 const decisionHistory: DecisionRecord[] = [];
 const patternInsights: Map<string, number> = new Map();
+const marketHistory: MarketDataPoint[] = [];
+let currentRegime: MarketRegime = 'unknown';
+let lastRegimeUpdate: number = 0;
 
 interface OptimizationContext {
   invoice: Invoice;
@@ -449,4 +462,223 @@ export function generateMarketReasoning(
     : 'Moderate market movement - maintaining vigilance.';
 
   return `${volatilityNote} ${baseReasoning}`;
+}
+
+// ============ Market Regime Detection ============
+
+/**
+ * Update market data and detect the current regime
+ * Called on each market conditions update
+ */
+export function updateMarketRegime(marketConditions: MarketConditions): MarketRegime {
+  const now = Date.now();
+
+  // Record market data point
+  marketHistory.push({
+    timestamp: now,
+    ethPrice: marketConditions.ethPrice ?? 0,
+    priceChange24h: marketConditions.ethPriceChange24h,
+    volatility: marketConditions.volatilityLevel,
+  });
+
+  // Keep last 24 data points (roughly 12 hours at 30s intervals)
+  while (marketHistory.length > 288) {
+    marketHistory.shift();
+  }
+
+  // Only update regime every 5 minutes to avoid flip-flopping
+  if (now - lastRegimeUpdate < 5 * 60 * 1000 && currentRegime !== 'unknown') {
+    return currentRegime;
+  }
+
+  // Need at least 10 data points to detect regime
+  if (marketHistory.length < 10) {
+    return 'unknown';
+  }
+
+  currentRegime = detectRegime();
+  lastRegimeUpdate = now;
+
+  return currentRegime;
+}
+
+/**
+ * Analyze market history to detect the current regime
+ */
+function detectRegime(): MarketRegime {
+  const recentPoints = marketHistory.slice(-20); // Last ~10 minutes
+
+  // Calculate average price change
+  const avgPriceChange = recentPoints.reduce((sum, p) => sum + p.priceChange24h, 0) / recentPoints.length;
+
+  // Count volatility levels
+  const volatilityCounts = { low: 0, medium: 0, high: 0, extreme: 0 };
+  recentPoints.forEach(p => {
+    const level = p.volatility as keyof typeof volatilityCounts;
+    if (level in volatilityCounts) {
+      volatilityCounts[level]++;
+    }
+  });
+
+  // Calculate price trend (simple moving average comparison)
+  const firstHalf = recentPoints.slice(0, Math.floor(recentPoints.length / 2));
+  const secondHalf = recentPoints.slice(Math.floor(recentPoints.length / 2));
+  const firstAvg = firstHalf.reduce((sum, p) => sum + p.ethPrice, 0) / firstHalf.length;
+  const secondAvg = secondHalf.reduce((sum, p) => sum + p.ethPrice, 0) / secondHalf.length;
+  const trendPercent = ((secondAvg - firstAvg) / firstAvg) * 100;
+
+  // Determine regime based on signals
+  const highVolatilityRatio = (volatilityCounts.high + volatilityCounts.extreme) / recentPoints.length;
+
+  // Volatile regime: High volatility regardless of direction
+  if (highVolatilityRatio > 0.5) {
+    return 'volatile';
+  }
+
+  // Bull regime: Consistent positive trend with low-medium volatility
+  if (avgPriceChange > 2 && trendPercent > 0.5 && highVolatilityRatio < 0.3) {
+    return 'bull';
+  }
+
+  // Bear regime: Consistent negative trend
+  if (avgPriceChange < -2 && trendPercent < -0.5) {
+    return 'bear';
+  }
+
+  // Stable regime: Low volatility, minimal price change
+  if (volatilityCounts.low > recentPoints.length * 0.6 && Math.abs(avgPriceChange) < 1) {
+    return 'stable';
+  }
+
+  // Default to stable if no strong signals
+  return 'stable';
+}
+
+/**
+ * Get the current market regime
+ */
+export function getCurrentRegime(): MarketRegime {
+  return currentRegime;
+}
+
+/**
+ * Get regime-adjusted strategy weights
+ * Returns multipliers for aggressive strategies based on regime
+ */
+export function getRegimeAdjustment(): {
+  regime: MarketRegime;
+  aggressiveMultiplier: number;
+  conservativeMultiplier: number;
+  holdMultiplier: number;
+  description: string;
+} {
+  switch (currentRegime) {
+    case 'bull':
+      return {
+        regime: 'bull',
+        aggressiveMultiplier: 1.2,  // Favor aggressive in bull markets
+        conservativeMultiplier: 1.0,
+        holdMultiplier: 0.8,
+        description: 'Bull market detected - favoring yield optimization',
+      };
+    case 'bear':
+      return {
+        regime: 'bear',
+        aggressiveMultiplier: 0.6,  // Reduce aggressive in bear markets
+        conservativeMultiplier: 1.1,
+        holdMultiplier: 1.3,
+        description: 'Bear market detected - prioritizing capital preservation',
+      };
+    case 'volatile':
+      return {
+        regime: 'volatile',
+        aggressiveMultiplier: 0.5,  // Avoid aggressive in volatile markets
+        conservativeMultiplier: 0.9,
+        holdMultiplier: 1.4,
+        description: 'High volatility detected - reducing risk exposure',
+      };
+    case 'stable':
+      return {
+        regime: 'stable',
+        aggressiveMultiplier: 1.1,  // Slight preference for yield in stable markets
+        conservativeMultiplier: 1.0,
+        holdMultiplier: 0.9,
+        description: 'Stable market conditions - balanced approach',
+      };
+    default:
+      return {
+        regime: 'unknown',
+        aggressiveMultiplier: 1.0,
+        conservativeMultiplier: 1.0,
+        holdMultiplier: 1.0,
+        description: 'Insufficient data for regime detection',
+      };
+  }
+}
+
+/**
+ * Apply regime-based adjustments to analysis result
+ */
+export function applyRegimeAdjustment(analysis: AnalysisResult): AnalysisResult {
+  const adjustment = getRegimeAdjustment();
+
+  if (adjustment.regime === 'unknown') {
+    return analysis;
+  }
+
+  const adjusted = { ...analysis };
+
+  // In bear or volatile markets, prevent upgrades to aggressive
+  if ((adjustment.regime === 'bear' || adjustment.regime === 'volatile') &&
+      analysis.recommendedStrategy === Strategy.Aggressive &&
+      analysis.currentStrategy !== Strategy.Aggressive) {
+    adjusted.recommendedStrategy = Strategy.Conservative;
+    adjusted.reasoning = `REGIME ADJUSTMENT (${adjustment.regime.toUpperCase()}): ` +
+      `${adjustment.description}. Blocking upgrade to Aggressive strategy. ` +
+      `Recommending Conservative instead to balance yield and risk.`;
+    adjusted.shouldAct = shouldChangeStrategy(
+      analysis.currentStrategy,
+      Strategy.Conservative,
+      analysis.confidence
+    );
+  }
+
+  // In bear markets, suggest moving from aggressive to conservative
+  if (adjustment.regime === 'bear' &&
+      analysis.currentStrategy === Strategy.Aggressive) {
+    adjusted.recommendedStrategy = Strategy.Conservative;
+    adjusted.confidence = Math.max(analysis.confidence, 80);
+    adjusted.shouldAct = true;
+    adjusted.reasoning = `REGIME ADJUSTMENT (BEAR MARKET): ` +
+      `${adjustment.description}. Recommending de-risking from Aggressive to Conservative.`;
+  }
+
+  // In bull markets with high confidence, consider aggressive
+  if (adjustment.regime === 'bull' &&
+      analysis.recommendedStrategy === Strategy.Conservative &&
+      analysis.confidence >= 75 &&
+      analysis.currentStrategy !== Strategy.Aggressive) {
+    // Only suggest, don't force
+    adjusted.reasoning = `${analysis.reasoning} ` +
+      `REGIME NOTE: Bull market conditions may support aggressive strategy for qualifying invoices.`;
+  }
+
+  return adjusted;
+}
+
+/**
+ * Get market regime statistics for display
+ */
+export function getRegimeStats(): {
+  currentRegime: MarketRegime;
+  dataPoints: number;
+  lastUpdate: number;
+  adjustment: ReturnType<typeof getRegimeAdjustment>;
+} {
+  return {
+    currentRegime,
+    dataPoints: marketHistory.length,
+    lastUpdate: lastRegimeUpdate,
+    adjustment: getRegimeAdjustment(),
+  };
 }
