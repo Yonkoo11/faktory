@@ -79,6 +79,14 @@ IMPORTANT: Steps 1-3 are crucial. Without them, jumping straight to code wastes 
 - List assumptions before coding ("Before coding, list your assumptions")
 - Use canary tasks before big changes ("Rename this variable everywhere" to test)
 
+### Design & UX Rules
+- ALWAYS take screenshots before AND after any major design update
+- NEVER use emojis or AI-generated filler content in production code
+- Maintain task lists in project memory (TODO.md) even when context switches
+- Design must be professional, production-grade quality
+- Create reusable components to ensure UI uniformity
+- Follow established design system patterns consistently
+
 ## Do NOT
 - Skip the planning step
 - Guess file contents without reading first
@@ -90,6 +98,10 @@ IMPORTANT: Steps 1-3 are crucial. Without them, jumping straight to code wastes 
 - Assume deployment succeeded from logs alone (ALWAYS verify with cast code)
 - Mix local Anvil addresses with testnet/mainnet configs
 - Build features when infrastructure is broken
+- Use emojis in production UI/code (appears unprofessional)
+- Add "AI slop" like excessive exclamation points or marketing speak
+- Make design changes without taking before/after screenshots
+- Lose track of task lists when switching contexts
 
 ## Chunking (One Thing at a Time)
 BAD: "Deploy, configure, build features, test E2E"
