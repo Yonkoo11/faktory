@@ -137,76 +137,62 @@ export default function DashboardPage() {
       <DashboardHeader />
 
       <main className="container mx-auto px-4 py-8 space-y-8">
-        {/* Portfolio Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="glass border-glass-border p-6 hover:border-primary/30 transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                <Wallet className="w-5 h-5 text-primary" />
+        {/* Portfolio Overview Cards - Hero metric + supporting metrics */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Primary Metric - Portfolio Value */}
+          <Card className="glass border-glass-border p-8 lg:row-span-2 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20 hover:border-primary/40 transition-all">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <Wallet className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
+                <div className="text-4xl font-bold gradient-text">
+                  {isLoadingNFT ? (
+                    <Loader2 className="w-8 h-8 animate-spin" />
+                  ) : (
+                    `$${portfolioValue.toLocaleString()}`
+                  )}
+                </div>
               </div>
             </div>
-            <div className="space-y-1">
-              <div className="text-3xl font-bold">
-                {isLoadingNFT ? (
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                ) : (
-                  `$${portfolioValue.toLocaleString()}`
-                )}
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-glass-border">
+              <div>
+                <div className="text-2xl font-bold text-success">${totalYieldEarned.toFixed(2)}</div>
+                <div className="text-xs text-muted-foreground">Yield earned</div>
               </div>
-              <div className="text-sm text-muted-foreground">
-                Principal deposited
+              <div>
+                <div className="text-2xl font-bold text-primary">{avgAPY.toFixed(1)}%</div>
+                <div className="text-xs text-muted-foreground">Average APY</div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Secondary Metrics */}
+          <Card className="glass border-glass-border p-6 hover:border-success/30 transition-all">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-sm text-muted-foreground">Active Invoices</span>
+                <div className="text-3xl font-bold mt-1">{activeCount}</div>
+                <div className="text-xs text-muted-foreground mt-1">{userBalance} owned by you</div>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
+                <FileText className="w-6 h-6 text-success" />
               </div>
             </div>
           </Card>
 
           <Card className="glass border-glass-border p-6 hover:border-accent/30 transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-muted-foreground">Total Yield Earned</span>
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-accent/20 to-success/20 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-accent" />
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-sm text-muted-foreground">Strategy Distribution</span>
+                <div className="text-3xl font-bold mt-1">
+                  {activeCount > 0 ? 'Mixed' : 'None'}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">Conservative + Aggressive</div>
               </div>
-            </div>
-            <div className="space-y-1">
-              <div className="text-3xl font-bold">
-                {isLoadingNFT ? (
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                ) : (
-                  `$${totalYieldEarned.toFixed(2)}`
-                )}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                Accrued from strategies
-              </div>
-            </div>
-          </Card>
-
-          <Card className="glass border-glass-border p-6 hover:border-success/30 transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-muted-foreground">Active Invoices</span>
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-success/20 to-primary/20 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-success" />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <div className="text-3xl font-bold">{activeCount}</div>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <span>{userBalance} owned by you</span>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="glass border-glass-border p-6 hover:border-primary/30 transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-muted-foreground">Average APY</span>
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-primary" />
-              </div>
-            </div>
-            <div className="space-y-1">
-              <div className="text-3xl font-bold">{avgAPY.toFixed(1)}%</div>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <span>Across all positions</span>
+              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-accent" />
               </div>
             </div>
           </Card>

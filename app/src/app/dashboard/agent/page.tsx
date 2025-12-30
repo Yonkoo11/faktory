@@ -136,39 +136,74 @@ export default function AgentPage() {
           </div>
         </Card>
 
-        {/* Recent Decisions Feed */}
+        {/* Agent Activity Status */}
         <Card className="glass border-glass-border">
           <div className="p-6 border-b border-glass-border">
-            <h2 className="text-xl font-semibold mb-1">Recent Decisions</h2>
-            <p className="text-sm text-muted-foreground">AI-powered strategy optimizations and recommendations</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-semibold mb-1">Agent Activity</h2>
+                <p className="text-sm text-muted-foreground">Real-time monitoring and optimization</p>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-success/10 border border-success/20">
+                <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                <span className="text-xs font-medium text-success">Actively Monitoring</span>
+              </div>
+            </div>
           </div>
 
-          <div className="p-12 text-center">
-            <div className="relative mx-auto w-24 h-24 mb-6">
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-accent/20 via-primary/20 to-success/20 animate-pulse" />
-              <div className="absolute inset-2 rounded-2xl bg-background flex items-center justify-center">
-                <Bot className="w-10 h-10 text-accent" />
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {/* Current Activity */}
+              <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <Activity className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium">Current Tasks</span>
+                </div>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-success" />
+                    Monitoring Lendle supply rates
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-success" />
+                    Checking MNT price via Pyth
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-success" />
+                    Analyzing market volatility
+                  </li>
+                </ul>
               </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-success animate-ping" />
-              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-success" />
+
+              {/* Next Action */}
+              <div className="p-4 rounded-lg bg-accent/5 border border-accent/20">
+                <div className="flex items-center gap-2 mb-3">
+                  <Zap className="w-4 h-4 text-accent" />
+                  <span className="text-sm font-medium">Ready to Act</span>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">
+                  {activeDepositsCount > 0
+                    ? `Watching ${activeDepositsCount} active deposits for optimization opportunities.`
+                    : "Deposit an invoice to enable yield optimization."}
+                </p>
+                <div className="flex items-center gap-4 text-xs">
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">Next check:</span>
+                    <span className="font-mono text-primary">~30s</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">Uptime:</span>
+                    <span className="font-mono text-success">24/7</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h3 className="text-xl font-bold mb-3">Agent Standing By</h3>
-            <p className="text-muted-foreground max-w-md mx-auto mb-6">
-              When you deposit invoices to the yield vault, the AI agent will continuously monitor market conditions and optimize your strategy for maximum yield.
-            </p>
-            <div className="grid grid-cols-3 gap-4 max-w-md mx-auto text-center">
-              <div className="p-3 rounded-lg bg-muted/30">
-                <div className="text-lg font-bold text-primary">30s</div>
-                <div className="text-xs text-muted-foreground">Check interval</div>
-              </div>
-              <div className="p-3 rounded-lg bg-muted/30">
-                <div className="text-lg font-bold text-accent">24/7</div>
-                <div className="text-xs text-muted-foreground">Monitoring</div>
-              </div>
-              <div className="p-3 rounded-lg bg-muted/30">
-                <div className="text-lg font-bold text-success">80%+</div>
-                <div className="text-xs text-muted-foreground">Confidence</div>
-              </div>
+
+            {/* How it works - compact */}
+            <div className="p-4 rounded-lg bg-muted/30 border border-glass-border">
+              <p className="text-xs text-muted-foreground text-center">
+                The AI agent analyzes market conditions every 30 seconds and automatically recommends strategy changes when confidence exceeds 80%.
+              </p>
             </div>
           </div>
         </Card>
