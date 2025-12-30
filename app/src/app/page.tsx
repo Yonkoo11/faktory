@@ -164,8 +164,13 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-40 pb-20 px-4">
-        <div className="container mx-auto max-w-6xl">
+      <section className="pt-40 pb-20 px-4 relative overflow-hidden">
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 bg-gradient-radial pointer-events-none" />
+        <div className="absolute top-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float pointer-events-none" />
+        <div className="absolute bottom-20 left-10 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-float pointer-events-none" style={{ animationDelay: '1s' }} />
+
+        <div className="container mx-auto max-w-6xl relative z-10">
           <div className="text-center space-y-6 mb-16">
             {/* Trust-First Badge */}
             <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-success/10 border border-success/20">
@@ -179,11 +184,11 @@ export default function LandingPage() {
               <span className="text-sm text-muted-foreground">Instant Withdrawals</span>
             </div>
 
-            {/* Data-Focused Hero - Massive APY */}
+            {/* Data-Focused Hero - Massive APY with gradient glow */}
             <div className="space-y-2">
               <div className="flex items-center justify-center gap-3">
-                <span className="text-[80px] md:text-[120px] font-black leading-none text-success tracking-tight">3-7%</span>
-                <span className="text-[40px] md:text-[60px] font-bold text-muted-foreground">APY</span>
+                <span className="text-[80px] md:text-[140px] font-black leading-none gradient-text tracking-tight animate-number-glow">3-7%</span>
+                <span className="text-[40px] md:text-[70px] font-bold text-muted-foreground">APY</span>
               </div>
               <h1 className="text-2xl md:text-4xl font-semibold text-muted-foreground">
                 on your unpaid invoices
@@ -233,7 +238,7 @@ export default function LandingPage() {
 
             <div className="flex flex-col items-center gap-4 pt-6">
               <Link href="/dashboard">
-                <Button size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg h-14 px-10">
+                <Button size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 hover-glow text-lg h-14 px-10 shadow-lg shadow-primary/20">
                   Start Earning
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -247,7 +252,7 @@ export default function LandingPage() {
           {/* Live Stats Bar - Only show when we have real data with non-zero values */}
           {protocolStats.hasData && (protocolStats.tvl > 0 || protocolStats.totalInvoices > 0) && (
             <Card
-              className="glass border-glass-border p-8 max-w-4xl mx-auto relative animate-fade-in"
+              className="glass border-glass-border p-8 max-w-4xl mx-auto relative animate-fade-in animate-border-glow hover-glow"
               style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
             >
               <div className="absolute top-2 right-2">
@@ -333,16 +338,16 @@ export default function LandingPage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="glass border-glass-border p-8 hover:border-primary/20 transition-colors relative">
+            <Card className="glass border-glass-border p-8 hover-glow hover:border-primary/40 transition-all relative group">
               <div className="absolute top-2 right-2">
                 <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary text-[10px]">
                   Unique
                 </Badge>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-6 group-hover:shadow-lg group-hover:shadow-primary/20 transition-all">
                 <Lock className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="text-xl font-bold mb-3">Privacy by Default</h3>
+              <h3 className="text-xl font-bold mb-3 gradient-text">Privacy by Default</h3>
               <p className="text-muted-foreground text-pretty mb-4">
                 Your invoice data stays yours. We use cryptographic commitment hashes—only you decide who sees the details.
               </p>
@@ -351,21 +356,21 @@ export default function LandingPage() {
               </div>
             </Card>
 
-            <Card className="glass border-glass-border p-8 hover:border-accent/20 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-6">
+            <Card className="glass border-glass-border p-8 hover-glow hover:border-accent/40 transition-all group">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center mb-6 group-hover:shadow-lg group-hover:shadow-accent/20 transition-all">
                 <Zap className="w-6 h-6 text-accent" />
               </div>
-              <h3 className="text-xl font-bold mb-3">AI-Optimized</h3>
+              <h3 className="text-xl font-bold mb-3 bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">AI-Optimized</h3>
               <p className="text-muted-foreground text-pretty">
                 Intelligent agents continuously optimize your yield strategies based on market conditions.
               </p>
             </Card>
 
-            <Card className="glass border-glass-border p-8 hover:border-success/20 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center mb-6">
+            <Card className="glass border-glass-border p-8 hover-glow hover:border-success/40 transition-all group">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center mb-6 group-hover:shadow-lg group-hover:shadow-success/20 transition-all">
                 <TrendingUp className="w-6 h-6 text-success" />
               </div>
-              <h3 className="text-xl font-bold mb-3">Real DeFi Yield</h3>
+              <h3 className="text-xl font-bold mb-3 text-success">Real DeFi Yield</h3>
               <p className="text-muted-foreground text-pretty">
                 Earn up to 7% APY from real lending protocols, not inflationary token emissions.
               </p>
@@ -503,8 +508,8 @@ export default function LandingPage() {
             {/* Connection lines for desktop */}
             <div className="hidden md:block absolute top-1/3 left-1/3 right-1/3 h-0.5 bg-gradient-to-r from-primary via-accent to-success" />
 
-            <Card className="glass border-glass-border p-8 relative z-10">
-              <div className="w-14 h-14 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 mx-auto">
+            <Card className="glass border-glass-border p-8 relative z-10 hover-glow hover:border-primary/40 transition-all group">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center mb-6 mx-auto group-hover:shadow-lg group-hover:shadow-primary/30 transition-all">
                 <span className="text-xl font-bold text-primary">1</span>
               </div>
               <h3 className="text-lg font-bold text-center mb-2">Mint Invoice</h3>
@@ -513,8 +518,8 @@ export default function LandingPage() {
               </p>
             </Card>
 
-            <Card className="glass border-glass-border p-8 relative z-10">
-              <div className="w-14 h-14 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center mb-6 mx-auto">
+            <Card className="glass border-glass-border p-8 relative z-10 hover-glow hover:border-accent/40 transition-all group">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 border border-accent/20 flex items-center justify-center mb-6 mx-auto group-hover:shadow-lg group-hover:shadow-accent/30 transition-all">
                 <span className="text-xl font-bold text-accent">2</span>
               </div>
               <h3 className="text-lg font-bold text-center mb-2">Deposit</h3>
@@ -523,8 +528,8 @@ export default function LandingPage() {
               </p>
             </Card>
 
-            <Card className="glass border-glass-border p-8 relative z-10">
-              <div className="w-14 h-14 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center mb-6 mx-auto">
+            <Card className="glass border-glass-border p-8 relative z-10 hover-glow hover:border-success/40 transition-all group">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-success/20 to-success/10 border border-success/20 flex items-center justify-center mb-6 mx-auto group-hover:shadow-lg group-hover:shadow-success/30 transition-all">
                 <span className="text-xl font-bold text-success">3</span>
               </div>
               <h3 className="text-lg font-bold text-center mb-2">Earn & Withdraw</h3>
@@ -536,7 +541,7 @@ export default function LandingPage() {
 
           <div className="text-center mt-12">
             <Link href="/dashboard">
-              <Button size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90">
+              <Button size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 hover-glow shadow-lg shadow-primary/20">
                 Start Earning Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
