@@ -45,13 +45,13 @@ export default function AgentPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Agent Status</p>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                  <p className="font-semibold text-success">Active</p>
+                  <div className="w-2 h-2 rounded-full bg-primary" />
+                  <p className="font-semibold text-primary">Enabled</p>
                 </div>
               </div>
             </div>
-            <p className="text-2xl font-bold mb-1">Monitoring {activeDepositsCount} deposits</p>
-            <p className="text-sm text-muted-foreground">Real-time blockchain data</p>
+            <p className="text-2xl font-bold mb-1">{activeDepositsCount} deposits</p>
+            <p className="text-sm text-muted-foreground">Will optimize when agent runs</p>
           </Card>
 
           <Card className="glass border-glass-border p-6">
@@ -63,7 +63,7 @@ export default function AgentPage() {
                 <p className="text-sm text-muted-foreground">Total Yield Generated</p>
               </div>
             </div>
-            <p className="text-2xl font-bold mb-1">${parseFloat(totalYield).toFixed(2)}</p>
+            <p className="text-2xl font-bold mb-1">~${parseFloat(totalYield).toFixed(2)}</p>
             <p className="text-sm text-muted-foreground flex items-center">
               <Zap className="w-3 h-3 mr-1" />
               From vault strategies
@@ -79,8 +79,8 @@ export default function AgentPage() {
                 <p className="text-sm text-muted-foreground">Agent Mode</p>
               </div>
             </div>
-            <p className="text-2xl font-bold mb-1">Autonomous</p>
-            <p className="text-sm text-muted-foreground">Optimizing yield strategies</p>
+            <p className="text-2xl font-bold mb-1">Auto-Execute</p>
+            <p className="text-sm text-muted-foreground">When confidence &gt; 80%</p>
           </Card>
         </div>
 
@@ -144,9 +144,9 @@ export default function AgentPage() {
                 <h2 className="text-xl font-semibold mb-1">Agent Activity</h2>
                 <p className="text-sm text-muted-foreground">Real-time monitoring and optimization</p>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-success/10 border border-success/20">
-                <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                <span className="text-xs font-medium text-success">Actively Monitoring</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+                <div className="w-2 h-2 rounded-full bg-primary" />
+                <span className="text-xs font-medium text-primary">Agent Enabled</span>
               </div>
             </div>
           </div>

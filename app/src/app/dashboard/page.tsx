@@ -47,6 +47,8 @@ function StatusBadge({ status }: { status: string }) {
     Active: "bg-primary/10 text-primary border-primary/30",
     "In Yield": "bg-success/10 text-success border-success/30",
     Paid: "bg-muted text-muted-foreground border-border",
+    Withdrawn: "bg-muted text-muted-foreground border-border",
+    Completed: "bg-muted text-muted-foreground border-border",
     "At Risk": "bg-warning/10 text-warning border-warning/30",
     Defaulted: "bg-destructive/10 text-destructive border-destructive/30",
   }
@@ -99,7 +101,7 @@ export default function DashboardPage() {
             dueDate: new Date(inv.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
             strategy: inv.deposit?.strategy || "Hold",
             apy: inv.deposit?.strategy === "Aggressive" ? `${aggressiveAPY}%` : inv.deposit?.strategy === "Conservative" ? `${conservativeAPY}%` : "0.0%",
-            accruedYield: inv.deposit ? `$${Number(formatUnits(BigInt(inv.deposit.accruedYield), 18)).toFixed(2)}` : "$0.00",
+            accruedYield: inv.deposit ? `~$${Number(formatUnits(BigInt(inv.deposit.accruedYield), 18)).toFixed(2)}` : "$0.00",
             status: inv.status,
           }))
           setInvoices(formattedInvoices)
@@ -158,14 +160,17 @@ export default function DashboardPage() {
             </div>
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-glass-border">
               <div>
-                <div className="text-2xl font-bold text-success">${totalYieldEarned.toFixed(2)}</div>
-                <div className="text-xs text-muted-foreground">Yield earned</div>
+                <div className="text-2xl font-bold text-success">~${totalYieldEarned.toFixed(2)}</div>
+                <div className="text-xs text-muted-foreground">Yield earned (estimated)</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-primary">{avgAPY.toFixed(1)}%</div>
                 <div className="text-xs text-muted-foreground">Average APY</div>
               </div>
             </div>
+            <p className="text-xs text-muted-foreground mt-4 pt-4 border-t border-glass-border">
+              No lockup period — withdraw your funds anytime
+            </p>
           </Card>
 
           {/* Secondary Metrics */}
@@ -342,7 +347,7 @@ export default function DashboardPage() {
                     <TableHead className="text-muted-foreground">Due Date</TableHead>
                     <TableHead className="text-muted-foreground">Strategy</TableHead>
                     <TableHead className="text-muted-foreground">APY</TableHead>
-                    <TableHead className="text-muted-foreground">Accrued Yield</TableHead>
+                    <TableHead className="text-muted-foreground">Accrued Yield (est.)</TableHead>
                     <TableHead className="text-muted-foreground">Status</TableHead>
                     <TableHead className="text-muted-foreground"></TableHead>
                   </TableRow>
