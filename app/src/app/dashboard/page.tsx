@@ -404,6 +404,11 @@ export default function DashboardPage() {
             )}
           </div>
         </Card>
+
+        {/* Footer Disclaimer */}
+        <div className="text-center text-xs text-muted-foreground/70 py-6">
+          Unaudited prototype · Testnet only · Not financial advice
+        </div>
       </main>
 
       {/* DepositModal */}
