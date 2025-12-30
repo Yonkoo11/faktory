@@ -163,13 +163,13 @@ export default function LandingPage() {
               <span className="text-sm text-muted-foreground">Instant Withdrawals</span>
             </div>
 
-            {/* Data-Focused Hero */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-center gap-2 text-4xl md:text-6xl font-bold">
-                <span className="text-success">3-7%</span>
-                <span className="text-muted-foreground">APY</span>
+            {/* Data-Focused Hero - Massive APY */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-[80px] md:text-[120px] font-black leading-none text-success tracking-tight">3-7%</span>
+                <span className="text-[40px] md:text-[60px] font-bold text-muted-foreground">APY</span>
               </div>
-              <h1 className="text-3xl md:text-5xl font-bold leading-tight text-balance">
+              <h1 className="text-2xl md:text-4xl font-semibold text-muted-foreground">
                 on your unpaid invoices
               </h1>
             </div>
@@ -196,6 +196,23 @@ export default function LandingPage() {
                 <div className="text-2xl font-bold text-foreground">24/7</div>
                 <div className="text-muted-foreground">Withdrawals</div>
               </div>
+            </div>
+
+            {/* Live Lendle Rates - Compact inline */}
+            <div className="flex items-center justify-center gap-2 pt-4">
+              <Radio className="w-3 h-3 text-success animate-pulse" />
+              <span className="text-xs text-muted-foreground">Live Lendle Rates:</span>
+              <span className="text-xs font-medium">
+                USDC <span className="text-success">{lendleMarkets.isLoading ? '...' : `${lendleMarkets.USDC.supplyAPY || 'N/A'}%`}</span>
+              </span>
+              <span className="text-muted-foreground">|</span>
+              <span className="text-xs font-medium">
+                USDT <span className="text-success">{lendleMarkets.isLoading ? '...' : `${lendleMarkets.USDT.supplyAPY || 'N/A'}%`}</span>
+              </span>
+              <span className="text-muted-foreground">|</span>
+              <span className="text-xs font-medium">
+                WETH <span className="text-success">{lendleMarkets.isLoading ? '...' : `${lendleMarkets.WETH.supplyAPY || 'N/A'}%`}</span>
+              </span>
             </div>
 
             <div className="flex flex-col items-center gap-4 pt-6">
@@ -289,47 +306,6 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Live Lendle Rates */}
-      <section className="py-12 px-4 border-y border-glass-border bg-gradient-to-r from-primary/5 via-transparent to-accent/5">
-        <div className="container mx-auto max-w-4xl">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Radio className="w-4 h-4 text-success animate-pulse" />
-            <h3 className="text-lg font-semibold">Live Lendle Rates on Mantle</h3>
-            {lendleMarkets.hasLiveData && (
-              <Badge variant="outline" className="border-success/30 bg-success/10 text-success text-xs">
-                Live
-              </Badge>
-            )}
-          </div>
-          <div className="grid grid-cols-3 gap-6">
-            <Card className="glass border-glass-border p-4 text-center">
-              <div className="text-xs text-muted-foreground uppercase mb-1">USDC</div>
-              <div className="text-2xl font-bold text-success">
-                {lendleMarkets.isLoading ? '...' : lendleMarkets.USDC.supplyAPY ? `${lendleMarkets.USDC.supplyAPY}%` : 'N/A'}
-              </div>
-              <div className="text-xs text-muted-foreground">Supply APY</div>
-            </Card>
-            <Card className="glass border-glass-border p-4 text-center">
-              <div className="text-xs text-muted-foreground uppercase mb-1">USDT</div>
-              <div className="text-2xl font-bold text-success">
-                {lendleMarkets.isLoading ? '...' : lendleMarkets.USDT.supplyAPY ? `${lendleMarkets.USDT.supplyAPY}%` : 'N/A'}
-              </div>
-              <div className="text-xs text-muted-foreground">Supply APY</div>
-            </Card>
-            <Card className="glass border-glass-border p-4 text-center">
-              <div className="text-xs text-muted-foreground uppercase mb-1">WETH</div>
-              <div className="text-2xl font-bold text-success">
-                {lendleMarkets.isLoading ? '...' : lendleMarkets.WETH.supplyAPY ? `${lendleMarkets.WETH.supplyAPY}%` : 'N/A'}
-              </div>
-              <div className="text-xs text-muted-foreground">Supply APY</div>
-            </Card>
-          </div>
-          <p className="text-center text-xs text-muted-foreground mt-4">
-            Real-time data from Lendle Protocol on Mantle Mainnet
-          </p>
         </div>
       </section>
 
