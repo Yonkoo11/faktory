@@ -2,8 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm build",
-  "devCommand": "pnpm dev",
+  "buildCommand": "next build",
+  "devCommand": "next dev",
   "regions": ["iad1"],
   "env": {
     "NEXT_PUBLIC_INVOICE_NFT_ADDRESS": "0xf35be6ffebf91acc27a78696cf912595c6b08aaa",
