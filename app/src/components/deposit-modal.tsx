@@ -482,7 +482,7 @@ export function DepositModal({ open, onOpenChange, invoiceId, invoiceAmount, tok
             </Button>
             <Button
               onClick={handleDeposit}
-              disabled={!acceptRisk || !depositAmount || !tokenId}
+              disabled={!acceptRisk || !depositAmount || !tokenId || isProcessing}
               className="flex-1 bg-gradient-to-r from-primary to-accent hover:opacity-90"
             >
               Confirm Deposit
