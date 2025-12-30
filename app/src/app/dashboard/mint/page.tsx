@@ -52,13 +52,15 @@ function MintInvoiceContent() {
   // Check for QuickBooks connection status from URL
   useEffect(() => {
     const qbStatus = searchParams.get("quickbooks")
-    if (qbStatus === "connected") {
-      // QuickBooks was just connected
-    }
     const error = searchParams.get("error")
-    if (error) {
-      console.error("QuickBooks error:", error)
+
+    // Clear URL params after reading to keep URL clean
+    if (qbStatus || error) {
+      window.history.replaceState({}, '', '/dashboard/mint')
     }
+
+    // Note: Actual connection state is managed by QuickBooksConnect component
+    // via /api/quickbooks/invoices - these params are just for redirect feedback
   }, [searchParams])
 
   // Handle QuickBooks invoice selection

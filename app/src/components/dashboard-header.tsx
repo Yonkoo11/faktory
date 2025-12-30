@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Wallet, Plus, Bot, Shield } from "lucide-react"
@@ -8,9 +9,14 @@ import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 
 export function DashboardHeader() {
+  const [mounted, setMounted] = useState(false)
   const { address, isConnected } = useAccount()
   const { connect, isPending } = useConnect()
   const { disconnect } = useDisconnect()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 glass border-b border-glass-border">
@@ -57,7 +63,7 @@ export function DashboardHeader() {
             Mantle
           </Badge>
 
-          {isConnected && address ? (
+          {mounted && isConnected && address ? (
             <Button
               variant="outline"
               size="sm"
@@ -73,7 +79,7 @@ export function DashboardHeader() {
               size="sm"
               className="border-glass-border bg-background/50 hidden md:flex"
               onClick={() => connect({ connector: injected() })}
-              disabled={isPending}
+              disabled={!mounted || isPending}
             >
               <Wallet className="w-4 h-4 mr-2" />
               {isPending ? 'Connecting...' : 'Connect'}
