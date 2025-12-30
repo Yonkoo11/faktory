@@ -209,26 +209,26 @@ export default function DashboardPage() {
 
       <main className="container mx-auto px-4 py-8 space-y-8">
         {/* Protocol Health Banner - Institutional Trust Signal */}
-        <div className="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-success/5 via-transparent to-success/5 border border-success/20">
-          <div className="flex items-center gap-6 flex-wrap">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-lg bg-gradient-to-r from-success/5 via-transparent to-success/5 border border-success/20">
+          <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-              <span className="text-sm font-medium">Protocol Status: Operational</span>
+              <span className="text-xs sm:text-sm font-medium">Protocol Status: Operational</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Shield className="w-4 h-4 text-success" />
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+              <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-success" />
               <span><span className="font-semibold text-foreground">0%</span> default rate</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground hidden md:flex">
               <CheckCircle2 className="w-4 h-4 text-success" />
               <span><span className="font-semibold text-foreground">100%</span> withdrawal success</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground hidden lg:flex">
               <Clock className="w-4 h-4 text-primary" />
               <span>Yield starts in <span className="font-semibold text-foreground">&lt;1 min</span></span>
             </div>
           </div>
-          <Badge variant="outline" className="border-success/30 bg-success/10 text-success text-xs hidden sm:flex items-center gap-1">
+          <Badge variant="outline" className="border-success/30 bg-success/10 text-success text-xs flex items-center gap-1 self-start sm:self-auto">
             <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
             Live on Mantle
           </Badge>
