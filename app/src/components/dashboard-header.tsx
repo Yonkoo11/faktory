@@ -64,25 +64,40 @@ export function DashboardHeader() {
           </Badge>
 
           {mounted && isConnected && address ? (
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-glass-border bg-background/50 hidden md:flex"
-              onClick={() => disconnect()}
-            >
-              <Wallet className="w-4 h-4 mr-2" />
-              {address.slice(0, 6)}...{address.slice(-4)}
-            </Button>
+            <>
+              {/* Mobile: icon only with short address */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-glass-border bg-background/50 md:hidden"
+                onClick={() => disconnect()}
+                aria-label="Disconnect wallet"
+              >
+                <Wallet className="w-4 h-4 mr-1" />
+                <span className="text-xs">{address.slice(0, 4)}...{address.slice(-2)}</span>
+              </Button>
+              {/* Desktop: full address */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-glass-border bg-background/50 hidden md:flex"
+                onClick={() => disconnect()}
+              >
+                <Wallet className="w-4 h-4 mr-2" />
+                {address.slice(0, 6)}...{address.slice(-4)}
+              </Button>
+            </>
           ) : (
             <Button
               variant="outline"
               size="sm"
-              className="border-glass-border bg-background/50 hidden md:flex"
+              className="border-glass-border bg-background/50"
               onClick={() => connect({ connector: injected() })}
               disabled={!mounted || isPending}
+              aria-label="Connect wallet"
             >
-              <Wallet className="w-4 h-4 mr-2" />
-              {isPending ? 'Connecting...' : 'Connect'}
+              <Wallet className="w-4 h-4 md:mr-2" />
+              <span className="hidden md:inline">{isPending ? 'Connecting...' : 'Connect'}</span>
             </Button>
           )}
 
@@ -94,7 +109,7 @@ export function DashboardHeader() {
           </Link>
 
           <Link href="/dashboard/agent">
-            <Button variant="outline" size="icon" className="border-glass-border bg-background/50">
+            <Button variant="outline" size="icon" className="border-glass-border bg-background/50" aria-label="AI Agent settings">
               <Bot className="w-4 h-4" />
             </Button>
           </Link>

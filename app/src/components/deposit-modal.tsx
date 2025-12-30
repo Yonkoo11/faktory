@@ -261,9 +261,11 @@ export function DepositModal({ open, onOpenChange, invoiceId, invoiceAmount, tok
   // Processing state (approval or deposit in progress)
   if (isProcessing) {
     const currentStep = step === "approving" || isApproving || isApproveConfirming ? 1 : 2
+    const isConfirming = isApproveConfirming || isDepositConfirming
     const stepLabel = currentStep === 1
       ? (isApproveConfirming ? "Confirming approval..." : "Approve NFT transfer...")
       : (isDepositConfirming ? "Confirming deposit..." : "Depositing to vault...")
+    const currentHash = currentStep === 1 ? approveHash : depositHash
 
     return (
       <Dialog open={open} onOpenChange={() => {}}>
@@ -273,7 +275,19 @@ export function DepositModal({ open, onOpenChange, invoiceId, invoiceAmount, tok
               <Loader2 className="w-10 h-10 text-primary animate-spin" />
             </div>
             <h2 className="text-2xl font-bold mb-3">Processing</h2>
-            <p className="text-muted-foreground mb-6">{stepLabel}</p>
+            <p className="text-muted-foreground mb-2">{stepLabel}</p>
+
+            {/* Time estimate */}
+            <p className="text-sm text-muted-foreground mb-6">
+              {isConfirming ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                  ~15-30 seconds remaining
+                </span>
+              ) : (
+                "Waiting for wallet confirmation..."
+              )}
+            </p>
 
             {/* Progress steps */}
             <div className="flex items-center justify-center gap-4 mb-6">
@@ -285,7 +299,7 @@ export function DepositModal({ open, onOpenChange, invoiceId, invoiceAmount, tok
                 </div>
                 <span className="text-sm">Approve</span>
               </div>
-              <div className="w-8 h-0.5 bg-muted" />
+              <div className={`w-8 h-0.5 ${currentStep > 1 ? "bg-primary" : "bg-muted"}`} />
               <div className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                   currentStep >= 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
@@ -296,20 +310,24 @@ export function DepositModal({ open, onOpenChange, invoiceId, invoiceAmount, tok
               </div>
             </div>
 
-            {approveHash && currentStep === 1 && (
+            {/* Explorer link - show for both steps */}
+            {currentHash && (
               <a
-                href={`https://explorer.sepolia.mantle.xyz/tx/${approveHash}`}
+                href={`https://explorer.sepolia.mantle.xyz/tx/${currentHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+                className="inline-flex items-center gap-2 text-sm text-primary hover:underline mb-4"
               >
-                View approval tx
+                View on Explorer
                 <ExternalLink className="w-3 h-3" />
               </a>
             )}
 
             <p className="text-xs text-muted-foreground mt-4">
-              Please confirm the transaction in your wallet
+              {isConfirming
+                ? "Transaction submitted. Waiting for block confirmation..."
+                : "Please confirm the transaction in your wallet"
+              }
             </p>
           </div>
         </DialogContent>

@@ -90,8 +90,24 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Testnet Banner */}
+      <div className="fixed top-0 left-0 right-0 z-[60] bg-yellow-500 text-black py-1.5 text-center text-sm font-medium">
+        <span className="inline-flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-black/30 animate-pulse" />
+          Testnet Mode — Mantle Sepolia
+          <a
+            href="https://faucet.sepolia.mantle.xyz/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:no-underline ml-2"
+          >
+            Get test MNT
+          </a>
+        </span>
+      </div>
+
       {/* Header */}
-      <header className="fixed top-0 w-full z-50 glass border-b border-glass-border">
+      <header className="fixed top-8 w-full z-50 glass border-b border-glass-border">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
@@ -148,7 +164,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
+      <section className="pt-40 pb-20 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center space-y-6 mb-16">
             {/* Trust-First Badge */}
@@ -235,9 +251,9 @@ export default function LandingPage() {
               style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
             >
               <div className="absolute top-2 right-2">
-                <Badge variant="outline" className="border-success/30 bg-success/10 text-success text-xs">
+                <Badge variant="outline" className="border-yellow-500/30 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 text-xs">
                   <Radio className="w-3 h-3 mr-1 animate-pulse" />
-                  Live on Mantle
+                  Mantle Sepolia
                 </Badge>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
