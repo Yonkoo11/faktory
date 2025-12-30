@@ -106,3 +106,46 @@ GOOD:
 - "One commit only"
 - "No new folders"
 - "Fix this one function only"
+
+---
+
+## Screenshots (MANDATORY for UI/UX Changes)
+
+### MCP Server Available
+Puppeteer MCP is configured for taking screenshots.
+
+### Screenshot Protocol
+**BEFORE and AFTER every major design/UI update:**
+
+1. **BEFORE making changes:**
+   ```
+   Take a screenshot of http://localhost:3000/[page] and save to screenshots/before-[feature]-[date].png
+   ```
+
+2. **AFTER making changes:**
+   ```
+   Take a screenshot of http://localhost:3000/[page] and save to screenshots/after-[feature]-[date].png
+   ```
+
+### When to Take Screenshots
+- Landing page redesigns
+- Dashboard layout changes
+- New component additions
+- Color/theme changes
+- Responsive design updates
+- Any visual change that affects user experience
+
+### Screenshot Naming Convention
+```
+screenshots/
+├── before-hero-redesign-2024-12-30.png
+├── after-hero-redesign-2024-12-30.png
+├── before-dashboard-table-2024-12-30.png
+├── after-dashboard-table-2024-12-30.png
+```
+
+### Why This Matters
+- Visual regression tracking
+- Easy before/after comparisons for review
+- Documentation of design evolution
+- Proof of work for stakeholders/judges
