@@ -6,18 +6,6 @@ import { Toaster } from "sonner";
 export const metadata: Metadata = {
   title: "Faktory Protocol - Turn Unpaid Invoices Into Yield",
   description: "Tokenize business invoices as NFTs and generate yield through DeFi lending on Mantle Network",
-  icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-    ],
-  },
 };
 
 export default function RootLayout({
