@@ -380,28 +380,39 @@ export function DepositModal({ open, onOpenChange, invoiceId, invoiceAmount, tok
                 className="pl-7 bg-background/50 border-glass-border text-lg font-semibold"
               />
             </div>
+            {invoiceAmount && depositAmount !== invoiceAmount && depositAmount !== "" && (
+              <p className="text-xs text-muted-foreground">
+                Tip: Depositing the full invoice amount (${invoiceAmount}) maximizes yield.
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              No lockup — withdraw your funds anytime.
+            </p>
           </div>
 
           {/* Projected Earnings Calculator */}
           <Card className="glass border-glass-border p-5 bg-gradient-to-br from-primary/5 to-accent/5">
             <h3 className="font-semibold mb-4 flex items-center gap-2">
               <Zap className="w-4 h-4 text-primary" />
-              Projected Earnings
+              Projected Earnings (estimated)
             </h3>
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <p className="text-sm text-muted-foreground mb-1">30 Days</p>
-                <p className="text-xl font-bold gradient-text">${calculateProjectedEarnings(30)}</p>
+                <p className="text-xl font-bold gradient-text">~${calculateProjectedEarnings(30)}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">90 Days</p>
-                <p className="text-xl font-bold gradient-text">${calculateProjectedEarnings(90)}</p>
+                <p className="text-xl font-bold gradient-text">~${calculateProjectedEarnings(90)}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">1 Year</p>
-                <p className="text-xl font-bold gradient-text">${calculateProjectedEarnings(365)}</p>
+                <p className="text-xl font-bold gradient-text">~${calculateProjectedEarnings(365)}</p>
               </div>
             </div>
+            <p className="text-xs text-muted-foreground mt-3">
+              Based on current APY. Actual yield may vary.
+            </p>
           </Card>
 
           {/* Risk Disclaimer */}
