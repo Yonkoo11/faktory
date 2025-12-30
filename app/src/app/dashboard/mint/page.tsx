@@ -246,11 +246,18 @@ function MintInvoiceContent() {
           {/* Step 1: Invoice Details */}
           {step === 1 && (
             <div className="space-y-6">
-              {/* QuickBooks Connect Section */}
-              <QuickBooksConnect
-                onInvoiceSelect={handleQuickBooksSelect}
-                selectedInvoiceId={selectedQBInvoice?.id}
-              />
+              {/* QuickBooks Connect Section - Primary Path */}
+              <div className="relative">
+                <div className="absolute -top-3 left-4 z-10">
+                  <Badge className="bg-success text-success-foreground border-0 shadow-lg">
+                    Recommended
+                  </Badge>
+                </div>
+                <QuickBooksConnect
+                  onInvoiceSelect={handleQuickBooksSelect}
+                  selectedInvoiceId={selectedQBInvoice?.id}
+                />
+              </div>
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -261,8 +268,8 @@ function MintInvoiceContent() {
                 </div>
               </div>
 
-              <Card className="glass border-glass-border p-8">
-                <h2 className="text-2xl font-bold mb-6">Invoice Details</h2>
+              <Card className="glass border-glass-border p-8 opacity-90">
+                <h2 className="text-xl font-bold mb-6 text-muted-foreground">Manual Entry</h2>
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="clientName">Client Name</Label>

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Shield, Zap, Lock, TrendingUp, Wallet, Radio } from "lucide-react"
+import { ArrowRight, Zap, Lock, TrendingUp, Wallet, Radio } from "lucide-react"
 import Link from "next/link"
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { injected } from 'wagmi/connectors'
@@ -177,36 +177,18 @@ export default function LandingPage() {
             </p>
 
             <div
-              className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-in"
+              className="flex flex-col items-center gap-4 pt-4 animate-fade-in"
               style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}
             >
               <Link href="/dashboard">
-                <Button size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg h-14 px-8">
+                <Button size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg h-14 px-10 shadow-lg shadow-primary/25">
                   Launch App
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              {!isConnected ? (
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-glass-border glass hover:bg-muted/50 text-lg h-14 px-8 bg-transparent"
-                  onClick={() => connect({ connector: injected() })}
-                  disabled={isPending}
-                >
-                  {isPending ? 'Connecting...' : 'Connect Wallet'}
-                </Button>
-              ) : (
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-glass-border glass hover:bg-muted/50 text-lg h-14 px-8 bg-transparent"
-                  onClick={() => disconnect()}
-                >
-                  <Wallet className="mr-2 h-5 w-5" />
-                  {address?.slice(0, 6)}...{address?.slice(-4)}
-                </Button>
-              )}
+              <p className="text-sm text-muted-foreground">
+                No sign-up required · Connect wallet in app
+              </p>
             </div>
           </div>
 
@@ -245,19 +227,47 @@ export default function LandingPage() {
             </Card>
           )}
 
-          {/* Trust Indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-8 mt-12 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Shield className="w-4 h-4 text-primary" />
-              <span>Built on Mantle</span>
+          {/* Social Proof & Trust */}
+          <div className="mt-16 text-center animate-fade-in" style={{ animationDelay: '0.6s', animationFillMode: 'backwards' }}>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 mb-8">
+              <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+              <span className="text-sm font-medium">Mantle Global Hackathon 2025</span>
             </div>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-accent" />
-              <span>Powered by Lendle</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-success" />
-              <span>Secured by Pyth</span>
+
+            <p className="text-xs text-muted-foreground uppercase tracking-widest mb-6">Powered By</p>
+
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
+              {/* Mantle - with brand color */}
+              <div className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-br from-card/80 to-card/40 border border-glass-border hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#000] to-[#65B3AE] flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">M</span>
+                </div>
+                <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors">Mantle L2</span>
+              </div>
+
+              {/* Lendle */}
+              <div className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-br from-card/80 to-card/40 border border-glass-border hover:border-accent/30 transition-all duration-300 hover:shadow-lg hover:shadow-accent/10">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-white" />
+                </div>
+                <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors">Lendle</span>
+              </div>
+
+              {/* Pyth */}
+              <div className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-br from-card/80 to-card/40 border border-glass-border hover:border-success/30 transition-all duration-300 hover:shadow-lg hover:shadow-success/10">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7142CF] to-[#E9E0FF] flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">P</span>
+                </div>
+                <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors">Pyth Network</span>
+              </div>
+
+              {/* Anthropic Claude */}
+              <div className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-br from-card/80 to-card/40 border border-glass-border hover:border-warning/30 transition-all duration-300 hover:shadow-lg hover:shadow-warning/10">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#D97706] to-[#F59E0B] flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-white" />
+                </div>
+                <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors">AI Agent</span>
+              </div>
             </div>
           </div>
         </div>
