@@ -39,6 +39,7 @@ function MintInvoiceContent() {
 
   const [step, setStep] = useState(1)
   const [selectedQBInvoice, setSelectedQBInvoice] = useState<QuickBooksInvoice | null>(null)
+  const [formErrors, setFormErrors] = useState<{ amount?: string; dueDate?: string }>({})
   const [formData, setFormData] = useState({
     clientName: "",
     amount: "",
@@ -48,6 +49,25 @@ function MintInvoiceContent() {
     file: null as File | null,
     quickbooksId: null as string | null,
   })
+
+  // Validate form on next step
+  const validateForm = () => {
+    const errors: { amount?: string; dueDate?: string } = {}
+
+    const amountNum = parseFloat(formData.amount)
+    if (!formData.amount || amountNum <= 0) {
+      errors.amount = "Please enter an amount greater than $0"
+    }
+
+    if (!formData.dueDate) {
+      errors.dueDate = "Please select a due date"
+    } else if (formData.dueDate < new Date()) {
+      errors.dueDate = "Due date must be in the future"
+    }
+
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
 
   // Check for QuickBooks connection status from URL
   useEffect(() => {
@@ -76,7 +96,13 @@ function MintInvoiceContent() {
   }
 
   const handleNext = () => {
-    if (step < 2) setStep(step + 1)
+    if (step === 1) {
+      if (validateForm()) {
+        setStep(step + 1)
+      }
+    } else if (step < 2) {
+      setStep(step + 1)
+    }
   }
 
   const handleBack = () => {
@@ -290,11 +316,21 @@ function MintInvoiceContent() {
                       <Input
                         id="amount"
                         type="number"
+                        min="0"
+                        step="0.01"
                         placeholder="25000"
                         value={formData.amount}
-                        onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                        className="bg-background/50 border-glass-border"
+                        onChange={(e) => {
+                          setFormData({ ...formData, amount: e.target.value })
+                          if (formErrors.amount) setFormErrors({ ...formErrors, amount: undefined })
+                        }}
+                        className={`bg-background/50 border-glass-border ${formErrors.amount ? 'border-destructive' : ''}`}
+                        aria-invalid={!!formErrors.amount}
+                        aria-describedby={formErrors.amount ? "amount-error" : undefined}
                       />
+                      {formErrors.amount && (
+                        <p id="amount-error" className="text-xs text-destructive">{formErrors.amount}</p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="currency">Currency</Label>
@@ -323,7 +359,10 @@ function MintInvoiceContent() {
                           className={cn(
                             "w-full justify-start text-left font-normal bg-background/50 border-glass-border",
                             !formData.dueDate && "text-muted-foreground",
+                            formErrors.dueDate && "border-destructive",
                           )}
+                          aria-invalid={!!formErrors.dueDate}
+                          aria-describedby={formErrors.dueDate ? "duedate-error" : undefined}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {formData.dueDate ? format(formData.dueDate, "PPP") : "Pick a date"}
@@ -333,12 +372,18 @@ function MintInvoiceContent() {
                         <Calendar
                           mode="single"
                           selected={formData.dueDate}
-                          onSelect={(date) => setFormData({ ...formData, dueDate: date })}
+                          onSelect={(date) => {
+                            setFormData({ ...formData, dueDate: date })
+                            if (formErrors.dueDate) setFormErrors({ ...formErrors, dueDate: undefined })
+                          }}
                           initialFocus
                           disabled={(date) => date < new Date()}
                         />
                       </PopoverContent>
                     </Popover>
+                    {formErrors.dueDate && (
+                      <p id="duedate-error" className="text-xs text-destructive">{formErrors.dueDate}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">

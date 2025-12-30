@@ -6,11 +6,14 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { TrendingUp, Wallet, FileText, MoreVertical, ArrowUpRight, Search, Filter, Loader2, Shield, CheckCircle2, Clock, AlertTriangle } from "lucide-react"
+import { Area, AreaChart, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis } from "recharts"
+import { TrendingUp, Wallet, FileText, MoreVertical, ArrowUpRight, Search, Filter, Loader2, Shield, CheckCircle2, Clock, AlertTriangle, Info, RefreshCw } from "lucide-react"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Input } from "@/components/ui/input"
 import { DepositModal } from "@/components/deposit-modal"
+import { SkeletonCard, SkeletonPortfolioCard } from "@/components/ui/skeleton-card"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { toast } from "sonner"
 import Link from "next/link"
 import { useAccount } from "wagmi"
 import { useInvoiceNFT } from "@/hooks/use-invoice-nft"
@@ -32,28 +35,47 @@ interface InvoiceDisplay {
   paymentProbability: number
 }
 
-// Risk score badge component
+// Risk score badge component with tooltip
 function RiskBadge({ score }: { score: number }) {
-  if (score >= 80) {
-    return (
-      <div className="flex items-center gap-1.5">
-        <div className="w-2 h-2 rounded-full bg-success" />
-        <span className="text-xs font-medium text-success">{score}</span>
-      </div>
-    )
-  } else if (score >= 60) {
-    return (
-      <div className="flex items-center gap-1.5">
-        <div className="w-2 h-2 rounded-full bg-warning" />
-        <span className="text-xs font-medium text-warning">{score}</span>
-      </div>
-    )
+  const getRiskLevel = () => {
+    if (score >= 80) return {
+      dotClass: "bg-success",
+      textClass: "text-success",
+      label: "Low Risk",
+      desc: "High payment probability"
+    }
+    if (score >= 60) return {
+      dotClass: "bg-warning",
+      textClass: "text-warning",
+      label: "Medium Risk",
+      desc: "Moderate payment probability"
+    }
+    return {
+      dotClass: "bg-destructive",
+      textClass: "text-destructive",
+      label: "High Risk",
+      desc: "Lower payment probability"
+    }
   }
+
+  const { dotClass, textClass, label, desc } = getRiskLevel()
+
   return (
-    <div className="flex items-center gap-1.5">
-      <div className="w-2 h-2 rounded-full bg-destructive" />
-      <span className="text-xs font-medium text-destructive">{score}</span>
-    </div>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center gap-1.5 cursor-help">
+            <div className={`w-2 h-2 rounded-full ${dotClass}`} />
+            <span className={`text-xs font-medium ${textClass}`}>{score}</span>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-[200px]">
+          <p className="font-medium">{label}</p>
+          <p className="text-xs text-muted-foreground">{desc}</p>
+          <p className="text-xs text-muted-foreground mt-1">AI-predicted payment score based on invoice data</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }
 
@@ -94,6 +116,7 @@ export default function DashboardPage() {
   const [selectedInvoice, setSelectedInvoice] = useState<{ id: string; amount: string } | null>(null)
   const [invoices, setInvoices] = useState<InvoiceDisplay[]>([])
   const [isLoadingInvoices, setIsLoadingInvoices] = useState(true)
+  const [invoiceError, setInvoiceError] = useState<string | null>(null)
 
   const { address, isConnected } = useAccount()
   const { totalInvoices, userBalance, activeInvoices, isLoading: isLoadingNFT } = useInvoiceNFT()
@@ -145,8 +168,10 @@ export default function DashboardPage() {
         }
       } catch (error) {
         console.error("Failed to fetch invoices:", error)
-        // Use mock data as fallback
-        setInvoices(mockInvoices)
+        setInvoiceError("Failed to load invoices")
+        toast.error("Failed to load invoices", {
+          description: "Please check your connection and try again"
+        })
       } finally {
         setIsLoadingInvoices(false)
       }
@@ -154,6 +179,13 @@ export default function DashboardPage() {
 
     fetchInvoices()
   }, [isConnected, conservativeAPY, aggressiveAPY])
+
+  const retryFetchInvoices = () => {
+    setIsLoadingInvoices(true)
+    setInvoiceError(null)
+    // Re-trigger the useEffect by toggling a state (will be handled by the dependency array)
+    window.location.reload()
+  }
 
   const handleDeposit = (invoiceId: string, amount: string) => {
     setSelectedInvoice({ id: invoiceId, amount })
@@ -168,8 +200,8 @@ export default function DashboardPage() {
   // Calculate average APY
   const avgAPY = activeCount > 0 ? (conservativeAPY + aggressiveAPY) / 2 : 0
 
-  // Use mock data if no real data available (for demo purposes)
-  const displayInvoices = invoices.length > 0 ? invoices : mockInvoices
+  // Only use mock data for demo when connected and no error
+  const displayInvoices = invoiceError ? [] : (invoices.length > 0 ? invoices : (isConnected ? mockInvoices : []))
 
   return (
     <div className="min-h-screen bg-background">
@@ -204,64 +236,74 @@ export default function DashboardPage() {
 
         {/* Portfolio Overview Cards - Hero metric + supporting metrics */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Primary Metric - Portfolio Value */}
-          <Card className="glass border-glass-border p-8 lg:row-span-2 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20 hover:border-primary/40 transition-all">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <Wallet className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
-                <div className="text-4xl font-bold gradient-text">
-                  ${portfolioValue.toLocaleString()}
+          {isLoadingNFT ? (
+            <>
+              <SkeletonPortfolioCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </>
+          ) : (
+            <>
+              {/* Primary Metric - Portfolio Value */}
+              <Card className="glass border-glass-border p-8 lg:row-span-2 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20 hover:border-primary/40 transition-all">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                    <Wallet className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
+                    <div className="text-4xl font-bold gradient-text">
+                      ${portfolioValue.toLocaleString()}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-glass-border">
-              <div>
-                <div className="text-2xl font-bold text-success">~${totalYieldEarned.toFixed(2)}</div>
-                <div className="text-xs text-muted-foreground">Yield earned (estimated)</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-primary">{avgAPY.toFixed(1)}%</div>
-                <div className="text-xs text-muted-foreground">Average APY</div>
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground mt-4 pt-4 border-t border-glass-border">
-              No lockup period — withdraw your funds anytime
-            </p>
-          </Card>
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-glass-border">
+                  <div>
+                    <div className="text-2xl font-bold text-success">~${totalYieldEarned.toFixed(2)}</div>
+                    <div className="text-xs text-muted-foreground">Yield earned (estimated)</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-primary">{avgAPY.toFixed(1)}%</div>
+                    <div className="text-xs text-muted-foreground">Average APY</div>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-4 pt-4 border-t border-glass-border">
+                  No lockup period — withdraw your funds anytime
+                </p>
+              </Card>
 
-          {/* Secondary Metrics */}
-          <Card className="glass border-glass-border p-6 hover:border-success/30 transition-all">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-sm text-muted-foreground">Active Invoices</span>
-                <div className="text-3xl font-bold mt-1">{activeCount}</div>
-                <div className="text-xs text-muted-foreground mt-1">{userBalance} owned by you</div>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
-                <FileText className="w-6 h-6 text-success" />
-              </div>
-            </div>
-          </Card>
+              {/* Secondary Metrics */}
+              <Card className="glass border-glass-border p-6 hover:border-success/30 transition-all">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-sm text-muted-foreground">Active Invoices</span>
+                    <div className="text-3xl font-bold mt-1">{activeCount}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{userBalance} owned by you</div>
+                  </div>
+                  <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
+                    <FileText className="w-6 h-6 text-success" />
+                  </div>
+                </div>
+              </Card>
 
-          <Card className="glass border-glass-border p-6 hover:border-accent/30 transition-all">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-sm text-muted-foreground">Strategy Distribution</span>
-                <div className="text-3xl font-bold mt-1">
-                  {activeCount > 0 ? 'Mixed' : 'No deposits'}
+              <Card className="glass border-glass-border p-6 hover:border-accent/30 transition-all">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-sm text-muted-foreground">Strategy Distribution</span>
+                    <div className="text-3xl font-bold mt-1">
+                      {activeCount > 0 ? 'Mixed' : 'No deposits'}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {activeCount > 0 ? 'Conservative + Aggressive' : 'Deposit to start earning'}
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-accent" />
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {activeCount > 0 ? 'Conservative + Aggressive' : 'Deposit to start earning'}
-                </div>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-accent" />
-              </div>
-            </div>
-          </Card>
+              </Card>
+            </>
+          )}
         </div>
 
         {/* Yield Chart - Only show when there's real yield data */}
@@ -303,7 +345,7 @@ export default function DashboardPage() {
                   axisLine={false}
                   tickFormatter={(value) => `$${value}`}
                 />
-                <Tooltip
+                <RechartsTooltip
                   contentStyle={{
                     backgroundColor: "hsl(var(--card))",
                     border: "1px solid hsl(var(--border))",
@@ -354,7 +396,7 @@ export default function DashboardPage() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input placeholder="Search invoices..." className="pl-9 bg-background/50 border-glass-border" />
                 </div>
-                <Button variant="outline" size="icon" className="border-glass-border bg-background/50">
+                <Button variant="outline" size="icon" className="border-glass-border bg-background/50" aria-label="Filter invoices">
                   <Filter className="w-4 h-4" />
                 </Button>
               </div>
@@ -365,6 +407,20 @@ export default function DashboardPage() {
             {isLoadingInvoices ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : invoiceError ? (
+              <div className="text-center py-12 px-8">
+                <div className="w-16 h-16 rounded-xl bg-destructive/10 flex items-center justify-center mx-auto mb-6">
+                  <AlertTriangle className="w-8 h-8 text-destructive" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Failed to load invoices</h3>
+                <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
+                  There was an error loading your invoices. Please check your connection and try again.
+                </p>
+                <Button onClick={retryFetchInvoices} variant="outline" className="gap-2">
+                  <RefreshCw className="w-4 h-4" />
+                  Retry
+                </Button>
               </div>
             ) : displayInvoices.length === 0 ? (
               <div className="text-center py-12 px-8">
@@ -392,79 +448,138 @@ export default function DashboardPage() {
                 </div>
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-glass-border hover:bg-transparent">
-                    <TableHead className="text-muted-foreground">Invoice</TableHead>
-                    <TableHead className="text-muted-foreground">Amount</TableHead>
-                    <TableHead className="text-muted-foreground">Due</TableHead>
-                    <TableHead className="text-muted-foreground">Risk</TableHead>
-                    <TableHead className="text-muted-foreground">Strategy</TableHead>
-                    <TableHead className="text-muted-foreground">APY</TableHead>
-                    <TableHead className="text-muted-foreground">Yield</TableHead>
-                    <TableHead className="text-muted-foreground">Status</TableHead>
-                    <TableHead className="text-muted-foreground"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <>
+                {/* Mobile Card Layout */}
+                <div className="md:hidden divide-y divide-glass-border">
                   {displayInvoices.map((invoice) => (
-                    <TableRow key={invoice.id} className="border-glass-border hover:bg-muted/10 cursor-pointer transition-colors group">
-                      <TableCell className="font-mono font-medium">
-                        <Link href={`/dashboard/invoice/${invoice.tokenId || invoice.id}`} className="hover:text-primary flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                            <FileText className="w-4 h-4 text-primary" />
+                    <Link
+                      key={invoice.id}
+                      href={`/dashboard/invoice/${invoice.tokenId || invoice.id}`}
+                      className="block p-4 hover:bg-muted/10 transition-colors"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <FileText className="w-5 h-5 text-primary" />
                           </div>
-                          {invoice.id}
-                        </Link>
-                      </TableCell>
-                      <TableCell className="font-semibold">{invoice.amount}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="text-sm">{invoice.dueDate}</span>
-                          <span className={`text-xs ${invoice.daysUntilDue < 0 ? 'text-destructive' : invoice.daysUntilDue < 7 ? 'text-warning' : 'text-muted-foreground'}`}>
-                            {invoice.daysUntilDue < 0 ? 'Overdue' : `${invoice.daysUntilDue}d left`}
-                          </span>
+                          <div>
+                            <span className="font-mono font-medium">{invoice.id}</span>
+                            <div className="text-lg font-semibold">{invoice.amount}</div>
+                          </div>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <RiskBadge score={invoice.riskScore} />
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm">{invoice.strategy}</span>
-                      </TableCell>
-                      <TableCell>
-                        <span className={invoice.apy === "0.0%" ? "text-muted-foreground" : "text-success font-medium"}>
-                          {invoice.apy}
-                        </span>
-                      </TableCell>
-                      <TableCell className="font-semibold text-success">{invoice.accruedYield}</TableCell>
-                      <TableCell>
                         <StatusBadge status={invoice.status} />
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="glass border-glass-border">
-                            <DropdownMenuItem asChild>
-                              <Link href={`/dashboard/invoice/${invoice.tokenId || invoice.id}`}>View Details</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDeposit(invoice.id, invoice.amount.replace("$", "").replace(",", ""))}
-                            >
-                              {invoice.strategy === "Hold" ? "Deposit for Yield" : "Change Strategy"}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>Withdraw Yield</DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+                      </div>
+                      <div className="grid grid-cols-3 gap-3 text-sm">
+                        <div>
+                          <div className="text-muted-foreground text-xs">Due</div>
+                          <div className={invoice.daysUntilDue < 0 ? 'text-destructive' : invoice.daysUntilDue < 7 ? 'text-warning' : ''}>
+                            {invoice.daysUntilDue < 0 ? 'Overdue' : `${invoice.daysUntilDue}d`}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground text-xs">APY</div>
+                          <div className={invoice.apy === "0.0%" ? "text-muted-foreground" : "text-success font-medium"}>
+                            {invoice.apy}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-muted-foreground text-xs">Yield</div>
+                          <div className="text-success font-medium">{invoice.accruedYield}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-glass-border">
+                        <RiskBadge score={invoice.riskScore} />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleDeposit(invoice.id, invoice.amount.replace("$", "").replace(",", ""))
+                          }}
+                        >
+                          {invoice.strategy === "Hold" ? "Deposit" : "Manage"}
+                        </Button>
+                      </div>
+                    </Link>
                   ))}
-                </TableBody>
-              </Table>
+                </div>
+
+                {/* Desktop Table */}
+                <Table className="hidden md:table">
+                  <TableHeader>
+                    <TableRow className="border-glass-border hover:bg-transparent">
+                      <TableHead className="text-muted-foreground">Invoice</TableHead>
+                      <TableHead className="text-muted-foreground">Amount</TableHead>
+                      <TableHead className="text-muted-foreground">Due</TableHead>
+                      <TableHead className="text-muted-foreground">Risk</TableHead>
+                      <TableHead className="text-muted-foreground">Strategy</TableHead>
+                      <TableHead className="text-muted-foreground">APY</TableHead>
+                      <TableHead className="text-muted-foreground">Yield</TableHead>
+                      <TableHead className="text-muted-foreground">Status</TableHead>
+                      <TableHead className="text-muted-foreground"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {displayInvoices.map((invoice) => (
+                      <TableRow key={invoice.id} className="border-glass-border hover:bg-muted/10 cursor-pointer transition-colors group">
+                        <TableCell className="font-mono font-medium">
+                          <Link href={`/dashboard/invoice/${invoice.tokenId || invoice.id}`} className="hover:text-primary flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                              <FileText className="w-4 h-4 text-primary" />
+                            </div>
+                            {invoice.id}
+                          </Link>
+                        </TableCell>
+                        <TableCell className="font-semibold">{invoice.amount}</TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="text-sm">{invoice.dueDate}</span>
+                            <span className={`text-xs ${invoice.daysUntilDue < 0 ? 'text-destructive' : invoice.daysUntilDue < 7 ? 'text-warning' : 'text-muted-foreground'}`}>
+                              {invoice.daysUntilDue < 0 ? 'Overdue' : `${invoice.daysUntilDue}d left`}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <RiskBadge score={invoice.riskScore} />
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm">{invoice.strategy}</span>
+                        </TableCell>
+                        <TableCell>
+                          <span className={invoice.apy === "0.0%" ? "text-muted-foreground" : "text-success font-medium"}>
+                            {invoice.apy}
+                          </span>
+                        </TableCell>
+                        <TableCell className="font-semibold text-success">{invoice.accruedYield}</TableCell>
+                        <TableCell>
+                          <StatusBadge status={invoice.status} />
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <MoreVertical className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="glass border-glass-border">
+                              <DropdownMenuItem asChild>
+                                <Link href={`/dashboard/invoice/${invoice.tokenId || invoice.id}`}>View Details</Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleDeposit(invoice.id, invoice.amount.replace("$", "").replace(",", ""))}
+                              >
+                                {invoice.strategy === "Hold" ? "Deposit for Yield" : "Change Strategy"}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>Withdraw Yield</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </>
             )}
           </div>
         </Card>
