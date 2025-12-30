@@ -116,7 +116,7 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-3">
-            {isConnected && address ? (
+            {mounted && isConnected && address ? (
               <Button
                 variant="ghost"
                 size="sm"
