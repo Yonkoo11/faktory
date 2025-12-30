@@ -74,7 +74,7 @@ function MintInvoiceContent() {
   }
 
   const handleNext = () => {
-    if (step < 3) setStep(step + 1)
+    if (step < 2) setStep(step + 1)
   }
 
   const handleBack = () => {
@@ -111,7 +111,7 @@ function MintInvoiceContent() {
     }
   }
 
-  const progress = (step / 3) * 100
+  const progress = (step / 2) * 100
   const isMinting = isPending || isConfirming
 
   // Confetti celebration function
@@ -214,12 +214,12 @@ function MintInvoiceContent() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
-          {/* Progress Header */}
+          {/* Progress Header - Simplified to 2 steps */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-3xl font-bold">Mint Invoice NFT</h1>
               <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">
-                Step {step} of 3
+                Step {step} of 2
               </Badge>
             </div>
             <Progress value={progress} className="h-2" />
@@ -230,23 +230,15 @@ function MintInvoiceContent() {
                 }`}>
                   {step > 1 ? <CheckCircle2 className="w-3 h-3" /> : "1"}
                 </div>
-                <span className={`text-sm ${step >= 1 ? "text-primary font-medium" : "text-muted-foreground"}`}>Details</span>
+                <span className={`text-sm ${step >= 1 ? "text-primary font-medium" : "text-muted-foreground"}`}>Invoice Details</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
                   step >= 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                 }`}>
-                  {step > 2 ? <CheckCircle2 className="w-3 h-3" /> : "2"}
+                  2
                 </div>
-                <span className={`text-sm ${step >= 2 ? "text-primary font-medium" : "text-muted-foreground"}`}>Privacy</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
-                  step >= 3 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                }`}>
-                  3
-                </div>
-                <span className={`text-sm ${step >= 3 ? "text-primary font-medium" : "text-muted-foreground"}`}>Review</span>
+                <span className={`text-sm ${step >= 2 ? "text-primary font-medium" : "text-muted-foreground"}`}>Review & Mint</span>
               </div>
             </div>
           </div>
@@ -356,6 +348,23 @@ function MintInvoiceContent() {
                     </div>
                   </div>
 
+                  {/* Privacy toggle - inline in step 1 */}
+                  <div className="flex items-start justify-between gap-4 p-4 bg-background/50 rounded-lg border border-glass-border">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Shield className="w-4 h-4 text-primary" />
+                        <h3 className="font-medium text-sm">Enable Selective Disclosure</h3>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Allow verified parties to request access to specific invoice details.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={formData.allowDisclosure}
+                      onCheckedChange={(checked) => setFormData({ ...formData, allowDisclosure: checked })}
+                    />
+                  </div>
+
                   <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/20 rounded-lg">
                     <Shield className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                     <div className="text-sm">
@@ -373,7 +382,7 @@ function MintInvoiceContent() {
                     disabled={!formData.clientName || !formData.amount || !formData.dueDate}
                     className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
                   >
-                    Next Step
+                    Review & Mint
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -381,70 +390,8 @@ function MintInvoiceContent() {
             </div>
           )}
 
-          {/* Step 2: Privacy Settings */}
+          {/* Step 2: Review & Mint */}
           {step === 2 && (
-            <Card className="glass border-glass-border p-8">
-              <h2 className="text-2xl font-bold mb-6">Privacy Settings</h2>
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between gap-4 p-6 bg-background/50 rounded-lg border border-glass-border">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Shield className="w-5 h-5 text-primary" />
-                        <h3 className="font-semibold">Selective Disclosure</h3>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Allow verified parties to request access to specific invoice details. You maintain full control
-                        over what information is shared.
-                      </p>
-                    </div>
-                    <Switch
-                      checked={formData.allowDisclosure}
-                      onCheckedChange={(checked) => setFormData({ ...formData, allowDisclosure: checked })}
-                    />
-                  </div>
-
-                  <div className="p-6 bg-muted/30 rounded-lg border border-glass-border">
-                    <h3 className="font-semibold mb-3">How Privacy Works</h3>
-                    <ul className="space-y-3 text-sm text-muted-foreground">
-                      <li className="flex items-start gap-3">
-                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-xs font-semibold text-primary">1</span>
-                        </div>
-                        <span>Invoice data is encrypted and stored as a cryptographic commitment hash</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-xs font-semibold text-primary">2</span>
-                        </div>
-                        <span>Only the commitment hash is stored on-chain, ensuring complete privacy</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-xs font-semibold text-primary">3</span>
-                        </div>
-                        <span>You can selectively prove specific details without revealing the full invoice</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-between gap-3 mt-8">
-                <Button variant="outline" onClick={handleBack} className="border-glass-border bg-background/50">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back
-                </Button>
-                <Button onClick={handleNext} className="bg-gradient-to-r from-primary to-accent hover:opacity-90">
-                  Next Step
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </Card>
-          )}
-
-          {/* Step 3: Review & Mint */}
-          {step === 3 && (
             <Card className="glass border-glass-border p-8">
               <h2 className="text-2xl font-bold mb-6">Review & Mint</h2>
               <div className="space-y-6">

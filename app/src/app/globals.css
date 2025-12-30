@@ -17,7 +17,7 @@
   --secondary-foreground: oklch(0.85 0 0);
   --muted: oklch(0.12 0 0);
   --muted-foreground: oklch(0.55 0 0);
-  --accent: oklch(0.6 0.2 290); /* Purple accent #8B5CF6 */
+  --accent: oklch(0.65 0.18 220); /* Cyan-blue accent #06B6D4 - harmonizes with primary */
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.55 0.22 25); /* Red for risk */
   --destructive-foreground: oklch(0.98 0 0);
@@ -31,7 +31,7 @@
   --glass-bg: oklch(0.08 0 0 / 0.5); /* Glass morphism background */
   --glass-border: oklch(0.95 0 0 / 0.05); /* Subtle glass border */
   --chart-1: oklch(0.6 0.22 265); /* Electric blue */
-  --chart-2: oklch(0.6 0.2 290); /* Purple */
+  --chart-2: oklch(0.65 0.18 220); /* Cyan */
   --chart-3: oklch(0.65 0.18 145); /* Green */
   --chart-4: oklch(0.75 0.15 85); /* Amber */
   --chart-5: oklch(0.55 0.22 25); /* Red */
@@ -143,9 +143,9 @@
     border: 1px solid var(--glass-border);
   }
 
-  /* Gradient text utility */
+  /* Gradient text utility - blue to cyan for visual interest without purple */
   .gradient-text {
-    background: linear-gradient(135deg, oklch(0.6 0.22 265), oklch(0.6 0.2 290));
+    background: linear-gradient(135deg, oklch(0.6 0.22 265), oklch(0.65 0.18 220));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -225,9 +225,9 @@
   animation: scale-in 0.3s ease-out forwards;
 }
 
-/* Gradient text effect */
+/* Gradient text effect - unified blue palette */
 .text-gradient {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 50%, #06b6d4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

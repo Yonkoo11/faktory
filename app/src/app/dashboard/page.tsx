@@ -129,9 +129,8 @@ export default function DashboardPage() {
   // Calculate average APY
   const avgAPY = activeCount > 0 ? (conservativeAPY + aggressiveAPY) / 2 : 0
 
-  // Use mock data if no real data available
+  // Use mock data if no real data available (for demo purposes)
   const displayInvoices = invoices.length > 0 ? invoices : mockInvoices
-  const isUsingMockData = invoices.length === 0 && displayInvoices.length > 0
 
   return (
     <div className="min-h-screen bg-background">
@@ -213,74 +212,86 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Yield Chart */}
-        <Card className="glass border-glass-border p-6 relative">
-          <div className="absolute top-4 right-4">
-            <span className="text-xs text-muted-foreground/60 bg-muted/50 px-2 py-0.5 rounded">Sample Data</span>
-          </div>
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-bold mb-1">Cumulative Yield</h2>
-              <p className="text-sm text-muted-foreground">Your earnings over time</p>
+        {/* Yield Chart - Only show when there's real yield data */}
+        {totalYieldEarned > 0 ? (
+          <Card className="glass border-glass-border p-6 relative">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold mb-1">Cumulative Yield</h2>
+                <p className="text-sm text-muted-foreground">Your earnings over time</p>
+              </div>
+              <div className="flex gap-2">
+                {["7D", "30D", "90D", "All"].map((range) => (
+                  <Button
+                    key={range}
+                    variant={timeRange === range ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setTimeRange(range)}
+                    className={timeRange === range ? "bg-primary" : ""}
+                  >
+                    {range}
+                  </Button>
+                ))}
+              </div>
             </div>
-            <div className="flex gap-2">
-              {["7D", "30D", "90D", "All"].map((range) => (
-                <Button
-                  key={range}
-                  variant={timeRange === range ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setTimeRange(range)}
-                  className={timeRange === range ? "bg-primary" : ""}
-                >
-                  {range}
-                </Button>
-              ))}
-            </div>
-          </div>
 
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={yieldData}>
-              <defs>
-                <linearGradient id="yieldGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis
-                stroke="hsl(var(--muted-foreground))"
-                fontSize={12}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(value) => `$${value}`}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "0.5rem",
-                  color: "hsl(var(--foreground))",
-                }}
-                formatter={(value) => [`$${Number(value).toFixed(2)}`, "Yield"]}
-              />
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke="hsl(var(--primary))"
-                strokeWidth={2}
-                fill="url(#yieldGradient)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </Card>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={yieldData}>
+                <defs>
+                  <linearGradient id="yieldGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(value) => `$${value}`}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "0.5rem",
+                    color: "hsl(var(--foreground))",
+                  }}
+                  formatter={(value) => [`$${Number(value).toFixed(2)}`, "Yield"]}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="value"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2}
+                  fill="url(#yieldGradient)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </Card>
+        ) : (
+          <Card className="glass border-glass-border p-8">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No Yield Earned Yet</h3>
+              <p className="text-muted-foreground text-sm mb-4">
+                Deposit your invoices to start earning yield. Your earnings chart will appear here.
+              </p>
+              <Button asChild variant="outline" className="border-glass-border">
+                <Link href="/dashboard/mint">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Mint Your First Invoice
+                </Link>
+              </Button>
+            </div>
+          </Card>
+        )}
 
         {/* Invoice Table */}
         <Card className="glass border-glass-border relative">
-          {isUsingMockData && (
-            <div className="absolute top-4 right-4">
-              <span className="text-xs text-muted-foreground/60 bg-muted/50 px-2 py-0.5 rounded">Demo Data</span>
-            </div>
-          )}
           <div className="p-6 border-b border-glass-border">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
