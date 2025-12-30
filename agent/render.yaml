@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: faktory-agent
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: pnpm install && pnpm build
+    startCommand: pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: WS_PORT
+        value: 8080
+      - key: MANTLE_RPC_URL
+        value: https://rpc.sepolia.mantle.xyz
+      - key: INVOICE_NFT_ADDRESS
+        value: 0xf35be6ffebf91acc27a78696cf912595c6b08aaa
+      - key: YIELD_VAULT_ADDRESS
+        value: 0xd2cad31a080b0dae98d9d6427e500b50bcb92774
+      - key: AGENT_ROUTER_ADDRESS
+        value: 0xec5bfee9d17e25cc8d52b8cb7fb81d8cabb53c5f
+      - key: MOCK_ORACLE_ADDRESS
+        value: 0xede6db2855bacf191e5b2e2d91b6276bb56bf183
+      - key: AGENT_PRIVATE_KEY
+        sync: false  # Will be set via Render dashboard (sensitive)
+      - key: ANTHROPIC_API_KEY
+        sync: false  # Will be set via Render dashboard (sensitive)
