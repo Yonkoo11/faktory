@@ -5,7 +5,8 @@ import { formatEther } from 'viem';
 import { getContractAddresses, areContractsDeployed } from '@/lib/wagmi';
 import { InvoiceNFTABI, YieldVaultABI, StrategyNames, InvoiceStatusNames } from '@/lib/abi';
 import { useState, useEffect, useCallback } from 'react';
-import { FileText, Briefcase, RefreshCw, Lock, AlertTriangle, Check, Loader2 } from 'lucide-react';
+import { FileText, Briefcase, RefreshCw, Lock, AlertTriangle, Check, Loader2, ExternalLink } from 'lucide-react';
+import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface InvoiceData {
@@ -96,22 +97,36 @@ function InvoiceCard({ tokenId, onRefresh }: { tokenId: string; onRefresh?: () =
 
   // Reset and refresh on successful deposit
   useEffect(() => {
-    if (isDepositSuccess) {
+    if (isDepositSuccess && depositHash) {
+      toast.success('Deposit successful!', {
+        description: 'Your invoice is now earning yield.',
+        action: {
+          label: 'View tx',
+          onClick: () => window.open(`https://sepolia.mantlescan.xyz/tx/${depositHash}`, '_blank'),
+        },
+      });
       setShowDeposit(false);
       setDepositTriggered(false);
       resetApprove();
       refetchDeposit();
       onRefresh?.();
     }
-  }, [isDepositSuccess, resetApprove, refetchDeposit, onRefresh]);
+  }, [isDepositSuccess, depositHash, resetApprove, refetchDeposit, onRefresh]);
 
   // Refresh on successful withdraw
   useEffect(() => {
-    if (isWithdrawSuccess) {
+    if (isWithdrawSuccess && withdrawHash) {
+      toast.success('Withdrawal successful!', {
+        description: 'Your funds have been returned to your wallet.',
+        action: {
+          label: 'View tx',
+          onClick: () => window.open(`https://sepolia.mantlescan.xyz/tx/${withdrawHash}`, '_blank'),
+        },
+      });
       refetchDeposit();
       onRefresh?.();
     }
-  }, [isWithdrawSuccess, refetchDeposit, onRefresh]);
+  }, [isWithdrawSuccess, withdrawHash, refetchDeposit, onRefresh]);
 
   if (isLoadingInvoice) {
     return (
