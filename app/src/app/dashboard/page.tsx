@@ -245,9 +245,12 @@ export default function DashboardPage() {
           ) : (
             <>
               {/* Primary Metric - Portfolio Value */}
-              <Card className="glass border-glass-border p-8 lg:row-span-2 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20 hover:border-primary/40 transition-all">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <Card className="glass border-glass-border p-8 lg:row-span-2 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20 hover-glow hover:border-primary/40 transition-all relative overflow-hidden group">
+                {/* Subtle animated background */}
+                <div className="absolute inset-0 bg-gradient-orange-purple opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                <div className="flex items-center gap-3 mb-6 relative z-10">
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all">
                     <Wallet className="w-7 h-7 text-white" />
                   </div>
                   <div>
@@ -273,20 +276,20 @@ export default function DashboardPage() {
               </Card>
 
               {/* Secondary Metrics */}
-              <Card className="glass border-glass-border p-6 hover:border-success/30 transition-all">
+              <Card className="glass border-glass-border p-6 hover-glow hover:border-success/40 transition-all group">
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="text-sm text-muted-foreground">Active Invoices</span>
                     <div className="text-3xl font-bold mt-1">{activeCount}</div>
                     <div className="text-xs text-muted-foreground mt-1">{userBalance} owned by you</div>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center group-hover:shadow-lg group-hover:shadow-success/20 transition-all">
                     <FileText className="w-6 h-6 text-success" />
                   </div>
                 </div>
               </Card>
 
-              <Card className="glass border-glass-border p-6 hover:border-accent/30 transition-all">
+              <Card className="glass border-glass-border p-6 hover-glow hover:border-accent/40 transition-all group">
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="text-sm text-muted-foreground">Strategy Distribution</span>
@@ -297,7 +300,7 @@ export default function DashboardPage() {
                       {activeCount > 0 ? 'Conservative + Aggressive' : 'Deposit to start earning'}
                     </div>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center group-hover:shadow-lg group-hover:shadow-accent/20 transition-all">
                     <TrendingUp className="w-6 h-6 text-accent" />
                   </div>
                 </div>

@@ -4,42 +4,42 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Premium DeFi dark theme with electric blue and purple accents */
+  /* Bold & Intelligent - Orange/Purple AI-powered DeFi theme */
   --background: oklch(0.04 0 0); /* #0A0A0B - Ultra dark background */
   --foreground: oklch(0.98 0 0); /* Near white text */
   --card: oklch(0.08 0 0); /* Slightly lighter than background for cards */
   --card-foreground: oklch(0.95 0 0);
   --popover: oklch(0.06 0 0);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.6 0.22 265); /* Electric blue #3B82F6 */
+  --primary: oklch(0.7 0.18 50); /* Warm Orange - Energy, Action, Earnings */
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.15 0 0); /* Dark gray for subtle elements */
   --secondary-foreground: oklch(0.85 0 0);
   --muted: oklch(0.12 0 0);
   --muted-foreground: oklch(0.55 0 0);
-  --accent: oklch(0.65 0.18 220); /* Cyan-blue accent #06B6D4 - harmonizes with primary */
+  --accent: oklch(0.6 0.22 290); /* Deep Purple - AI, Intelligence, Premium */
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.55 0.22 25); /* Red for risk */
   --destructive-foreground: oklch(0.98 0 0);
-  --success: oklch(0.65 0.18 145); /* Green for success */
+  --success: oklch(0.65 0.18 145); /* Emerald Green - Growth, Trust, Yield */
   --success-foreground: oklch(0.98 0 0);
   --warning: oklch(0.75 0.15 85); /* Amber for pending */
   --warning-foreground: oklch(0.15 0 0);
   --border: oklch(0.12 0 0 / 0.3); /* Subtle borders */
   --input: oklch(0.12 0 0 / 0.5);
-  --ring: oklch(0.6 0.22 265);
+  --ring: oklch(0.7 0.18 50); /* Orange ring */
   --glass-bg: oklch(0.08 0 0 / 0.5); /* Glass morphism background */
   --glass-border: oklch(0.95 0 0 / 0.05); /* Subtle glass border */
-  --chart-1: oklch(0.6 0.22 265); /* Electric blue */
-  --chart-2: oklch(0.65 0.18 220); /* Cyan */
-  --chart-3: oklch(0.65 0.18 145); /* Green */
-  --chart-4: oklch(0.75 0.15 85); /* Amber */
-  --chart-5: oklch(0.55 0.22 25); /* Red */
+  --chart-1: oklch(0.7 0.18 50); /* Orange - Deposits */
+  --chart-2: oklch(0.6 0.22 290); /* Purple - AI Actions */
+  --chart-3: oklch(0.65 0.18 145); /* Green - Yield */
+  --chart-4: oklch(0.75 0.15 85); /* Amber - Warnings */
+  --chart-5: oklch(0.55 0.22 25); /* Red - Risk */
   --radius: 0.75rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.7 0.18 50);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
@@ -143,9 +143,9 @@
     border: 1px solid var(--glass-border);
   }
 
-  /* Gradient text utility - blue to cyan for visual interest without purple */
+  /* Gradient text utility - orange to purple for bold, energetic AI vibe */
   .gradient-text {
-    background: linear-gradient(135deg, oklch(0.6 0.22 265), oklch(0.65 0.18 220));
+    background: linear-gradient(135deg, oklch(0.7 0.18 50), oklch(0.6 0.22 290));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -186,10 +186,10 @@
 
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 5px rgba(255, 138, 51, 0.5);
   }
   50% {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+    box-shadow: 0 0 20px rgba(255, 138, 51, 0.8);
   }
 }
 
@@ -225,9 +225,9 @@
   animation: scale-in 0.3s ease-out forwards;
 }
 
-/* Gradient text effect - unified blue palette */
+/* Gradient text effect - bold orange to purple palette */
 .text-gradient {
-  background: linear-gradient(135deg, #3b82f6 0%, #0ea5e9 50%, #06b6d4 100%);
+  background: linear-gradient(135deg, #ff8a33 0%, #a855f7 50%, #9333ea 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -243,10 +243,10 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
-/* Agent activity flash for new items */
+/* Agent activity flash for new items - purple for AI actions */
 @keyframes newItemFlash {
   0% {
-    background-color: rgba(59, 130, 246, 0.3);
+    background-color: rgba(168, 85, 247, 0.3);
   }
   100% {
     background-color: transparent;
@@ -255,6 +255,67 @@
 
 .flash-new {
   animation: newItemFlash 1s ease-out;
+}
+
+/* Enhanced hover effects for cards */
+.hover-glow {
+  transition: all 0.3s ease-out;
+}
+
+.hover-glow:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 0 30px rgba(255, 138, 51, 0.3), 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Gradient background utilities */
+.bg-gradient-orange-purple {
+  background: linear-gradient(135deg, rgba(255, 138, 51, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+}
+
+.bg-gradient-radial {
+  background: radial-gradient(ellipse at top, rgba(255, 138, 51, 0.15) 0%, transparent 50%);
+}
+
+/* Animated gradient border */
+@keyframes borderGlow {
+  0%, 100% {
+    border-color: rgba(255, 138, 51, 0.3);
+  }
+  50% {
+    border-color: rgba(168, 85, 247, 0.5);
+  }
+}
+
+.animate-border-glow {
+  animation: borderGlow 3s ease-in-out infinite;
+}
+
+/* Floating animation for particles */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Number count animation with glow */
+@keyframes numberGlow {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(255, 138, 51, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(255, 138, 51, 0.6), 0 0 30px rgba(168, 85, 247, 0.4);
+  }
+}
+
+.animate-number-glow {
+  animation: numberGlow 2s ease-in-out infinite;
 }
 
 /* Scrollbar styling */
@@ -267,10 +328,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: linear-gradient(to bottom, rgba(255, 138, 51, 0.5), rgba(168, 85, 247, 0.5));
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #444;
+  background: linear-gradient(to bottom, rgba(255, 138, 51, 0.8), rgba(168, 85, 247, 0.8));
 }
