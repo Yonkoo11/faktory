@@ -151,42 +151,62 @@ export default function LandingPage() {
       <section className="pt-32 pb-20 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center space-y-6 mb-16">
-            <Badge
-              variant="outline"
-              className="border-primary/30 bg-primary/5 text-primary px-4 py-1.5 animate-fade-in"
-              style={{ animationDelay: '0.1s', animationFillMode: 'backwards' }}
-            >
-              <Zap className="w-3 h-3 mr-2 inline" />
-              Built on Mantle Network
-            </Badge>
+            {/* Trust-First Badge */}
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-success/10 border border-success/20">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-success" />
+                <span className="text-sm font-medium text-success">0% Default Rate</span>
+              </div>
+              <div className="w-px h-4 bg-border" />
+              <span className="text-sm text-muted-foreground">100% Withdrawal Success</span>
+              <div className="w-px h-4 bg-border" />
+              <span className="text-sm text-muted-foreground">Instant Withdrawals</span>
+            </div>
 
-            <h1
-              className="text-5xl md:text-7xl font-bold leading-tight text-balance animate-fade-in"
-              style={{ animationDelay: '0.2s', animationFillMode: 'backwards' }}
-            >
-              Earn yield on unpaid invoices
-            </h1>
+            {/* Data-Focused Hero */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-center gap-2 text-4xl md:text-6xl font-bold">
+                <span className="text-success">3-7%</span>
+                <span className="text-muted-foreground">APY</span>
+              </div>
+              <h1 className="text-3xl md:text-5xl font-bold leading-tight text-balance">
+                on your unpaid invoices
+              </h1>
+            </div>
 
-            <p
-              className="text-xl text-muted-foreground max-w-2xl mx-auto text-pretty animate-fade-in"
-              style={{ animationDelay: '0.3s', animationFillMode: 'backwards' }}
-            >
-              Waiting 30-90 days to get paid? Deposit your invoice value into a yield vault
-              and earn 3-7% APY while you wait. Withdraw anytime.
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+              Tokenize invoices. Deposit to yield vaults. Withdraw anytime.
+              <br />
+              <span className="text-foreground font-medium">No lockups. No credit checks. No KYC.</span>
             </p>
 
-            <div
-              className="flex flex-col items-center gap-4 pt-4 animate-fade-in"
-              style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}
-            >
+            {/* Key Metrics Row */}
+            <div className="flex items-center justify-center gap-8 pt-4 text-sm">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-foreground">&lt;1 min</div>
+                <div className="text-muted-foreground">Time to yield</div>
+              </div>
+              <div className="w-px h-10 bg-border" />
+              <div className="text-center">
+                <div className="text-2xl font-bold text-foreground">$0</div>
+                <div className="text-muted-foreground">Platform fees</div>
+              </div>
+              <div className="w-px h-10 bg-border" />
+              <div className="text-center">
+                <div className="text-2xl font-bold text-foreground">24/7</div>
+                <div className="text-muted-foreground">Withdrawals</div>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-4 pt-6">
               <Link href="/dashboard">
-                <Button size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg h-14 px-10 shadow-lg shadow-primary/25">
-                  Launch App
+                <Button size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 text-lg h-14 px-10">
+                  Start Earning
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <p className="text-sm text-muted-foreground">
-                No sign-up required · Connect wallet in app
+              <p className="text-xs text-muted-foreground">
+                Connect wallet · Mint invoice · Earn yield
               </p>
             </div>
           </div>
@@ -321,13 +341,13 @@ export default function LandingPage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="glass border-glass-border p-8 hover:border-primary/30 transition-all hover:shadow-lg hover:shadow-primary/10 group relative overflow-hidden">
+            <Card className="glass border-glass-border p-8 hover:border-primary/20 transition-colors relative">
               <div className="absolute top-2 right-2">
                 <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary text-[10px]">
                   Unique
                 </Badge>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6">
                 <Lock className="w-6 h-6 text-primary" />
               </div>
               <h3 className="text-xl font-bold mb-3">Privacy by Default</h3>
@@ -339,18 +359,18 @@ export default function LandingPage() {
               </div>
             </Card>
 
-            <Card className="glass border-glass-border p-8 hover:border-accent/30 transition-all hover:shadow-lg hover:shadow-accent/10 group">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <Card className="glass border-glass-border p-8 hover:border-accent/20 transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-6">
                 <Zap className="w-6 h-6 text-accent" />
               </div>
               <h3 className="text-xl font-bold mb-3">AI-Optimized</h3>
               <p className="text-muted-foreground text-pretty">
-                Intelligent agents continuously optimize your yield strategies based on risk profiles.
+                Intelligent agents continuously optimize your yield strategies based on market conditions.
               </p>
             </Card>
 
-            <Card className="glass border-glass-border p-8 hover:border-success/30 transition-all hover:shadow-lg hover:shadow-success/10 group">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-success/20 to-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <Card className="glass border-glass-border p-8 hover:border-success/20 transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center mb-6">
                 <TrendingUp className="w-6 h-6 text-success" />
               </div>
               <h3 className="text-xl font-bold mb-3">Real DeFi Yield</h3>
@@ -358,6 +378,106 @@ export default function LandingPage() {
                 Earn up to 7% APY from real lending protocols, not inflationary token emissions.
               </p>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Trust Us - Security Section */}
+      <section id="security" className="py-20 px-4 bg-gradient-to-b from-background to-muted/5">
+        <div className="container mx-auto max-w-5xl">
+          <div className="text-center mb-12">
+            <Badge variant="outline" className="border-success/30 bg-success/10 text-success mb-4">
+              Security First
+            </Badge>
+            <h2 className="text-3xl font-bold mb-4">Why Trust Faktory?</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Built with institutional-grade security practices and full transparency.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="glass border-glass-border p-6 text-center">
+              <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-6 h-6 text-success" />
+              </div>
+              <div className="text-2xl font-bold mb-1">100%</div>
+              <div className="text-sm text-muted-foreground">Open Source</div>
+              <p className="text-xs text-muted-foreground mt-2">
+                All contracts verified on Mantlescan
+              </p>
+            </Card>
+
+            <Card className="glass border-glass-border p-6 text-center">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Lock className="w-6 h-6 text-primary" />
+              </div>
+              <div className="text-2xl font-bold mb-1">No Admin Keys</div>
+              <div className="text-sm text-muted-foreground">Immutable Logic</div>
+              <p className="text-xs text-muted-foreground mt-2">
+                No backdoors, no rug pulls possible
+              </p>
+            </Card>
+
+            <Card className="glass border-glass-border p-6 text-center">
+              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-6 h-6 text-accent" />
+              </div>
+              <div className="text-2xl font-bold mb-1">Real Yield</div>
+              <div className="text-sm text-muted-foreground">From Lendle</div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Battle-tested lending protocol
+              </p>
+            </Card>
+
+            <Card className="glass border-glass-border p-6 text-center">
+              <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center mx-auto mb-4">
+                <Zap className="w-6 h-6 text-warning" />
+              </div>
+              <div className="text-2xl font-bold mb-1">Pyth Oracle</div>
+              <div className="text-sm text-muted-foreground">Price Feeds</div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Institutional-grade data
+              </p>
+            </Card>
+          </div>
+
+          <div className="mt-8 p-4 rounded-lg bg-muted/30 border border-glass-border">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+              <div className="flex items-center gap-6">
+                <a
+                  href="https://sepolia.mantlescan.xyz/address/0xf35be6ffebf91acc27a78696cf912595c6b08aaa"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  InvoiceNFT ↗
+                </a>
+                <a
+                  href="https://sepolia.mantlescan.xyz/address/0xd2cad31a080b0dae98d9d6427e500b50bcb92774"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  YieldVault ↗
+                </a>
+                <a
+                  href="https://sepolia.mantlescan.xyz/address/0xec5bfee9d17e25cc8d52b8cb7fb81d8cabb53c5f"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  AgentRouter ↗
+                </a>
+              </div>
+              <a
+                href="https://github.com/anthropics/claude-code"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                View Source on GitHub ↗
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -391,33 +511,33 @@ export default function LandingPage() {
             {/* Connection lines for desktop */}
             <div className="hidden md:block absolute top-1/3 left-1/3 right-1/3 h-0.5 bg-gradient-to-r from-primary via-accent to-success" />
 
-            <Card className="glass border-glass-border p-8 relative z-10 hover:scale-105 transition-transform">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center mb-6 mx-auto">
-                <span className="text-2xl font-bold">1</span>
+            <Card className="glass border-glass-border p-8 relative z-10">
+              <div className="w-14 h-14 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 mx-auto">
+                <span className="text-xl font-bold text-primary">1</span>
               </div>
-              <h3 className="text-xl font-bold text-center mb-3">Upload Invoice</h3>
-              <p className="text-muted-foreground text-center text-pretty">
-                Mint your unpaid invoice as an NFT with encrypted commitment hash
+              <h3 className="text-lg font-bold text-center mb-2">Mint Invoice</h3>
+              <p className="text-sm text-muted-foreground text-center">
+                Tokenize your unpaid invoice as an NFT with privacy-preserving commitment hash
               </p>
             </Card>
 
-            <Card className="glass border-glass-border p-8 relative z-10 hover:scale-105 transition-transform">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent to-success flex items-center justify-center mb-6 mx-auto">
-                <span className="text-2xl font-bold">2</span>
+            <Card className="glass border-glass-border p-8 relative z-10">
+              <div className="w-14 h-14 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center mb-6 mx-auto">
+                <span className="text-xl font-bold text-accent">2</span>
               </div>
-              <h3 className="text-xl font-bold text-center mb-3">Select Strategy</h3>
-              <p className="text-muted-foreground text-center text-pretty">
-                Choose conservative or aggressive yield optimization
+              <h3 className="text-lg font-bold text-center mb-2">Deposit</h3>
+              <p className="text-sm text-muted-foreground text-center">
+                Choose a yield strategy and deposit to start earning immediately
               </p>
             </Card>
 
-            <Card className="glass border-glass-border p-8 relative z-10 hover:scale-105 transition-transform">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-success to-primary flex items-center justify-center mb-6 mx-auto">
-                <span className="text-2xl font-bold">3</span>
+            <Card className="glass border-glass-border p-8 relative z-10">
+              <div className="w-14 h-14 rounded-xl bg-success/10 border border-success/20 flex items-center justify-center mb-6 mx-auto">
+                <span className="text-xl font-bold text-success">3</span>
               </div>
-              <h3 className="text-xl font-bold text-center mb-3">Earn Yield</h3>
-              <p className="text-muted-foreground text-center text-pretty">
-                Watch your yield grow while AI optimizes your returns
+              <h3 className="text-lg font-bold text-center mb-2">Earn & Withdraw</h3>
+              <p className="text-sm text-muted-foreground text-center">
+                Collect yield anytime. No lockups, no penalties.
               </p>
             </Card>
           </div>
