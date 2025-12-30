@@ -196,8 +196,9 @@ export default function DashboardPage() {
               <span>Yield starts in <span className="font-semibold text-foreground">&lt;1 min</span></span>
             </div>
           </div>
-          <Badge variant="outline" className="border-success/30 bg-success/10 text-success text-xs hidden sm:flex">
-            Mantle Sepolia
+          <Badge variant="outline" className="border-success/30 bg-success/10 text-success text-xs hidden sm:flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+            Live on Mantle
           </Badge>
         </div>
 
@@ -212,11 +213,7 @@ export default function DashboardPage() {
               <div>
                 <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
                 <div className="text-4xl font-bold gradient-text">
-                  {isLoadingNFT ? (
-                    <Loader2 className="w-8 h-8 animate-spin" />
-                  ) : (
-                    `$${portfolioValue.toLocaleString()}`
-                  )}
+                  ${portfolioValue.toLocaleString()}
                 </div>
               </div>
             </div>
@@ -254,9 +251,11 @@ export default function DashboardPage() {
               <div>
                 <span className="text-sm text-muted-foreground">Strategy Distribution</span>
                 <div className="text-3xl font-bold mt-1">
-                  {activeCount > 0 ? 'Mixed' : 'None'}
+                  {activeCount > 0 ? 'Mixed' : 'No deposits'}
                 </div>
-                <div className="text-xs text-muted-foreground mt-1">Conservative + Aggressive</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {activeCount > 0 ? 'Conservative + Aggressive' : 'Deposit to start earning'}
+                </div>
               </div>
               <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
                 <TrendingUp className="w-6 h-6 text-accent" />
