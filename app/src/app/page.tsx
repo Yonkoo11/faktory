@@ -210,61 +210,40 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Live Stats Bar */}
-          <Card
-            className="glass border-glass-border p-8 max-w-4xl mx-auto relative animate-fade-in"
-            style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
-          >
-            <div className="absolute top-2 right-2">
-              {protocolStats.hasData ? (
+          {/* Live Stats Bar - Only show when we have real data with non-zero values */}
+          {protocolStats.hasData && (protocolStats.tvl > 0 || protocolStats.totalInvoices > 0) && (
+            <Card
+              className="glass border-glass-border p-8 max-w-4xl mx-auto relative animate-fade-in"
+              style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
+            >
+              <div className="absolute top-2 right-2">
                 <Badge variant="outline" className="border-success/30 bg-success/10 text-success text-xs">
                   <Radio className="w-3 h-3 mr-1 animate-pulse" />
                   Live on Mantle
                 </Badge>
-              ) : (
-                <span className="text-xs text-muted-foreground/60 bg-muted/50 px-2 py-0.5 rounded">
-                  {protocolStats.isLoading ? 'Loading...' : 'Connecting...'}
-                </span>
-              )}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center space-y-2">
-                <div className="text-sm text-muted-foreground uppercase tracking-wider">Total Value Locked</div>
-                {protocolStats.isLoading ? (
-                  <span className="text-4xl md:text-5xl font-bold text-muted-foreground">...</span>
-                ) : (
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="text-center space-y-2">
+                  <div className="text-sm text-muted-foreground uppercase tracking-wider">Total Value Locked</div>
                   <span className="text-4xl md:text-5xl font-bold gradient-text">
                     {protocolStats.tvlFormatted}
                   </span>
-                )}
-              </div>
-              <div className="text-center space-y-2">
-                <div className="text-sm text-muted-foreground uppercase tracking-wider">Invoices Minted</div>
-                {protocolStats.isLoading ? (
-                  <span className="text-4xl md:text-5xl font-bold text-muted-foreground">...</span>
-                ) : (
+                </div>
+                <div className="text-center space-y-2">
+                  <div className="text-sm text-muted-foreground uppercase tracking-wider">Invoices Minted</div>
                   <span className="text-4xl md:text-5xl font-bold gradient-text">
                     {protocolStats.totalInvoices}
                   </span>
-                )}
-              </div>
-              <div className="text-center space-y-2">
-                <div className="text-sm text-muted-foreground uppercase tracking-wider">Target APY</div>
-                {protocolStats.isLoading ? (
-                  <span className="text-4xl md:text-5xl font-bold text-muted-foreground">...</span>
-                ) : (
+                </div>
+                <div className="text-center space-y-2">
+                  <div className="text-sm text-muted-foreground uppercase tracking-wider">Target APY</div>
                   <span className="text-4xl md:text-5xl font-bold gradient-text">
                     3-7%
                   </span>
-                )}
+                </div>
               </div>
-            </div>
-            {protocolStats.hasData && protocolStats.tvl === 0 && (
-              <p className="text-center text-xs text-muted-foreground mt-4">
-                Be the first to deposit and earn yield on your invoices
-              </p>
-            )}
-          </Card>
+            </Card>
+          )}
 
           {/* Trust Indicators */}
           <div className="flex flex-wrap items-center justify-center gap-8 mt-12 text-sm text-muted-foreground">
@@ -374,68 +353,18 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Comparison Section */}
+      {/* Cost Savings Section */}
       <section className="py-16 px-4 bg-gradient-to-b from-muted/10 to-background">
         <div className="container mx-auto max-w-4xl">
           <h2 className="text-3xl font-bold text-center mb-4">
-            Why <span className="gradient-text">Privacy</span> Matters
+            Why <span className="gradient-text">Mantle</span>?
           </h2>
           <p className="text-center text-muted-foreground mb-10">
-            Traditional invoice protocols expose your business data. Faktory doesn&apos;t.
-          </p>
-
-          <Card className="glass border-glass-border overflow-hidden">
-            <div className="grid grid-cols-4 text-sm">
-              {/* Header */}
-              <div className="p-4 bg-muted/30 font-semibold">Feature</div>
-              <div className="p-4 bg-muted/30 font-semibold text-center">
-                <span className="gradient-text">Faktory</span>
-              </div>
-              <div className="p-4 bg-muted/30 font-semibold text-center text-muted-foreground">Centrifuge</div>
-              <div className="p-4 bg-muted/30 font-semibold text-center text-muted-foreground">Goldfinch</div>
-
-              {/* Privacy Row */}
-              <div className="p-4 border-t border-glass-border">Invoice Privacy</div>
-              <div className="p-4 border-t border-glass-border text-center">
-                <span className="text-success font-medium">Commitment hashes</span>
-              </div>
-              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">Public on-chain</div>
-              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">Disclosed to pool</div>
-
-              {/* Real-time Row */}
-              <div className="p-4 border-t border-glass-border">Strategy Updates</div>
-              <div className="p-4 border-t border-glass-border text-center">
-                <span className="text-success font-medium">Every 30 seconds</span>
-              </div>
-              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">Days (governance)</div>
-              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">Manual</div>
-
-              {/* Cost Row */}
-              <div className="p-4 border-t border-glass-border">Tx Cost</div>
-              <div className="p-4 border-t border-glass-border text-center">
-                <span className="text-success font-medium">&lt;$0.01</span>
-              </div>
-              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">$5-50</div>
-              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">$10-100</div>
-
-              {/* AI Row */}
-              <div className="p-4 border-t border-glass-border">AI Optimization</div>
-              <div className="p-4 border-t border-glass-border text-center">
-                <span className="text-success font-medium">24/7 Autonomous</span>
-              </div>
-              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">None</div>
-              <div className="p-4 border-t border-glass-border text-center text-muted-foreground">None</div>
-            </div>
-          </Card>
-
-          <p className="text-center text-xs text-muted-foreground mt-6">
-            Faktory: Privacy-first invoice yield on Mantle Network
+            Ultra-low transaction costs make AI-powered optimization economically viable.
           </p>
 
           {/* Cost Calculator */}
-          <div className="mt-12">
-            <CostCalculator />
-          </div>
+          <CostCalculator />
         </div>
       </section>
 
