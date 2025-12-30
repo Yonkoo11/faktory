@@ -79,11 +79,42 @@ export function DepositModal({ open, onOpenChange, invoiceId, invoiceAmount, tok
     }
   }, [isDepositSuccess, step, onSuccess])
 
+  // Map error messages to user-friendly versions
+  const getUserFriendlyError = (error: Error | null): string => {
+    if (!error) return "Something went wrong"
+    const msg = error.message.toLowerCase()
+
+    if (msg.includes("user rejected") || msg.includes("user denied")) {
+      return "Transaction cancelled. You can try again when ready."
+    }
+    if (msg.includes("insufficient funds") || msg.includes("insufficient balance")) {
+      return "Insufficient funds. Check your USDC balance and try again."
+    }
+    if (msg.includes("nonce")) {
+      return "Transaction conflict. Please refresh and try again."
+    }
+    if (msg.includes("gas")) {
+      return "Gas estimation failed. The network may be congested."
+    }
+    if (msg.includes("allowance") || msg.includes("approve")) {
+      return "Approval required. Please approve USDC spending first."
+    }
+    if (msg.includes("paused")) {
+      return "Protocol temporarily paused. Your funds are safe."
+    }
+
+    // Fallback: truncate long technical messages
+    if (error.message.length > 100) {
+      return "Transaction failed. Please try again."
+    }
+    return error.message
+  }
+
   // Handle errors
   useEffect(() => {
     if (depositError) {
       setStep("error")
-      setErrorMessage(depositError.message || "Transaction failed")
+      setErrorMessage(getUserFriendlyError(depositError))
     }
   }, [depositError])
 
@@ -93,7 +124,7 @@ export function DepositModal({ open, onOpenChange, invoiceId, invoiceAmount, tok
       name: "Hold",
       apy: "0%",
       apyValue: 0,
-      description: "No yield optimization",
+      description: "Keep funds idle. No yield, no risk.",
       risk: "None",
       icon: Shield,
       color: "muted",
@@ -105,7 +136,7 @@ export function DepositModal({ open, onOpenChange, invoiceId, invoiceAmount, tok
       name: "Conservative",
       apy: `${displayConservativeAPY.toFixed(1)}%`,
       apyValue: displayConservativeAPY,
-      description: hasLendleData ? "Lendle USDC lending" : "Low-risk lending protocols",
+      description: "Lend USDC on Lendle. Lower yield, battle-tested protocol.",
       risk: "Low",
       icon: Shield,
       color: "primary",
@@ -117,7 +148,7 @@ export function DepositModal({ open, onOpenChange, invoiceId, invoiceAmount, tok
       name: "Aggressive",
       apy: `${displayAggressiveAPY.toFixed(1)}%`,
       apyValue: displayAggressiveAPY,
-      description: hasLendleData ? "Leveraged Lendle yield" : "Higher yield DeFi pools",
+      description: "Leveraged lending. Higher yield, more volatility.",
       risk: "Medium",
       icon: TrendingUp,
       color: "accent",
@@ -432,6 +463,18 @@ export function DepositModal({ open, onOpenChange, invoiceId, invoiceAmount, tok
             </label>
           </div>
 
+          {/* Confirmation Summary */}
+          {depositAmount && selectedStrategy && (
+            <div className="p-4 bg-muted/30 rounded-lg border border-glass-border text-sm">
+              <p className="font-medium mb-2">You&apos;re about to:</p>
+              <ul className="space-y-1 text-muted-foreground">
+                <li>• Deposit <span className="text-foreground font-medium">${depositAmount} USDC</span></li>
+                <li>• Use <span className="text-foreground font-medium">{selectedStrategy.charAt(0).toUpperCase() + selectedStrategy.slice(1)}</span> strategy</li>
+                <li>• Earn ~<span className="text-foreground font-medium">{strategies.find(s => s.id === selectedStrategy)?.apy}</span> APY</li>
+              </ul>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="flex gap-3 pt-2">
             <Button variant="outline" onClick={() => onOpenChange(false)} className="flex-1 border-glass-border">
@@ -442,7 +485,7 @@ export function DepositModal({ open, onOpenChange, invoiceId, invoiceAmount, tok
               disabled={!acceptRisk || !depositAmount || !tokenId}
               className="flex-1 bg-gradient-to-r from-primary to-accent hover:opacity-90"
             >
-              Deposit & Start Earning
+              Confirm Deposit
             </Button>
           </div>
 

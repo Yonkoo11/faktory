@@ -511,8 +511,11 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="border-t border-glass-border mt-8 pt-8 text-center text-sm text-muted-foreground">
+          <div className="border-t border-glass-border mt-8 pt-8 text-center text-sm text-muted-foreground space-y-2">
             <p>Built for Mantle Global Hackathon 2025</p>
+            <p className="text-xs text-muted-foreground/70">
+              Unaudited prototype. Use testnet only. Not financial advice.
+            </p>
           </div>
         </div>
       </footer>

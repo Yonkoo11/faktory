@@ -480,21 +480,26 @@ function MintInvoiceContent() {
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back
                 </Button>
-                <Button
-                  onClick={handleMint}
-                  size="lg"
-                  disabled={!isConnected || isMinting}
-                  className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                >
-                  {isMinting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {isPending ? "Confirm in Wallet..." : "Minting..."}
-                    </>
-                  ) : (
-                    "Mint Invoice NFT"
-                  )}
-                </Button>
+                <div className="flex flex-col items-end gap-2">
+                  <Button
+                    onClick={handleMint}
+                    size="lg"
+                    disabled={!isConnected || isMinting}
+                    className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                  >
+                    {isMinting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {isPending ? "Confirm in Wallet..." : "Minting..."}
+                      </>
+                    ) : (
+                      "Mint Invoice NFT"
+                    )}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Creates an NFT on Mantle. Only gas fees apply.
+                  </p>
+                </div>
               </div>
             </Card>
           )}
