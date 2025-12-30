@@ -197,36 +197,36 @@ export default function LandingPage() {
             </p>
 
             {/* Key Metrics Row */}
-            <div className="flex items-center justify-center gap-8 pt-4 text-sm">
+            <div className="flex items-center justify-center gap-4 sm:gap-8 pt-4 text-sm">
               <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">&lt;1 min</div>
-                <div className="text-muted-foreground">Time to yield</div>
+                <div className="text-xl sm:text-2xl font-bold text-foreground">&lt;1 min</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Time to yield</div>
               </div>
-              <div className="w-px h-10 bg-border" />
+              <div className="w-px h-8 sm:h-10 bg-border" />
               <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">$0</div>
-                <div className="text-muted-foreground">Platform fees</div>
+                <div className="text-xl sm:text-2xl font-bold text-foreground">$0</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Platform fees</div>
               </div>
-              <div className="w-px h-10 bg-border" />
+              <div className="w-px h-8 sm:h-10 bg-border" />
               <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">24/7</div>
-                <div className="text-muted-foreground">Withdrawals</div>
+                <div className="text-xl sm:text-2xl font-bold text-foreground">24/7</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Withdrawals</div>
               </div>
             </div>
 
-            {/* Live Lendle Rates - Compact inline */}
-            <div className="flex items-center justify-center gap-2 pt-4">
+            {/* Live Lendle Rates - Mobile responsive */}
+            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 pt-4 px-4">
               <Radio className="w-3 h-3 text-success animate-pulse" />
-              <span className="text-xs text-muted-foreground">Live Lendle Rates:</span>
-              <span className="text-xs font-medium">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">Live Lendle Rates:</span>
+              <span className="text-xs font-medium whitespace-nowrap">
                 USDC <span className="text-success">{lendleMarkets.isLoading ? '...' : `${lendleMarkets.USDC.supplyAPY || 'N/A'}%`}</span>
               </span>
-              <span className="text-muted-foreground">|</span>
-              <span className="text-xs font-medium">
+              <span className="text-muted-foreground hidden sm:inline">|</span>
+              <span className="text-xs font-medium whitespace-nowrap">
                 USDT <span className="text-success">{lendleMarkets.isLoading ? '...' : `${lendleMarkets.USDT.supplyAPY || 'N/A'}%`}</span>
               </span>
-              <span className="text-muted-foreground">|</span>
-              <span className="text-xs font-medium">
+              <span className="text-muted-foreground hidden sm:inline">|</span>
+              <span className="text-xs font-medium whitespace-nowrap">
                 WETH <span className="text-success">{lendleMarkets.isLoading ? '...' : `${lendleMarkets.WETH.supplyAPY || 'N/A'}%`}</span>
               </span>
             </div>
@@ -288,37 +288,37 @@ export default function LandingPage() {
 
             <p className="text-xs text-muted-foreground uppercase tracking-widest mb-6">Powered By</p>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-3 sm:gap-4 text-sm max-w-3xl mx-auto">
               {/* Mantle - with brand color */}
-              <div className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-br from-card/80 to-card/40 border border-glass-border hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#000] to-[#65B3AE] flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">M</span>
+              <div className="group flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-3 rounded-xl bg-gradient-to-br from-card/80 to-card/40 border border-glass-border hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-[#000] to-[#65B3AE] flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-xs sm:text-sm">M</span>
                 </div>
-                <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors">Mantle L2</span>
+                <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors text-xs sm:text-sm">Mantle L2</span>
               </div>
 
               {/* Lendle */}
-              <div className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-br from-card/80 to-card/40 border border-glass-border hover:border-accent/30 transition-all duration-300 hover:shadow-lg hover:shadow-accent/10">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-white" />
+              <div className="group flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-3 rounded-xl bg-gradient-to-br from-card/80 to-card/40 border border-glass-border hover:border-accent/30 transition-all duration-300 hover:shadow-lg hover:shadow-accent/10">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
                 </div>
-                <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors">Lendle</span>
+                <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors text-xs sm:text-sm">Lendle</span>
               </div>
 
               {/* Pyth */}
-              <div className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-br from-card/80 to-card/40 border border-glass-border hover:border-success/30 transition-all duration-300 hover:shadow-lg hover:shadow-success/10">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7142CF] to-[#E9E0FF] flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">P</span>
+              <div className="group flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-3 rounded-xl bg-gradient-to-br from-card/80 to-card/40 border border-glass-border hover:border-success/30 transition-all duration-300 hover:shadow-lg hover:shadow-success/10">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-[#7142CF] to-[#E9E0FF] flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-xs sm:text-sm">P</span>
                 </div>
-                <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors">Pyth Network</span>
+                <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors text-xs sm:text-sm">Pyth Network</span>
               </div>
 
               {/* Anthropic Claude */}
-              <div className="group flex items-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-br from-card/80 to-card/40 border border-glass-border hover:border-warning/30 transition-all duration-300 hover:shadow-lg hover:shadow-warning/10">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#D97706] to-[#F59E0B] flex items-center justify-center">
-                  <Zap className="w-4 h-4 text-white" />
+              <div className="group flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-3 rounded-xl bg-gradient-to-br from-card/80 to-card/40 border border-glass-border hover:border-warning/30 transition-all duration-300 hover:shadow-lg hover:shadow-warning/10">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-[#D97706] to-[#F59E0B] flex items-center justify-center flex-shrink-0">
+                  <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
                 </div>
-                <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors">AI Agent</span>
+                <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors text-xs sm:text-sm">AI Agent</span>
               </div>
             </div>
           </div>
@@ -548,8 +548,8 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-glass-border glass py-12 px-4 mt-20">
         <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+            <div className="col-span-2 sm:col-span-1">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
                   <span className="text-white font-bold text-lg">F</span>
@@ -560,7 +560,7 @@ export default function LandingPage() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-3">Product</h4>
+              <h4 className="font-semibold mb-3 text-sm">Product</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
                   <Link href="/dashboard" className="hover:text-foreground transition-colors">
@@ -581,7 +581,7 @@ export default function LandingPage() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-3">Resources</h4>
+              <h4 className="font-semibold mb-3 text-sm">Resources</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
                   <Link href="#" className="hover:text-foreground transition-colors">
@@ -602,7 +602,7 @@ export default function LandingPage() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-3">Community</h4>
+              <h4 className="font-semibold mb-3 text-sm">Community</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
                   <Link href="#" className="hover:text-foreground transition-colors">
