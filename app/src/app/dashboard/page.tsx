@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Area, AreaChart, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis } from "recharts"
-import { TrendingUp, Wallet, FileText, MoreVertical, ArrowUpRight, Search, Filter, Loader2, Shield, CheckCircle2, Clock, AlertTriangle, Info, RefreshCw } from "lucide-react"
+import { TrendingUp, Wallet, FileText, MoreVertical, ArrowUpRight, Search, Filter, Loader2, Shield, CheckCircle2, Clock, AlertTriangle, Info, RefreshCw, Zap, Lock } from "lucide-react"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Input } from "@/components/ui/input"
 import { DepositModal } from "@/components/deposit-modal"
@@ -19,6 +19,55 @@ import { useAccount } from "wagmi"
 import { useInvoiceNFT } from "@/hooks/use-invoice-nft"
 import { useYieldVault } from "@/hooks/use-yield-vault"
 import { formatUnits } from "viem"
+
+// Animated counter component
+function AnimatedCounter({ value, decimals = 0, prefix = "", suffix = "" }: { value: number; decimals?: number; prefix?: string; suffix?: string }) {
+  const [count, setCount] = useState(0)
+  const [hasAnimated, setHasAnimated] = useState(false)
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    if (hasAnimated) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setHasAnimated(true)
+          const duration = 1500
+          const startTime = Date.now()
+
+          const animate = () => {
+            const elapsed = Date.now() - startTime
+            const progress = Math.min(elapsed / duration, 1)
+            const eased = 1 - Math.pow(1 - progress, 3) // ease out cubic
+            setCount(eased * value)
+
+            if (progress < 1) {
+              requestAnimationFrame(animate)
+            }
+          }
+
+          requestAnimationFrame(animate)
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [value, hasAnimated])
+
+  const displayValue = count.toLocaleString('en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  })
+
+  return (
+    <span ref={ref}>
+      {prefix}{displayValue}{suffix}
+    </span>
+  )
+}
 
 // Type for invoice display
 interface InvoiceDisplay {
@@ -117,6 +166,8 @@ export default function DashboardPage() {
   const [invoices, setInvoices] = useState<InvoiceDisplay[]>([])
   const [isLoadingInvoices, setIsLoadingInvoices] = useState(true)
   const [invoiceError, setInvoiceError] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [filterStatus, setFilterStatus] = useState<string>("all")
 
   const { address, isConnected } = useAccount()
   const { totalInvoices, userBalance, activeInvoices, isLoading: isLoadingNFT } = useInvoiceNFT()
@@ -200,8 +251,26 @@ export default function DashboardPage() {
   // Calculate average APY
   const avgAPY = activeCount > 0 ? (conservativeAPY + aggressiveAPY) / 2 : 0
 
-  // Only use mock data for demo when connected and no error
-  const displayInvoices = invoiceError ? [] : (invoices.length > 0 ? invoices : (isConnected ? mockInvoices : []))
+  // Filter invoices based on search and filter status
+  const allInvoices = invoiceError ? [] : (invoices.length > 0 ? invoices : (isConnected ? mockInvoices : []))
+
+  const filteredInvoices = allInvoices.filter((invoice) => {
+    // Search filter
+    const matchesSearch = searchQuery === "" ||
+      invoice.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      invoice.amount.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      invoice.status.toLowerCase().includes(searchQuery.toLowerCase())
+
+    // Status filter
+    const matchesStatus = filterStatus === "all" ||
+      (filterStatus === "active" && (invoice.status === "Active" || invoice.status === "In Yield")) ||
+      (filterStatus === "hold" && invoice.status === "Hold") ||
+      (filterStatus === "at-risk" && invoice.status === "At Risk")
+
+    return matchesSearch && matchesStatus
+  })
+
+  const displayInvoices = filteredInvoices
 
   return (
     <div className="min-h-screen bg-background">
@@ -256,17 +325,21 @@ export default function DashboardPage() {
                   <div>
                     <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
                     <div className="text-4xl font-bold gradient-text">
-                      ${portfolioValue.toLocaleString()}
+                      <AnimatedCounter value={portfolioValue} prefix="$" />
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-glass-border">
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-glass-border relative z-10">
                   <div>
-                    <div className="text-2xl font-bold text-success">~${totalYieldEarned.toFixed(2)}</div>
+                    <div className="text-2xl font-bold text-success">
+                      <AnimatedCounter value={totalYieldEarned} decimals={2} prefix="~$" />
+                    </div>
                     <div className="text-xs text-muted-foreground">Yield earned (estimated)</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-primary">{avgAPY.toFixed(1)}%</div>
+                    <div className="text-2xl font-bold text-primary">
+                      <AnimatedCounter value={avgAPY} decimals={1} suffix="%" />
+                    </div>
                     <div className="text-xs text-muted-foreground">Average APY</div>
                   </div>
                 </div>
@@ -280,7 +353,9 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="text-sm text-muted-foreground">Active Invoices</span>
-                    <div className="text-3xl font-bold mt-1">{activeCount}</div>
+                    <div className="text-3xl font-bold mt-1">
+                      <AnimatedCounter value={activeCount} />
+                    </div>
                     <div className="text-xs text-muted-foreground mt-1">{userBalance} owned by you</div>
                   </div>
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center group-hover:shadow-lg group-hover:shadow-success/20 transition-all">
@@ -397,11 +472,39 @@ export default function DashboardPage() {
               <div className="flex gap-3">
                 <div className="relative flex-1 md:w-64">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input placeholder="Search invoices..." className="pl-9 bg-background/50 border-glass-border" />
+                  <Input
+                    placeholder="Search invoices..."
+                    className="pl-9 bg-background/50 border-glass-border"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
                 </div>
-                <Button variant="outline" size="icon" className="border-glass-border bg-background/50" aria-label="Filter invoices">
-                  <Filter className="w-4 h-4" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className={`border-glass-border bg-background/50 ${filterStatus !== 'all' ? 'border-primary bg-primary/10' : ''}`}
+                      aria-label="Filter invoices"
+                    >
+                      <Filter className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="glass border-glass-border">
+                    <DropdownMenuItem onClick={() => setFilterStatus("all")} className={filterStatus === "all" ? "bg-primary/10" : ""}>
+                      All Invoices
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setFilterStatus("active")} className={filterStatus === "active" ? "bg-primary/10" : ""}>
+                      Active & In Yield
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setFilterStatus("hold")} className={filterStatus === "hold" ? "bg-primary/10" : ""}>
+                      On Hold
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setFilterStatus("at-risk")} className={filterStatus === "at-risk" ? "bg-primary/10" : ""}>
+                      At Risk
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
@@ -426,28 +529,76 @@ export default function DashboardPage() {
                 </Button>
               </div>
             ) : displayInvoices.length === 0 ? (
-              <div className="text-center py-12 px-8">
-                <div className="w-16 h-16 rounded-xl bg-muted/50 flex items-center justify-center mx-auto mb-6">
-                  <FileText className="w-8 h-8 text-muted-foreground" />
+              <div className="text-center py-16 px-8">
+                <div className="relative mb-8">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mx-auto animate-scale-in">
+                    <FileText className="w-10 h-10 text-primary" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-success/30 to-success/10 flex items-center justify-center animate-float">
+                    <TrendingUp className="w-4 h-4 text-success" />
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">No invoices yet</h3>
-                <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6">
-                  Most users mint their first invoice in under 2 minutes.
-                  Start earning 3-7% APY on your unpaid invoices.
+
+                <h3 className="text-2xl font-bold mb-3 gradient-text">Ready to Start Earning?</h3>
+                <p className="text-base text-muted-foreground max-w-md mx-auto mb-8">
+                  Transform your unpaid invoices into yield-generating assets.
+                  <span className="text-foreground font-medium"> Most users mint their first invoice in under 2 minutes</span>
+                  and start earning 3-7% APY immediately.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-                  <Button asChild className="bg-primary hover:bg-primary/90">
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20">
+                    <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center mx-auto mb-2">
+                      <FileText className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="text-sm font-medium mb-1">Mint Invoice</div>
+                    <div className="text-xs text-muted-foreground">Tokenize your unpaid invoice</div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-accent/5 to-accent/10 border border-accent/20">
+                    <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center mx-auto mb-2">
+                      <Wallet className="w-5 h-5 text-accent" />
+                    </div>
+                    <div className="text-sm font-medium mb-1">Deposit</div>
+                    <div className="text-xs text-muted-foreground">Choose your yield strategy</div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-success/5 to-success/10 border border-success/20">
+                    <div className="w-10 h-10 rounded-lg bg-success/20 flex items-center justify-center mx-auto mb-2">
+                      <TrendingUp className="w-5 h-5 text-success" />
+                    </div>
+                    <div className="text-sm font-medium mb-1">Earn</div>
+                    <div className="text-xs text-muted-foreground">Watch your yield grow</div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
+                  <Button asChild size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 hover-glow shadow-lg shadow-primary/20">
                     <Link href="/dashboard/mint">
-                      Mint Invoice
+                      <FileText className="w-4 h-4 mr-2" />
+                      Mint Your First Invoice
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" size="lg" className="border-glass-border hover:border-primary/40">
+                    <Link href="/#how-it-works">
+                      Learn How It Works
                     </Link>
                   </Button>
                 </div>
-                <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
-                  <span>0% default rate</span>
+
+                <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground pt-4 border-t border-glass-border max-w-md mx-auto">
+                  <div className="flex items-center gap-1.5">
+                    <Shield className="w-3.5 h-3.5 text-success" />
+                    <span>0% default rate</span>
+                  </div>
                   <span>•</span>
-                  <span>Instant withdrawals</span>
+                  <div className="flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-primary" />
+                    <span>Instant withdrawals</span>
+                  </div>
                   <span>•</span>
-                  <span>No lockups</span>
+                  <div className="flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-accent" />
+                    <span>No lockups</span>
+                  </div>
                 </div>
               </div>
             ) : (

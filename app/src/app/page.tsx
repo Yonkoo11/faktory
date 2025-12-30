@@ -4,10 +4,12 @@ import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Zap, Lock, TrendingUp, Wallet, Radio } from "lucide-react"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { ArrowRight, Zap, Lock, TrendingUp, Wallet, Radio, Menu, X, HelpCircle } from "lucide-react"
 import Link from "next/link"
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
-import { injected } from 'wagmi/connectors'
+import { injected} from 'wagmi/connectors'
 import { useLendleMarkets } from '@/hooks/use-lendle'
 import { useProtocolStats } from '@/hooks/use-protocol-stats'
 import { CostCalculator } from '@/components/cost-calculator'
@@ -116,6 +118,7 @@ export default function LandingPage() {
             <span className="text-xl font-bold">Faktory Protocol</span>
           </div>
 
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             <Link href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Features
@@ -132,6 +135,7 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-3">
+            {/* Desktop Wallet Button */}
             {mounted && isConnected && address ? (
               <Button
                 variant="ghost"
@@ -153,7 +157,70 @@ export default function LandingPage() {
                 {isPending ? 'Connecting...' : 'Connect Wallet'}
               </Button>
             )}
-            <Link href="/dashboard">
+
+            {/* Mobile Menu */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px] glass border-glass-border">
+                <div className="flex flex-col gap-6 mt-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                      <span className="text-white font-bold text-xl">F</span>
+                    </div>
+                    <span className="text-xl font-bold gradient-text">Faktory</span>
+                  </div>
+
+                  <nav className="flex flex-col gap-4">
+                    <Link href="#features" className="text-lg font-medium hover:text-primary transition-colors">
+                      Features
+                    </Link>
+                    <Link href="#how-it-works" className="text-lg font-medium hover:text-primary transition-colors">
+                      How It Works
+                    </Link>
+                    <Link href="#security" className="text-lg font-medium hover:text-primary transition-colors">
+                      Security
+                    </Link>
+                  </nav>
+
+                  <div className="border-t border-glass-border pt-4 mt-2">
+                    {mounted && isConnected && address ? (
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => disconnect()}
+                      >
+                        <Wallet className="w-4 h-4 mr-2" />
+                        {address.slice(0, 6)}...{address.slice(-4)}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => connect({ connector: injected() })}
+                        disabled={isPending}
+                      >
+                        <Wallet className="w-4 h-4 mr-2" />
+                        {isPending ? 'Connecting...' : 'Connect Wallet'}
+                      </Button>
+                    )}
+                  </div>
+
+                  <Link href="/dashboard" className="mt-2">
+                    <Button className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 hover-glow">
+                      Launch App
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            {/* Desktop Launch App Button */}
+            <Link href="/dashboard" className="hidden md:block">
               <Button size="sm" className="bg-gradient-to-r from-primary to-accent hover:opacity-90">
                 Launch App
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -546,6 +613,101 @@ export default function LandingPage() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 px-4 bg-gradient-to-b from-muted/5 to-background">
+        <div className="container mx-auto max-w-3xl">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
+              <HelpCircle className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Frequently Asked Questions</span>
+            </div>
+            <h2 className="text-3xl font-bold mb-4">Got Questions?</h2>
+            <p className="text-muted-foreground">
+              Everything you need to know about Faktory Protocol
+            </p>
+          </div>
+
+          <Accordion type="single" collapsible className="space-y-4">
+            <AccordionItem value="what-is" className="glass border-glass-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:text-primary">
+                What is Faktory Protocol?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Faktory Protocol is a DeFi platform that lets you tokenize your unpaid invoices as NFTs and earn yield on them while waiting for payment. We leverage AI agents to optimize your yield strategies across DeFi lending protocols like Lendle on Mantle L2.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="how-start" className="glass border-glass-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:text-primary">
+                How do I get started?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Simply connect your wallet, mint an invoice NFT by entering your invoice details, then deposit it to start earning yield. The entire process takes under 2 minutes. You can withdraw your funds anytime with no penalties or lockup periods.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="strategies" className="glass border-glass-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:text-primary">
+                What's the difference between Conservative and Aggressive strategies?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                <strong className="text-foreground">Conservative (3-5% APY):</strong> Focuses on stablecoins (USDC, USDT) in established lending protocols. Lower risk, stable returns.
+                <br /><br />
+                <strong className="text-foreground">Aggressive (5-7% APY):</strong> Includes higher-yield opportunities with assets like WETH. Higher potential returns with slightly more volatility.
+                <br /><br />
+                Both strategies are actively managed by our AI agent to maximize your returns while managing risk.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="privacy" className="glass border-glass-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:text-primary">
+                Is my invoice data private?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Yes! We use cryptographic commitment hashes to protect your data. Your invoice details (client names, amounts, contracts) are never stored on-chain or disclosed publicly. Only you have access to the full invoice information.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="withdrawals" className="glass border-glass-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:text-primary">
+                How do withdrawals work?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Withdrawals are instant and available 24/7. There are no lockup periods, minimum hold times, or penalties. Simply click withdraw on your dashboard and your funds (principal + accrued yield) will be returned to your wallet immediately.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="fees" className="glass border-glass-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:text-primary">
+                What are the fees?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                <strong className="text-foreground">$0 platform fees.</strong> We don't charge any fees for minting, depositing, or withdrawing. The only costs are standard Mantle L2 gas fees (typically less than $0.01 per transaction). All yield earned is yours to keep.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="risk" className="glass border-glass-border rounded-lg px-6">
+              <AccordionTrigger className="text-left font-semibold hover:text-primary">
+                What are the risks?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                While we prioritize security, DeFi always carries risks: smart contract vulnerabilities, lending protocol failures, or asset price volatility. We mitigate these through: verified contracts, battle-tested protocols (Lendle), AI risk monitoring, and diversification. Always start small and only invest what you can afford to lose.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <div className="mt-12 text-center">
+            <p className="text-sm text-muted-foreground mb-4">Still have questions?</p>
+            <Button asChild variant="outline" className="border-glass-border hover:border-primary/40">
+              <Link href="/dashboard">
+                Launch App & Explore
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
