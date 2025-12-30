@@ -164,16 +164,15 @@ export default function LandingPage() {
               className="text-5xl md:text-7xl font-bold leading-tight text-balance animate-fade-in"
               style={{ animationDelay: '0.2s', animationFillMode: 'backwards' }}
             >
-              Your Invoices. Your Data. <br />
-              <span className="gradient-text">Your Yield.</span>
+              Earn yield on unpaid invoices
             </h1>
 
             <p
               className="text-xl text-muted-foreground max-w-2xl mx-auto text-pretty animate-fade-in"
               style={{ animationDelay: '0.3s', animationFillMode: 'backwards' }}
             >
-              The first privacy-preserving invoice protocol. Tokenize invoices as NFTs, earn real DeFi yield,
-              and keep your business data confidential with cryptographic commitments.
+              Waiting 30-90 days to get paid? Deposit your invoice value into a yield vault
+              and earn 3-7% APY while you wait. Withdraw anytime.
             </p>
 
             <div
