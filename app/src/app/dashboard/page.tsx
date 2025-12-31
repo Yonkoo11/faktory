@@ -11,7 +11,7 @@ import { TrendingUp, Wallet, FileText, MoreVertical, ArrowUpRight, Search, Filte
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Input } from "@/components/ui/input"
 import { DepositModal } from "@/components/deposit-modal"
-import { SkeletonCard, SkeletonPortfolioCard } from "@/components/ui/skeleton-card"
+import { SkeletonCard, SkeletonPortfolioCard, SkeletonInvoiceCard, SkeletonInvoiceTable } from "@/components/ui/skeleton-card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { toast } from "sonner"
 import Link from "next/link"
@@ -23,6 +23,7 @@ import { AnimatedCounter } from "@/components/ui/animated-counter"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { StatCard } from "@/components/ui/stat-card"
 import { IconBox } from "@/components/ui/icon-box"
+import { RiskBadge } from "@/components/domain/invoices/risk-badge"
 
 // Type for invoice display
 interface InvoiceDisplay {
@@ -37,50 +38,6 @@ interface InvoiceDisplay {
   status: string
   riskScore: number
   paymentProbability: number
-}
-
-// Risk score badge component with tooltip
-function RiskBadge({ score }: { score: number }) {
-  const getRiskLevel = () => {
-    if (score >= 80) return {
-      dotClass: "bg-success",
-      textClass: "text-success",
-      label: "Low Risk",
-      desc: "High payment probability"
-    }
-    if (score >= 60) return {
-      dotClass: "bg-warning",
-      textClass: "text-warning",
-      label: "Medium Risk",
-      desc: "Moderate payment probability"
-    }
-    return {
-      dotClass: "bg-destructive",
-      textClass: "text-destructive",
-      label: "High Risk",
-      desc: "Lower payment probability"
-    }
-  }
-
-  const { dotClass, textClass, label, desc } = getRiskLevel()
-
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="flex items-center gap-1.5 cursor-help">
-            <div className={`w-2 h-2 rounded-full ${dotClass}`} />
-            <span className={`text-xs font-medium ${textClass}`}>{score}</span>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-[200px]">
-          <p className="font-medium">{label}</p>
-          <p className="text-xs text-muted-foreground">{desc}</p>
-          <p className="text-xs text-muted-foreground mt-1">AI-predicted payment score based on invoice data</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  )
 }
 
 // Mock data for yield chart (will be replaced with real data)
@@ -250,36 +207,37 @@ export default function DashboardPage() {
             </>
           ) : (
             <>
-              {/* Primary Metric - Portfolio Value */}
-              <Card className="card-elevated p-8 lg:row-span-2 border-primary/20 hover-lift hover:border-primary/40 transition-all relative overflow-hidden">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center">
-                    <Wallet className="w-7 h-7 text-white" />
+              {/* Primary Metric - Portfolio Value - Premium Design */}
+              <Card className="card-glass p-8 lg:row-span-2 border-primary/30 hover-glow transition-all relative overflow-hidden">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--gradient-primary-from)] to-[var(--gradient-primary-to)] flex items-center justify-center shadow-lg">
+                    <Wallet className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
-                    <div className="text-4xl font-bold text-primary">
+                    <span className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Total Portfolio Value</span>
+                    <div className="text-5xl font-black bg-gradient-to-r from-[var(--gradient-primary-from)] to-[var(--gradient-primary-to)] bg-clip-text text-transparent">
                       <AnimatedCounter value={portfolioValue} prefix="$" />
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
+                <div className="grid grid-cols-2 gap-6 pt-6 border-t border-border/50">
                   <div>
-                    <div className="text-2xl font-bold text-success">
+                    <div className="text-3xl font-bold text-success">
                       <AnimatedCounter value={totalYieldEarned} decimals={2} prefix="~$" />
                     </div>
-                    <div className="text-xs text-muted-foreground">Yield earned (estimated)</div>
+                    <div className="text-sm text-muted-foreground mt-1">Yield Earned</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-primary">
+                    <div className="text-3xl font-bold text-primary">
                       <AnimatedCounter value={avgAPY} decimals={1} suffix="%" />
                     </div>
-                    <div className="text-xs text-muted-foreground">Average APY</div>
+                    <div className="text-sm text-muted-foreground mt-1">Average APY</div>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-4 pt-4 border-t border-border">
-                  No lockup period — withdraw your funds anytime
-                </p>
+                <div className="mt-6 pt-6 border-t border-border/50 flex items-center gap-2 text-sm text-success">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span className="font-medium">No lockup period — withdraw anytime</span>
+                </div>
               </Card>
 
               {/* Secondary Metrics */}
@@ -289,7 +247,7 @@ export default function DashboardPage() {
                 subtitle={`${userBalance} owned by you`}
                 icon={FileText}
                 variant="success"
-                className="hover-lift hover:border-success/40"
+                className="hover-glow hover:border-success/50 card-elevated"
               />
 
               <StatCard
@@ -298,7 +256,7 @@ export default function DashboardPage() {
                 subtitle={activeCount > 0 ? 'Conservative + Aggressive' : 'Deposit to start earning'}
                 icon={TrendingUp}
                 variant="primary"
-                className="hover-lift hover:border-primary/40"
+                className="hover-glow hover:border-primary/50 card-elevated"
               />
             </>
           )}
@@ -431,9 +389,18 @@ export default function DashboardPage() {
 
           <div className="overflow-x-auto">
             {isLoadingInvoices ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
-              </div>
+              <>
+                {/* Mobile Skeleton Cards */}
+                <div className="md:hidden divide-y divide-glass-border">
+                  {[...Array(3)].map((_, i) => (
+                    <SkeletonInvoiceCard key={i} />
+                  ))}
+                </div>
+                {/* Desktop Skeleton Table */}
+                <div className="hidden md:block">
+                  <SkeletonInvoiceTable />
+                </div>
+              </>
             ) : invoiceError ? (
               <div className="text-center py-12 px-8">
                 <div className="w-16 h-16 rounded-xl bg-destructive/10 flex items-center justify-center mx-auto mb-6">
@@ -450,12 +417,9 @@ export default function DashboardPage() {
               </div>
             ) : displayInvoices.length === 0 ? (
               <div className="text-center py-16 px-8">
-                <div className="relative mb-8">
-                  <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto animate-scale-in">
+                <div className="mb-8">
+                  <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
                     <FileText className="w-10 h-10 text-primary" />
-                  </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-success/20 flex items-center justify-center animate-float">
-                    <TrendingUp className="w-4 h-4 text-success" />
                   </div>
                 </div>
 
@@ -490,14 +454,14 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
-                  <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                  <Button asChild variant="gradient" size="lg" className="shadow-xl hover:shadow-2xl">
                     <Link href="/dashboard/mint">
                       <FileText className="w-4 h-4 mr-2" />
                       Mint Your First Invoice
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" size="lg" className="border-border hover:border-primary/40">
+                  <Button asChild variant="outline" size="lg" className="border-border hover:border-primary/40 hover:bg-primary/5">
                     <Link href="/#how-it-works">
                       Learn How It Works
                     </Link>
@@ -523,59 +487,65 @@ export default function DashboardPage() {
               </div>
             ) : (
               <>
-                {/* Mobile Card Layout */}
+                {/* Mobile Card Layout - Optimized for Touch */}
                 <div className="md:hidden divide-y divide-glass-border">
                   {displayInvoices.map((invoice) => (
-                    <Link
+                    <div
                       key={invoice.id}
-                      href={`/dashboard/invoice/${invoice.tokenId || invoice.id}`}
-                      className="block p-4 hover:bg-muted/10 transition-colors"
+                      className="p-5 hover:bg-muted/10 transition-colors"
                     >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <FileText className="w-5 h-5 text-primary" />
+                      {/* Header with Invoice ID and Status */}
+                      <div className="flex items-start justify-between mb-4">
+                        <Link
+                          href={`/dashboard/invoice/${invoice.tokenId || invoice.id}`}
+                          className="flex items-center gap-3 flex-1 min-w-0 active:opacity-70 transition-opacity"
+                        >
+                          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <FileText className="w-6 h-6 text-primary" />
                           </div>
-                          <div>
-                            <span className="font-mono font-medium">{invoice.id}</span>
-                            <div className="text-lg font-semibold">{invoice.amount}</div>
+                          <div className="min-w-0">
+                            <div className="font-mono font-medium text-sm text-muted-foreground truncate">{invoice.id}</div>
+                            <div className="text-xl font-bold truncate">{invoice.amount}</div>
                           </div>
-                        </div>
+                        </Link>
                         <StatusBadge status={invoice.status} />
                       </div>
-                      <div className="grid grid-cols-3 gap-3 text-sm">
-                        <div>
-                          <div className="text-muted-foreground text-xs">Due</div>
-                          <div className={invoice.daysUntilDue < 0 ? 'text-destructive' : invoice.daysUntilDue < 7 ? 'text-warning' : ''}>
-                            {invoice.daysUntilDue < 0 ? 'Overdue' : `${invoice.daysUntilDue}d`}
+
+                      {/* Key Metrics - Better spacing on mobile */}
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div className="space-y-1">
+                          <div className="text-muted-foreground text-xs uppercase tracking-wide">Due Date</div>
+                          <div className={`font-semibold ${invoice.daysUntilDue < 0 ? 'text-destructive' : invoice.daysUntilDue < 7 ? 'text-warning' : 'text-foreground'}`}>
+                            {invoice.daysUntilDue < 0 ? 'Overdue' : `${invoice.daysUntilDue} days`}
                           </div>
                         </div>
-                        <div>
-                          <div className="text-muted-foreground text-xs">APY</div>
-                          <div className={invoice.apy === "0.0%" ? "text-muted-foreground" : "text-success font-medium"}>
+                        <div className="space-y-1">
+                          <div className="text-muted-foreground text-xs uppercase tracking-wide">Accrued Yield</div>
+                          <div className="text-success font-semibold">{invoice.accruedYield}</div>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="text-muted-foreground text-xs uppercase tracking-wide">APY Rate</div>
+                          <div className={invoice.apy === "0.0%" ? "text-muted-foreground font-semibold" : "text-success font-semibold"}>
                             {invoice.apy}
                           </div>
                         </div>
-                        <div>
-                          <div className="text-muted-foreground text-xs">Yield</div>
-                          <div className="text-success font-medium">{invoice.accruedYield}</div>
+                        <div className="space-y-1">
+                          <div className="text-muted-foreground text-xs uppercase tracking-wide">Risk Score</div>
+                          <div>
+                            <RiskBadge score={invoice.riskScore} />
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
-                        <RiskBadge score={invoice.riskScore} />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            handleDeposit(invoice.id, invoice.amount.replace("$", "").replace(",", ""))
-                          }}
-                        >
-                          {invoice.strategy === "Hold" ? "Deposit" : "Manage"}
-                        </Button>
-                      </div>
-                    </Link>
+
+                      {/* Action Button - 44px touch target */}
+                      <Button
+                        variant="gradient"
+                        className="w-full h-11 text-base shadow-md"
+                        onClick={() => handleDeposit(invoice.id, invoice.amount.replace("$", "").replace(",", ""))}
+                      >
+                        {invoice.strategy === "Hold" ? "Deposit to Earn Yield" : "Manage Strategy"}
+                      </Button>
+                    </div>
                   ))}
                 </div>
 
