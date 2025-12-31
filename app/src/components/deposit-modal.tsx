@@ -203,7 +203,7 @@ export function DepositModal({ open, onOpenChange, invoiceId, invoiceAmount, tok
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="glass border-glass-border max-w-md">
           <div className="text-center py-8">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-success/20 to-primary/20 flex items-center justify-center mx-auto mb-6 animate-scale-in">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-success/20 to-primary/20 flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="w-10 h-10 text-success" />
             </div>
             <h2 className="text-2xl font-bold mb-3">Deposit Successful!</h2>
