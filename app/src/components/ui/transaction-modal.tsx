@@ -58,7 +58,7 @@ export function TransactionModal({
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="max-w-md">
           <div className="text-center py-8">
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-success/10 animate-scale-in">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-success/10">
               <CheckCircle2 className="h-10 w-10 text-success" />
             </div>
             <h2 className="mb-3 text-2xl font-bold">{successTitle}</h2>

@@ -38,10 +38,10 @@ export default function AgentPage() {
 
         {/* Agent Status Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="card-flat p-6">
+          <Card className="card-glass p-6 hover-glow">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
-                <Bot className="w-6 h-6 text-accent" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--gradient-primary-from)] to-[var(--gradient-primary-to)] flex items-center justify-center shadow-lg">
+                <Bot className="w-6 h-6 text-white" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Agent Status</p>
@@ -51,30 +51,30 @@ export default function AgentPage() {
                 </div>
               </div>
             </div>
-            <p className="text-2xl font-bold mb-1">{activeDepositsCount} deposits</p>
+            <p className="text-2xl font-bold mb-1 bg-gradient-to-r from-[var(--gradient-primary-from)] to-[var(--gradient-primary-to)] bg-clip-text text-transparent">{activeDepositsCount} deposits</p>
             <p className="text-sm text-muted-foreground">Will optimize when agent runs</p>
           </Card>
 
-          <Card className="card-flat p-6">
+          <Card className="card-glass p-6 hover-glow">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-primary" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--gradient-success-from)] to-[var(--gradient-success-to)] flex items-center justify-center shadow-lg">
+                <TrendingUp className="w-6 h-6 text-white" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Yield Generated</p>
               </div>
             </div>
-            <p className="text-2xl font-bold mb-1">~${parseFloat(totalYield).toFixed(2)}</p>
+            <p className="text-2xl font-bold mb-1 bg-gradient-to-r from-[var(--gradient-success-from)] to-[var(--gradient-success-to)] bg-clip-text text-transparent">~${parseFloat(totalYield).toFixed(2)}</p>
             <p className="text-sm text-muted-foreground flex items-center">
               <Zap className="w-3 h-3 mr-1" />
               From vault strategies
             </p>
           </Card>
 
-          <Card className="card-flat p-6">
+          <Card className="card-glass p-6 hover-glow">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
-                <Activity className="w-6 h-6 text-success" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--gradient-primary-from)] to-[var(--gradient-primary-to)] flex items-center justify-center shadow-lg">
+                <Activity className="w-6 h-6 text-white" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Agent Mode</p>
@@ -92,13 +92,13 @@ export default function AgentPage() {
         </div>
 
         {/* Agent Controls */}
-        <Card className="card-flat p-6">
+        <Card className="card-glass p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-semibold mb-1">Agent Controls</h2>
               <p className="text-sm text-muted-foreground">Configure autonomous decision-making</p>
             </div>
-            <Button variant="outline" size="sm" className="border-border bg-background">
+            <Button variant="gradient" size="sm">
               <Settings className="w-4 h-4 mr-2" />
               Advanced Settings
             </Button>
@@ -138,16 +138,16 @@ export default function AgentPage() {
         </Card>
 
         {/* Agent Activity Status */}
-        <Card className="card-flat">
+        <Card className="card-glass">
           <div className="p-6 border-b border-border">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold mb-1">Agent Activity</h2>
                 <p className="text-sm text-muted-foreground">Real-time monitoring and optimization</p>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-                <div className="w-2 h-2 rounded-full bg-primary" />
-                <span className="text-xs font-medium text-primary">Agent Enabled</span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-[var(--gradient-primary-from)] to-[var(--gradient-primary-to)] shadow-lg">
+                <div className="w-2 h-2 rounded-full bg-white" />
+                <span className="text-xs font-medium text-white">Agent Enabled</span>
               </div>
             </div>
           </div>
@@ -210,31 +210,35 @@ export default function AgentPage() {
         </Card>
 
         {/* Performance Insights */}
-        <Card className="card-flat p-6">
+        <Card className="card-glass p-6">
           <h2 className="text-xl font-semibold mb-4">Performance Insights</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-5 bg-primary/5 rounded-lg border border-border">
+            <div className="p-5 bg-primary/5 rounded-lg border border-primary/20 hover-glow">
               <div className="flex items-start gap-3 mb-3">
-                <IconBox icon={TrendingUp} variant="primary" size="md" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--gradient-primary-from)] to-[var(--gradient-primary-to)] flex items-center justify-center shadow-lg">
+                  <TrendingUp className="w-6 h-6 text-white" />
+                </div>
                 <div>
                   <h3 className="font-semibold mb-1">Strategy Optimization</h3>
                   <p className="text-sm text-muted-foreground">Continuous yield improvement</p>
                 </div>
               </div>
-              <p className="text-2xl font-bold text-primary">3.5-7% APY</p>
+              <p className="text-2xl font-bold bg-gradient-to-r from-[var(--gradient-primary-from)] to-[var(--gradient-primary-to)] bg-clip-text text-transparent">3.5-7% APY</p>
               <p className="text-xs text-muted-foreground mt-1">Based on strategy selection</p>
             </div>
 
-            <div className="p-5 bg-success/5 rounded-lg border border-border">
+            <div className="p-5 bg-success/5 rounded-lg border border-success/20 hover-glow">
               <div className="flex items-start gap-3 mb-3">
-                <IconBox icon={Shield} variant="success" size="md" />
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--gradient-success-from)] to-[var(--gradient-success-to)] flex items-center justify-center shadow-lg">
+                  <Shield className="w-6 h-6 text-white" />
+                </div>
                 <div>
                   <h3 className="font-semibold mb-1">Risk Management</h3>
                   <p className="text-sm text-muted-foreground">Real-time monitoring</p>
                 </div>
               </div>
-              <p className="text-2xl font-bold text-primary">24/7 Active</p>
+              <p className="text-2xl font-bold bg-gradient-to-r from-[var(--gradient-success-from)] to-[var(--gradient-success-to)] bg-clip-text text-transparent">24/7 Active</p>
               <p className="text-xs text-muted-foreground mt-1">Pyth oracle price feeds</p>
             </div>
           </div>

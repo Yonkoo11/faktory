@@ -15,6 +15,9 @@ import { useProtocolStats } from '@/hooks/use-protocol-stats'
 import { CostCalculator } from '@/components/cost-calculator'
 import { AnimatedCounter } from '@/components/ui/animated-counter'
 import { IconBox } from '@/components/ui/icon-box'
+import { MetricDisplay } from '@/components/ui/metric-display'
+import { FeatureCard } from '@/components/ui/feature-card'
+import { SecurityCard } from '@/components/ui/security-card'
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
@@ -185,21 +188,23 @@ export default function LandingPage() {
               <span className="text-sm text-muted-foreground">Instant Withdrawals</span>
             </div>
 
-            {/* Data-Focused Hero - Massive APY */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-center gap-3">
-                <span className="text-[80px] md:text-[140px] font-black leading-none text-primary tracking-tight">3-7%</span>
-                <span className="text-[40px] md:text-[70px] font-bold text-muted-foreground">APY</span>
+            {/* Data-Focused Hero - Massive APY with Gradient */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-center gap-3 md:gap-4">
+                <span className="text-[80px] md:text-[160px] font-black leading-none bg-gradient-to-r from-[var(--gradient-primary-from)] to-[var(--gradient-primary-to)] bg-clip-text text-transparent tracking-tight animate-fade-in">
+                  3-7%
+                </span>
+                <span className="text-[40px] md:text-[80px] font-bold text-muted-foreground/80">APY</span>
               </div>
-              <h1 className="text-2xl md:text-4xl font-semibold text-muted-foreground">
+              <h1 className="text-2xl md:text-5xl font-semibold text-foreground/90 tracking-tight">
                 on your unpaid invoices
               </h1>
             </div>
 
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Tokenize invoices. Deposit to yield vaults. Withdraw anytime.
               <br />
-              <span className="text-foreground font-medium">No lockups. No credit checks. No KYC.</span>
+              <span className="text-foreground font-semibold mt-2 inline-block">No lockups. No credit checks. No KYC.</span>
             </p>
 
             {/* Key Metrics Row */}
@@ -237,50 +242,50 @@ export default function LandingPage() {
               </span>
             </div>
 
-            <div className="flex flex-col items-center gap-4 pt-6">
+            <div className="flex flex-col items-center gap-4 pt-8">
               <Link href="/dashboard">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg h-14 px-10">
+                <Button variant="gradient" size="lg" className="text-lg h-14 px-12 shadow-2xl hover:shadow-primary/40">
                   Start Earning
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-sm text-muted-foreground/80">
                 Connect wallet · Mint invoice · Earn yield
               </p>
             </div>
           </div>
 
-          {/* Live Stats Bar - Only show when we have real data with non-zero values */}
+          {/* Live Stats Bar - Premium glassmorphism design */}
           {protocolStats.hasData && (protocolStats.tvl > 0 || protocolStats.totalInvoices > 0) && (
             <Card
-              className="card-elevated p-8 max-w-4xl mx-auto relative animate-fade-in"
+              className="card-glass p-8 md:p-10 max-w-5xl mx-auto relative animate-fade-in hover-glow"
               style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
             >
-              <div className="absolute top-2 right-2">
-                <Badge variant="outline" className="border-yellow-500/30 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 text-xs">
+              <div className="absolute top-3 right-3">
+                <Badge variant="outline" className="border-yellow-500/40 bg-yellow-500/15 text-yellow-500 text-xs shadow-lg">
                   <Radio className="w-3 h-3 mr-1 animate-pulse" />
                   Mantle Sepolia
                 </Badge>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="text-center space-y-2">
-                  <div className="text-sm text-muted-foreground uppercase tracking-wider">Total Value Locked</div>
-                  <span className="text-4xl md:text-5xl font-bold text-primary">
-                    {protocolStats.tvlFormatted}
-                  </span>
-                </div>
-                <div className="text-center space-y-2">
-                  <div className="text-sm text-muted-foreground uppercase tracking-wider">Invoices Minted</div>
-                  <span className="text-4xl md:text-5xl font-bold text-primary">
-                    {protocolStats.totalInvoices}
-                  </span>
-                </div>
-                <div className="text-center space-y-2">
-                  <div className="text-sm text-muted-foreground uppercase tracking-wider">Target APY</div>
-                  <span className="text-4xl md:text-5xl font-bold text-primary">
-                    3-7%
-                  </span>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
+                <MetricDisplay
+                  label="Total Value Locked"
+                  value={protocolStats.tvlFormatted}
+                  size="lg"
+                  valueVariant="primary"
+                />
+                <MetricDisplay
+                  label="Invoices Minted"
+                  value={protocolStats.totalInvoices}
+                  size="lg"
+                  valueVariant="primary"
+                />
+                <MetricDisplay
+                  label="Target APY"
+                  value="3-7%"
+                  size="lg"
+                  valueVariant="success"
+                />
               </div>
             </Card>
           )}
@@ -297,7 +302,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-3 sm:gap-4 text-sm max-w-3xl mx-auto">
               {/* Mantle - with brand color */}
               <div className="group flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-3 rounded-xl bg-card border border-border hover:border-primary/30 transition-all duration-300">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#65B3AE] flex items-center justify-center flex-shrink-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[var(--partner-mantle)] flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-bold text-xs sm:text-sm">M</span>
                 </div>
                 <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors text-xs sm:text-sm">Mantle L2</span>
@@ -313,7 +318,7 @@ export default function LandingPage() {
 
               {/* Pyth */}
               <div className="group flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-3 rounded-xl bg-card border border-border hover:border-primary/30 transition-all duration-300">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#7142CF] flex items-center justify-center flex-shrink-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[var(--partner-pyth)] flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-bold text-xs sm:text-sm">P</span>
                 </div>
                 <span className="font-semibold text-foreground/90 group-hover:text-foreground transition-colors text-xs sm:text-sm">Pyth Network</span>
@@ -339,37 +344,38 @@ export default function LandingPage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="card-flat p-8 hover-lift hover:border-primary/40 transition-all relative group">
-              <div className="absolute top-2 right-2">
-                <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary text-[10px]">
-                  Unique
-                </Badge>
-              </div>
-              <IconBox icon={Lock} variant="primary" className="mb-6" />
-              <h3 className="text-xl font-bold mb-3 text-foreground">Privacy by Default</h3>
-              <p className="text-muted-foreground text-pretty mb-4">
-                Your invoice data stays yours. We use cryptographic commitment hashes—only you decide who sees the details.
-              </p>
-              <div className="text-xs text-muted-foreground border-t border-border pt-3">
-                <span className="text-primary font-medium">Unlike competitors</span>: No public disclosure of clients, amounts, or contracts required.
-              </div>
-            </Card>
+            <FeatureCard
+              icon={Lock}
+              iconVariant="primary"
+              title="Privacy by Default"
+              description="Your invoice data stays yours. We use cryptographic commitment hashes—only you decide who sees the details."
+              badge="Unique"
+              badgeClassName="border-primary/40 bg-primary/15 text-primary shadow-sm"
+              footer={
+                <>
+                  <span className="text-primary font-semibold">Unlike competitors</span>: No public disclosure of clients, amounts, or contracts required.
+                </>
+              }
+              className="hover-glow"
+            />
 
-            <Card className="card-flat p-8 hover-lift hover:border-primary/40 transition-all group">
-              <IconBox icon={Zap} variant="primary" className="mb-6" />
-              <h3 className="text-xl font-bold mb-3 text-foreground">AI-Optimized</h3>
-              <p className="text-muted-foreground text-pretty">
-                Intelligent agents continuously optimize your yield strategies based on market conditions.
-              </p>
-            </Card>
+            <FeatureCard
+              icon={Zap}
+              iconVariant="primary"
+              title="AI-Optimized"
+              description="Intelligent agents continuously optimize your yield strategies based on market conditions."
+              className="hover-glow"
+            />
 
-            <Card className="card-flat p-8 hover-lift hover:border-success/40 transition-all group">
-              <IconBox icon={TrendingUp} variant="success" className="mb-6" />
-              <h3 className="text-xl font-bold mb-3 text-success">Real DeFi Yield</h3>
-              <p className="text-muted-foreground text-pretty">
-                Earn up to 7% APY from real lending protocols, not inflationary token emissions.
-              </p>
-            </Card>
+            <FeatureCard
+              icon={TrendingUp}
+              iconVariant="success"
+              title="Real DeFi Yield"
+              titleColor="text-success"
+              description="Earn up to 7% APY from real lending protocols, not inflationary token emissions."
+              hoverColor="success"
+              className="hover-lift"
+            />
           </div>
         </div>
       </section>
@@ -388,41 +394,37 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="card-flat p-6 text-center">
-              <IconBox icon={Lock} variant="success" className="mx-auto mb-4" />
-              <div className="text-2xl font-bold mb-1">100%</div>
-              <div className="text-sm text-muted-foreground">Open Source</div>
-              <p className="text-xs text-muted-foreground mt-2">
-                All contracts verified on Mantlescan
-              </p>
-            </Card>
+            <SecurityCard
+              icon={Lock}
+              iconVariant="success"
+              value="100%"
+              label="Open Source"
+              description="All contracts verified on Mantlescan"
+            />
 
-            <Card className="card-flat p-6 text-center">
-              <IconBox icon={Lock} variant="primary" className="mx-auto mb-4" />
-              <div className="text-2xl font-bold mb-1">No Admin Keys</div>
-              <div className="text-sm text-muted-foreground">Immutable Logic</div>
-              <p className="text-xs text-muted-foreground mt-2">
-                No backdoors, no rug pulls possible
-              </p>
-            </Card>
+            <SecurityCard
+              icon={Lock}
+              iconVariant="primary"
+              value="No Admin Keys"
+              label="Immutable Logic"
+              description="No backdoors, no rug pulls possible"
+            />
 
-            <Card className="card-flat p-6 text-center">
-              <IconBox icon={TrendingUp} variant="primary" className="mx-auto mb-4" />
-              <div className="text-2xl font-bold mb-1">Real Yield</div>
-              <div className="text-sm text-muted-foreground">From Lendle</div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Battle-tested lending protocol
-              </p>
-            </Card>
+            <SecurityCard
+              icon={TrendingUp}
+              iconVariant="primary"
+              value="Real Yield"
+              label="From Lendle"
+              description="Battle-tested lending protocol"
+            />
 
-            <Card className="card-flat p-6 text-center">
-              <IconBox icon={Zap} variant="primary" className="mx-auto mb-4" />
-              <div className="text-2xl font-bold mb-1">Pyth Oracle</div>
-              <div className="text-sm text-muted-foreground">Price Feeds</div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Institutional-grade data
-              </p>
-            </Card>
+            <SecurityCard
+              icon={Zap}
+              iconVariant="primary"
+              value="Pyth Oracle"
+              label="Price Feeds"
+              description="Institutional-grade data"
+            />
           </div>
 
           <div className="mt-8 p-4 rounded-lg bg-muted/30 border border-border">

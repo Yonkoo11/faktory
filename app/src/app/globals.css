@@ -4,29 +4,53 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Professional Fintech - Blue/Navy Design System */
-  --background: oklch(0.06 0.01 240); /* Deep navy background */
+  /* Premium Fintech Design System - Enhanced Colors */
+  --background: oklch(0.08 0.01 240); /* Deep navy background - slightly lighter */
   --foreground: oklch(0.98 0 0); /* Off-white text */
-  --card: oklch(0.12 0.01 240); /* Solid card background */
+  --card: oklch(0.13 0.015 240); /* Card background - more depth */
   --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.10 0.01 240);
+  --popover: oklch(0.12 0.01 240);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.6 0.18 250); /* Bright blue - CTAs */
-  --primary-foreground: oklch(0.98 0 0);
-  --primary-muted: oklch(0.4 0.15 250); /* Darker blue */
-  --primary-subtle: oklch(0.9 0.05 250); /* Light blue tint */
+
+  /* Enhanced Primary Blues - More Vibrant */
+  --primary: oklch(0.65 0.22 250); /* Brighter, more saturated blue */
+  --primary-foreground: oklch(0.99 0 0);
+  --primary-muted: oklch(0.45 0.18 250); /* Richer darker blue */
+  --primary-subtle: oklch(0.92 0.06 250); /* Light blue tint */
+  --primary-glow: oklch(0.65 0.22 250 / 0.3); /* Glow effect */
+
+  /* Gradient Stops */
+  --gradient-primary-from: oklch(0.65 0.22 250); /* Bright blue */
+  --gradient-primary-to: oklch(0.55 0.25 270); /* Purple-blue */
+  --gradient-success-from: oklch(0.70 0.20 145); /* Emerald */
+  --gradient-success-to: oklch(0.65 0.22 160); /* Teal */
+  --gradient-accent-from: oklch(0.65 0.22 250);
+  --gradient-accent-to: oklch(0.60 0.20 280);
+
   --secondary: oklch(0.5 0.02 240); /* Slate gray */
   --secondary-foreground: oklch(0.95 0 0);
-  --muted: oklch(0.2 0.01 240);
-  --muted-foreground: oklch(0.6 0.01 240);
-  --accent: oklch(0.35 0.08 250); /* Deep navy accent */
+  --muted: oklch(0.22 0.015 240); /* Slightly lighter */
+  --muted-foreground: oklch(0.62 0.01 240);
+  --accent: oklch(0.38 0.10 250); /* More vibrant accent */
   --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.55 0.22 25); /* Muted red */
+
+  /* Enhanced Semantic Colors */
+  --destructive: oklch(0.58 0.24 25); /* More vibrant red */
   --destructive-foreground: oklch(0.98 0 0);
-  --success: oklch(0.65 0.18 145); /* Emerald green */
+  --success: oklch(0.70 0.20 145); /* Brighter emerald green */
   --success-foreground: oklch(0.98 0 0);
-  --warning: oklch(0.75 0.15 85); /* Amber */
+  --warning: oklch(0.78 0.18 85); /* More vibrant amber */
   --warning-foreground: oklch(0.15 0 0);
+
+  /* Disabled States */
+  --disabled: oklch(0.15 0.01 240); /* Subtle disabled background */
+  --disabled-foreground: oklch(0.45 0.01 240); /* Low contrast text */
+  --disabled-border: oklch(0.18 0.01 240); /* Barely visible border */
+
+  /* Partner Brand Colors */
+  --partner-mantle: oklch(0.68 0.08 190); /* Mantle teal #65B3AE */
+  --partner-pyth: oklch(0.5 0.18 280); /* Pyth purple #7142CF */
+
   --border: oklch(0.2 0.01 240); /* Subtle borders */
   --input: oklch(0.15 0.01 240);
   --ring: oklch(0.6 0.18 250); /* Blue focus ring */
@@ -54,6 +78,17 @@
   --font-semibold: 600;
   --font-bold: 700;
 
+  /* Line Heights */
+  --line-height-tight: 1.1;   /* Headlines */
+  --line-height-snug: 1.3;    /* Subheads */
+  --line-height-normal: 1.5;  /* Body */
+  --line-height-relaxed: 1.6; /* Long-form */
+
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.02em;  /* Large headlines */
+  --letter-spacing-normal: -0.01em; /* Subheads */
+  --letter-spacing-wide: 0.01em;    /* Uppercase labels */
+
   /* Spacing Scale - 8pt grid */
   --space-0: 0;
   --space-1: 0.25rem;  /* 4px - tight */
@@ -67,6 +102,17 @@
   --space-12: 3rem;    /* 48px - section */
   --space-16: 4rem;    /* 64px - large section */
   --space-20: 5rem;    /* 80px - hero */
+
+  /* Enhanced Shadow System - Multi-layer for depth */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.15);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+
+  /* Glow Shadows for interactive elements */
+  --shadow-glow-primary: 0 0 20px var(--primary-glow), 0 0 40px var(--primary-glow);
+  --shadow-glow-success: 0 0 20px oklch(0.70 0.20 145 / 0.3);
 
   /* Sidebar (light theme sidebar if needed) */
   --sidebar: oklch(0.985 0 0);
@@ -169,23 +215,53 @@
     @apply bg-background text-foreground;
   }
 
-  /* Flat card utilities - professional fintech design */
+  /* Premium card utilities with enhanced depth */
   .card-flat {
     background: var(--card);
-    border: 1px solid var(--border);
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    border: 1px solid oklch(0.25 0.02 240);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .card-elevated {
     background: var(--card);
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    border: 1px solid oklch(0.28 0.02 240);
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .card-high {
     background: var(--card);
-    border: 1px solid var(--border);
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    border: 1px solid oklch(0.30 0.02 240);
+    box-shadow: var(--shadow-lg);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Premium glassmorphism effect - subtle */
+  .card-glass {
+    background: oklch(0.13 0.015 240 / 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid oklch(0.30 0.03 240 / 0.5);
+    box-shadow: var(--shadow-lg), inset 0 1px 0 0 oklch(0.35 0.03 240 / 0.5);
+  }
+
+  /* Gradient border effect */
+  .card-gradient-border {
+    position: relative;
+    background: var(--card);
+    border: 0;
+  }
+
+  .card-gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--gradient-primary-from), var(--gradient-primary-to));
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
   }
 }
 
@@ -250,14 +326,32 @@
   animation: scale-in 0.3s ease-out forwards;
 }
 
-/* Hover card effect - subtle lift for flat design */
+/* Premium hover effects */
 .hover-lift {
-  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-xl);
+}
+
+.hover-glow {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-glow:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-primary);
+  border-color: var(--primary);
+}
+
+.hover-scale {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
 }
 
 /* Agent activity flash for new items - blue for professional look */
