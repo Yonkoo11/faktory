@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { AgentActivity } from "@/components/AgentActivity"
 import { useYieldVault } from "@/hooks/use-yield-vault"
+import { IconBox } from "@/components/ui/icon-box"
 import {
   Bot,
   Zap,
@@ -37,9 +38,9 @@ export default function AgentPage() {
 
         {/* Agent Status Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="glass border-glass-border p-6">
+          <Card className="card-flat p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent/20 to-primary/20 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
                 <Bot className="w-6 h-6 text-accent" />
               </div>
               <div>
@@ -54,9 +55,9 @@ export default function AgentPage() {
             <p className="text-sm text-muted-foreground">Will optimize when agent runs</p>
           </Card>
 
-          <Card className="glass border-glass-border p-6">
+          <Card className="card-flat p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-success/20 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                 <TrendingUp className="w-6 h-6 text-primary" />
               </div>
               <div>
@@ -70,9 +71,9 @@ export default function AgentPage() {
             </p>
           </Card>
 
-          <Card className="glass border-glass-border p-6">
+          <Card className="card-flat p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-success/20 to-accent/20 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
                 <Activity className="w-6 h-6 text-success" />
               </div>
               <div>
@@ -91,20 +92,20 @@ export default function AgentPage() {
         </div>
 
         {/* Agent Controls */}
-        <Card className="glass border-glass-border p-6">
+        <Card className="card-flat p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-semibold mb-1">Agent Controls</h2>
               <p className="text-sm text-muted-foreground">Configure autonomous decision-making</p>
             </div>
-            <Button variant="outline" size="sm" className="border-glass-border bg-background/50">
+            <Button variant="outline" size="sm" className="border-border bg-background">
               <Settings className="w-4 h-4 mr-2" />
               Advanced Settings
             </Button>
           </div>
 
           <div className="space-y-6">
-            <div className="flex items-start justify-between gap-4 p-5 bg-background/50 rounded-lg border border-glass-border">
+            <div className="flex items-start justify-between gap-4 p-5 bg-background rounded-lg border border-border">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
                   <Zap className="w-5 h-5 text-accent" />
@@ -137,8 +138,8 @@ export default function AgentPage() {
         </Card>
 
         {/* Agent Activity Status */}
-        <Card className="glass border-glass-border">
-          <div className="p-6 border-b border-glass-border">
+        <Card className="card-flat">
+          <div className="p-6 border-b border-border">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-semibold mb-1">Agent Activity</h2>
@@ -200,7 +201,7 @@ export default function AgentPage() {
             </div>
 
             {/* How it works - compact */}
-            <div className="p-4 rounded-lg bg-muted/30 border border-glass-border">
+            <div className="p-4 rounded-lg bg-muted/30 border border-border">
               <p className="text-xs text-muted-foreground text-center">
                 The AI agent analyzes market conditions every 30 seconds and automatically recommends strategy changes when confidence exceeds 80%.
               </p>
@@ -209,35 +210,31 @@ export default function AgentPage() {
         </Card>
 
         {/* Performance Insights */}
-        <Card className="glass border-glass-border p-6">
+        <Card className="card-flat p-6">
           <h2 className="text-xl font-semibold mb-4">Performance Insights</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-5 bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg border border-glass-border">
+            <div className="p-5 bg-primary/5 rounded-lg border border-border">
               <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                </div>
+                <IconBox icon={TrendingUp} variant="primary" size="md" />
                 <div>
                   <h3 className="font-semibold mb-1">Strategy Optimization</h3>
                   <p className="text-sm text-muted-foreground">Continuous yield improvement</p>
                 </div>
               </div>
-              <p className="text-2xl font-bold gradient-text">3.5-7% APY</p>
+              <p className="text-2xl font-bold text-primary">3.5-7% APY</p>
               <p className="text-xs text-muted-foreground mt-1">Based on strategy selection</p>
             </div>
 
-            <div className="p-5 bg-gradient-to-br from-success/5 to-primary/5 rounded-lg border border-glass-border">
+            <div className="p-5 bg-success/5 rounded-lg border border-border">
               <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-success/20 to-primary/20 flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-success" />
-                </div>
+                <IconBox icon={Shield} variant="success" size="md" />
                 <div>
                   <h3 className="font-semibold mb-1">Risk Management</h3>
                   <p className="text-sm text-muted-foreground">Real-time monitoring</p>
                 </div>
               </div>
-              <p className="text-2xl font-bold gradient-text">24/7 Active</p>
+              <p className="text-2xl font-bold text-primary">24/7 Active</p>
               <p className="text-xs text-muted-foreground mt-1">Pyth oracle price feeds</p>
             </div>
           </div>

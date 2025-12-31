@@ -22,5 +22,8 @@
     "deploy:local": "cd contracts && forge script script/Deploy.s.sol --rpc-url http://127.0.0.1:8545 --broadcast",
     "deploy:factory": "cd contracts && forge script script/DeployFactory.s.sol --rpc-url http://127.0.0.1:8545 --broadcast",
     "deploy:mantle-sepolia": "cd contracts && forge script script/Deploy.s.sol --rpc-url https://rpc.sepolia.mantle.xyz --broadcast"
+  },
+  "devDependencies": {
+    "puppeteer": "^24.34.0"
   }
 }
