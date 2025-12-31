@@ -4,41 +4,74 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Bold & Intelligent - Orange/Purple AI-powered DeFi theme */
-  --background: oklch(0.04 0 0); /* #0A0A0B - Ultra dark background */
-  --foreground: oklch(0.98 0 0); /* Near white text */
-  --card: oklch(0.08 0 0); /* Slightly lighter than background for cards */
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.06 0 0);
+  /* Professional Fintech - Blue/Navy Design System */
+  --background: oklch(0.06 0.01 240); /* Deep navy background */
+  --foreground: oklch(0.98 0 0); /* Off-white text */
+  --card: oklch(0.12 0.01 240); /* Solid card background */
+  --card-foreground: oklch(0.97 0 0);
+  --popover: oklch(0.10 0.01 240);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.7 0.18 50); /* Warm Orange - Energy, Action, Earnings */
+  --primary: oklch(0.6 0.18 250); /* Bright blue - CTAs */
   --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.15 0 0); /* Dark gray for subtle elements */
-  --secondary-foreground: oklch(0.85 0 0);
-  --muted: oklch(0.12 0 0);
-  --muted-foreground: oklch(0.55 0 0);
-  --accent: oklch(0.6 0.22 290); /* Deep Purple - AI, Intelligence, Premium */
+  --primary-muted: oklch(0.4 0.15 250); /* Darker blue */
+  --primary-subtle: oklch(0.9 0.05 250); /* Light blue tint */
+  --secondary: oklch(0.5 0.02 240); /* Slate gray */
+  --secondary-foreground: oklch(0.95 0 0);
+  --muted: oklch(0.2 0.01 240);
+  --muted-foreground: oklch(0.6 0.01 240);
+  --accent: oklch(0.35 0.08 250); /* Deep navy accent */
   --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.55 0.22 25); /* Red for risk */
+  --destructive: oklch(0.55 0.22 25); /* Muted red */
   --destructive-foreground: oklch(0.98 0 0);
-  --success: oklch(0.65 0.18 145); /* Emerald Green - Growth, Trust, Yield */
+  --success: oklch(0.65 0.18 145); /* Emerald green */
   --success-foreground: oklch(0.98 0 0);
-  --warning: oklch(0.75 0.15 85); /* Amber for pending */
+  --warning: oklch(0.75 0.15 85); /* Amber */
   --warning-foreground: oklch(0.15 0 0);
-  --border: oklch(0.12 0 0 / 0.3); /* Subtle borders */
-  --input: oklch(0.12 0 0 / 0.5);
-  --ring: oklch(0.7 0.18 50); /* Orange ring */
-  --glass-bg: oklch(0.08 0 0 / 0.5); /* Glass morphism background */
-  --glass-border: oklch(0.95 0 0 / 0.05); /* Subtle glass border */
-  --chart-1: oklch(0.7 0.18 50); /* Orange - Deposits */
-  --chart-2: oklch(0.6 0.22 290); /* Purple - AI Actions */
-  --chart-3: oklch(0.65 0.18 145); /* Green - Yield */
-  --chart-4: oklch(0.75 0.15 85); /* Amber - Warnings */
+  --border: oklch(0.2 0.01 240); /* Subtle borders */
+  --input: oklch(0.15 0.01 240);
+  --ring: oklch(0.6 0.18 250); /* Blue focus ring */
+  --chart-1: oklch(0.6 0.18 250); /* Blue - Primary */
+  --chart-2: oklch(0.65 0.18 145); /* Green - Success */
+  --chart-3: oklch(0.5 0.02 240); /* Slate - Secondary */
+  --chart-4: oklch(0.75 0.15 85); /* Amber - Warning */
   --chart-5: oklch(0.55 0.22 25); /* Red - Risk */
-  --radius: 0.75rem;
+  --radius: 0.5rem;
+
+  /* Typography Scale - 8pt aligned */
+  --text-xs: 0.75rem;    /* 12px - captions */
+  --text-sm: 0.875rem;   /* 14px - body small */
+  --text-base: 1rem;     /* 16px - body */
+  --text-lg: 1.125rem;   /* 18px - emphasized */
+  --text-xl: 1.25rem;    /* 20px - subheadings */
+  --text-2xl: 1.5rem;    /* 24px - headings */
+  --text-3xl: 1.875rem;  /* 30px - page titles */
+  --text-4xl: 2.25rem;   /* 36px - hero */
+  --text-5xl: 3rem;      /* 48px - display */
+
+  /* Font Weights */
+  --font-regular: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* Spacing Scale - 8pt grid */
+  --space-0: 0;
+  --space-1: 0.25rem;  /* 4px - tight */
+  --space-2: 0.5rem;   /* 8px - minimal */
+  --space-3: 0.75rem;  /* 12px - compact */
+  --space-4: 1rem;     /* 16px - default */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px - comfortable */
+  --space-8: 2rem;     /* 32px - spacious */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px - section */
+  --space-16: 4rem;    /* 64px - large section */
+  --space-20: 5rem;    /* 80px - hero */
+
+  /* Sidebar (light theme sidebar if needed) */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.7 0.18 50);
+  --sidebar-primary: oklch(0.6 0.18 250);
   --sidebar-primary-foreground: oklch(0.98 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
@@ -92,6 +125,8 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-muted: var(--primary-muted);
+  --color-primary-subtle: var(--primary-subtle);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -107,8 +142,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-glass-bg: var(--glass-bg);
-  --color-glass-border: var(--glass-border);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -136,19 +169,23 @@
     @apply bg-background text-foreground;
   }
 
-  /* Glass morphism utility */
-  .glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
+  /* Flat card utilities - professional fintech design */
+  .card-flat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
   }
 
-  /* Gradient text utility - orange to purple for bold, energetic AI vibe */
-  .gradient-text {
-    background: linear-gradient(135deg, oklch(0.7 0.18 50), oklch(0.6 0.22 290));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .card-elevated {
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  }
+
+  .card-high {
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   }
 }
 
@@ -184,18 +221,6 @@
   animation: slideInRight 0.4s ease-out forwards;
 }
 
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(255, 138, 51, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(255, 138, 51, 0.8);
-  }
-}
-
-.animate-pulseGlow {
-  animation: pulseGlow 2s ease-in-out infinite;
-}
 
 @keyframes countUp {
   from {
@@ -225,28 +250,20 @@
   animation: scale-in 0.3s ease-out forwards;
 }
 
-/* Gradient text effect - bold orange to purple palette */
-.text-gradient {
-  background: linear-gradient(135deg, #ff8a33 0%, #a855f7 50%, #9333ea 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Hover card effect */
+/* Hover card effect - subtle lift for flat design */
 .hover-lift {
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
 
 .hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
-/* Agent activity flash for new items - purple for AI actions */
+/* Agent activity flash for new items - blue for professional look */
 @keyframes newItemFlash {
   0% {
-    background-color: rgba(168, 85, 247, 0.3);
+    background-color: rgba(59, 130, 246, 0.2);
   }
   100% {
     background-color: transparent;
@@ -257,40 +274,7 @@
   animation: newItemFlash 1s ease-out;
 }
 
-/* Enhanced hover effects for cards */
-.hover-glow {
-  transition: all 0.3s ease-out;
-}
-
-.hover-glow:hover {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 0 30px rgba(255, 138, 51, 0.3), 0 10px 40px rgba(0, 0, 0, 0.3);
-}
-
-/* Gradient background utilities */
-.bg-gradient-orange-purple {
-  background: linear-gradient(135deg, rgba(255, 138, 51, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
-}
-
-.bg-gradient-radial {
-  background: radial-gradient(ellipse at top, rgba(255, 138, 51, 0.15) 0%, transparent 50%);
-}
-
-/* Animated gradient border */
-@keyframes borderGlow {
-  0%, 100% {
-    border-color: rgba(255, 138, 51, 0.3);
-  }
-  50% {
-    border-color: rgba(168, 85, 247, 0.5);
-  }
-}
-
-.animate-border-glow {
-  animation: borderGlow 3s ease-in-out infinite;
-}
-
-/* Floating animation for particles */
+/* Floating animation for decorative elements (if needed) */
 @keyframes float {
   0%, 100% {
     transform: translateY(0px);
@@ -304,34 +288,20 @@
   animation: float 3s ease-in-out infinite;
 }
 
-/* Number count animation with glow */
-@keyframes numberGlow {
-  0%, 100% {
-    text-shadow: 0 0 10px rgba(255, 138, 51, 0.3);
-  }
-  50% {
-    text-shadow: 0 0 20px rgba(255, 138, 51, 0.6), 0 0 30px rgba(168, 85, 247, 0.4);
-  }
-}
-
-.animate-number-glow {
-  animation: numberGlow 2s ease-in-out infinite;
-}
-
-/* Scrollbar styling */
+/* Scrollbar styling - professional blue theme */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a1a;
+  background: oklch(0.08 0.01 240);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, rgba(255, 138, 51, 0.5), rgba(168, 85, 247, 0.5));
+  background: oklch(0.35 0.08 250);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, rgba(255, 138, 51, 0.8), rgba(168, 85, 247, 0.8));
+  background: oklch(0.5 0.12 250);
 }

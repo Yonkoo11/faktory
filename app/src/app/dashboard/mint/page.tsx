@@ -194,8 +194,8 @@ function MintInvoiceContent() {
       <div className="min-h-screen bg-background">
         <DashboardHeader />
         <main className="container mx-auto px-4 py-16">
-          <Card className="glass border-glass-border p-12 max-w-2xl mx-auto text-center">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-success/20 to-primary/20 flex items-center justify-center mx-auto mb-6 animate-scale-in">
+          <Card className="card-flat p-12 max-w-2xl mx-auto text-center">
+            <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-6 animate-scale-in">
               <CheckCircle2 className="w-10 h-10 text-success animate-bounce" />
             </div>
             <h1 className="text-3xl font-bold mb-3">Invoice Minted Successfully!</h1>
@@ -220,13 +220,13 @@ function MintInvoiceContent() {
             )}
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90" asChild>
+              <Button size="lg" className="bg-primary hover:bg-primary/90" asChild>
                 <Link href="/dashboard">
                   Deposit to Earn Yield
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-glass-border bg-background/50" asChild>
+              <Button size="lg" variant="outline" className="border-border bg-background" asChild>
                 <Link href="/dashboard">View in Portfolio</Link>
               </Button>
             </div>
@@ -289,14 +289,14 @@ function MintInvoiceContent() {
 
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t border-glass-border" />
+                  <span className="w-full border-t border-border" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-background px-2 text-muted-foreground">Or enter manually</span>
                 </div>
               </div>
 
-              <Card className="glass border-glass-border p-8 opacity-90">
+              <Card className="card-flat p-8 opacity-90">
                 <h2 className="text-xl font-bold mb-6 text-muted-foreground">Manual Entry</h2>
                 <div className="space-y-6">
                   <div className="space-y-2">
@@ -306,7 +306,7 @@ function MintInvoiceContent() {
                       placeholder="Acme Corporation"
                       value={formData.clientName}
                       onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                      className="bg-background/50 border-glass-border"
+                      className="bg-background border-border"
                     />
                   </div>
 
@@ -324,7 +324,7 @@ function MintInvoiceContent() {
                           setFormData({ ...formData, amount: e.target.value })
                           if (formErrors.amount) setFormErrors({ ...formErrors, amount: undefined })
                         }}
-                        className={`bg-background/50 border-glass-border ${formErrors.amount ? 'border-destructive' : ''}`}
+                        className={`bg-background border-border ${formErrors.amount ? 'border-destructive' : ''}`}
                         aria-invalid={!!formErrors.amount}
                         aria-describedby={formErrors.amount ? "amount-error" : undefined}
                       />
@@ -338,10 +338,10 @@ function MintInvoiceContent() {
                         value={formData.currency}
                         onValueChange={(value) => setFormData({ ...formData, currency: value })}
                       >
-                        <SelectTrigger className="bg-background/50 border-glass-border">
+                        <SelectTrigger className="bg-background border-border">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="glass border-glass-border">
+                        <SelectContent className="card-flat">
                           <SelectItem value="USD">USD</SelectItem>
                           <SelectItem value="EUR">EUR</SelectItem>
                           <SelectItem value="GBP">GBP</SelectItem>
@@ -357,7 +357,7 @@ function MintInvoiceContent() {
                         <Button
                           variant="outline"
                           className={cn(
-                            "w-full justify-start text-left font-normal bg-background/50 border-glass-border",
+                            "w-full justify-start text-left font-normal bg-background border-border",
                             !formData.dueDate && "text-muted-foreground",
                             formErrors.dueDate && "border-destructive",
                           )}
@@ -368,7 +368,7 @@ function MintInvoiceContent() {
                           {formData.dueDate ? format(formData.dueDate, "PPP") : "Pick a date"}
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="glass border-glass-border w-auto p-0" align="start">
+                      <PopoverContent className="card-flat w-auto p-0" align="start">
                         <Calendar
                           mode="single"
                           selected={formData.dueDate}
@@ -388,7 +388,7 @@ function MintInvoiceContent() {
 
                   <div className="space-y-2">
                     <Label htmlFor="file">Upload Invoice PDF (Optional)</Label>
-                    <div className="border-2 border-dashed border-glass-border rounded-lg p-8 text-center hover:border-primary/30 transition-colors cursor-pointer bg-background/50">
+                    <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/30 transition-colors cursor-pointer bg-background">
                       <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
                       <p className="text-sm text-muted-foreground mb-2">Drop your invoice PDF here or click to browse</p>
                       <p className="text-xs text-muted-foreground">Maximum file size: 10MB</p>
@@ -403,7 +403,7 @@ function MintInvoiceContent() {
                   </div>
 
                   {/* Privacy toggle - inline in step 1 */}
-                  <div className="flex items-start justify-between gap-4 p-4 bg-background/50 rounded-lg border border-glass-border">
+                  <div className="flex items-start justify-between gap-4 p-4 bg-background rounded-lg border border-border">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <Shield className="w-4 h-4 text-primary" />
@@ -434,7 +434,7 @@ function MintInvoiceContent() {
                   <Button
                     onClick={handleNext}
                     disabled={!formData.clientName || !formData.amount || !formData.dueDate}
-                    className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                    className="bg-primary hover:bg-primary/90"
                   >
                     Review & Mint
                     <ArrowRight className="ml-2 h-4 w-4" />
@@ -446,7 +446,7 @@ function MintInvoiceContent() {
 
           {/* Step 2: Review & Mint */}
           {step === 2 && (
-            <Card className="glass border-glass-border p-8">
+            <Card className="card-flat p-8">
               <h2 className="text-2xl font-bold mb-6">Review & Mint</h2>
               <div className="space-y-6">
                 {!isConnected && (
@@ -462,7 +462,7 @@ function MintInvoiceContent() {
                 )}
 
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 p-4 bg-background/50 rounded-lg border border-glass-border">
+                  <div className="grid grid-cols-2 gap-4 p-4 bg-background rounded-lg border border-border">
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">Client Name</p>
                       <p className="font-medium">{formData.clientName}</p>
@@ -489,7 +489,7 @@ function MintInvoiceContent() {
                     )}
                   </div>
 
-                  <div className="p-4 bg-muted/30 rounded-lg border border-glass-border">
+                  <div className="p-4 bg-muted/30 rounded-lg border border-border">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-muted-foreground">Estimated Gas Fee</span>
                       <span className="font-semibold">~0.001 MNT</span>
@@ -523,7 +523,7 @@ function MintInvoiceContent() {
               </div>
 
               <div className="flex justify-between gap-3 mt-8">
-                <Button variant="outline" onClick={handleBack} className="border-glass-border bg-background/50" disabled={isMinting}>
+                <Button variant="outline" onClick={handleBack} className="border-border bg-background" disabled={isMinting}>
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Back
                 </Button>
@@ -532,7 +532,7 @@ function MintInvoiceContent() {
                     onClick={handleMint}
                     size="lg"
                     disabled={!isConnected || isMinting}
-                    className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                    className="bg-primary hover:bg-primary/90"
                   >
                     {isMinting ? (
                       <>

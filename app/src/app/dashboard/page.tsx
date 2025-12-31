@@ -19,55 +19,10 @@ import { useAccount } from "wagmi"
 import { useInvoiceNFT } from "@/hooks/use-invoice-nft"
 import { useYieldVault } from "@/hooks/use-yield-vault"
 import { formatUnits } from "viem"
-
-// Animated counter component
-function AnimatedCounter({ value, decimals = 0, prefix = "", suffix = "" }: { value: number; decimals?: number; prefix?: string; suffix?: string }) {
-  const [count, setCount] = useState(0)
-  const [hasAnimated, setHasAnimated] = useState(false)
-  const ref = useRef<HTMLSpanElement>(null)
-
-  useEffect(() => {
-    if (hasAnimated) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setHasAnimated(true)
-          const duration = 1500
-          const startTime = Date.now()
-
-          const animate = () => {
-            const elapsed = Date.now() - startTime
-            const progress = Math.min(elapsed / duration, 1)
-            const eased = 1 - Math.pow(1 - progress, 3) // ease out cubic
-            setCount(eased * value)
-
-            if (progress < 1) {
-              requestAnimationFrame(animate)
-            }
-          }
-
-          requestAnimationFrame(animate)
-        }
-      },
-      { threshold: 0.1 }
-    )
-
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [value, hasAnimated])
-
-  const displayValue = count.toLocaleString('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals
-  })
-
-  return (
-    <span ref={ref}>
-      {prefix}{displayValue}{suffix}
-    </span>
-  )
-}
+import { AnimatedCounter } from "@/components/ui/animated-counter"
+import { StatusBadge } from "@/components/ui/status-badge"
+import { StatCard } from "@/components/ui/stat-card"
+import { IconBox } from "@/components/ui/icon-box"
 
 // Type for invoice display
 interface InvoiceDisplay {
@@ -140,24 +95,6 @@ const yieldData = [
   { date: "Feb 19", value: 1189 },
   { date: "Feb 26", value: 1369 },
 ]
-
-function StatusBadge({ status }: { status: string }) {
-  const variants: Record<string, string> = {
-    Active: "bg-primary/10 text-primary border-primary/30",
-    "In Yield": "bg-success/10 text-success border-success/30",
-    Paid: "bg-muted text-muted-foreground border-border",
-    Withdrawn: "bg-muted text-muted-foreground border-border",
-    Completed: "bg-muted text-muted-foreground border-border",
-    "At Risk": "bg-warning/10 text-warning border-warning/30",
-    Defaulted: "bg-destructive/10 text-destructive border-destructive/30",
-  }
-
-  return (
-    <Badge variant="outline" className={`${variants[status] || ""}`}>
-      {status}
-    </Badge>
-  )
-}
 
 export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState("30D")
@@ -278,7 +215,7 @@ export default function DashboardPage() {
 
       <main className="container mx-auto px-4 py-8 space-y-8">
         {/* Protocol Health Banner - Institutional Trust Signal */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-lg bg-gradient-to-r from-success/5 via-transparent to-success/5 border border-success/20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-lg bg-success/5 border border-success/20">
           <div className="flex items-center gap-3 sm:gap-6 flex-wrap">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
@@ -314,22 +251,19 @@ export default function DashboardPage() {
           ) : (
             <>
               {/* Primary Metric - Portfolio Value */}
-              <Card className="glass border-glass-border p-8 lg:row-span-2 bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20 hover-glow hover:border-primary/40 transition-all relative overflow-hidden group">
-                {/* Subtle animated background */}
-                <div className="absolute inset-0 bg-gradient-orange-purple opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-                <div className="flex items-center gap-3 mb-6 relative z-10">
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all">
+              <Card className="card-elevated p-8 lg:row-span-2 border-primary/20 hover-lift hover:border-primary/40 transition-all relative overflow-hidden">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center">
                     <Wallet className="w-7 h-7 text-white" />
                   </div>
                   <div>
                     <span className="text-sm text-muted-foreground">Total Portfolio Value</span>
-                    <div className="text-4xl font-bold gradient-text">
+                    <div className="text-4xl font-bold text-primary">
                       <AnimatedCounter value={portfolioValue} prefix="$" />
                     </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-glass-border relative z-10">
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border">
                   <div>
                     <div className="text-2xl font-bold text-success">
                       <AnimatedCounter value={totalYieldEarned} decimals={2} prefix="~$" />
@@ -343,50 +277,36 @@ export default function DashboardPage() {
                     <div className="text-xs text-muted-foreground">Average APY</div>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-4 pt-4 border-t border-glass-border">
+                <p className="text-xs text-muted-foreground mt-4 pt-4 border-t border-border">
                   No lockup period — withdraw your funds anytime
                 </p>
               </Card>
 
               {/* Secondary Metrics */}
-              <Card className="glass border-glass-border p-6 hover-glow hover:border-success/40 transition-all group">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-sm text-muted-foreground">Active Invoices</span>
-                    <div className="text-3xl font-bold mt-1">
-                      <AnimatedCounter value={activeCount} />
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">{userBalance} owned by you</div>
-                  </div>
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-success/20 to-success/10 flex items-center justify-center group-hover:shadow-lg group-hover:shadow-success/20 transition-all">
-                    <FileText className="w-6 h-6 text-success" />
-                  </div>
-                </div>
-              </Card>
+              <StatCard
+                title="Active Invoices"
+                value={activeCount}
+                subtitle={`${userBalance} owned by you`}
+                icon={FileText}
+                variant="success"
+                className="hover-lift hover:border-success/40"
+              />
 
-              <Card className="glass border-glass-border p-6 hover-glow hover:border-accent/40 transition-all group">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-sm text-muted-foreground">Strategy Distribution</span>
-                    <div className="text-3xl font-bold mt-1">
-                      {activeCount > 0 ? 'Mixed' : 'No deposits'}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {activeCount > 0 ? 'Conservative + Aggressive' : 'Deposit to start earning'}
-                    </div>
-                  </div>
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 flex items-center justify-center group-hover:shadow-lg group-hover:shadow-accent/20 transition-all">
-                    <TrendingUp className="w-6 h-6 text-accent" />
-                  </div>
-                </div>
-              </Card>
+              <StatCard
+                title="Strategy Distribution"
+                value={activeCount > 0 ? 'Mixed' : 'No deposits'}
+                subtitle={activeCount > 0 ? 'Conservative + Aggressive' : 'Deposit to start earning'}
+                icon={TrendingUp}
+                variant="primary"
+                className="hover-lift hover:border-primary/40"
+              />
             </>
           )}
         </div>
 
         {/* Yield Chart - Only show when there's real yield data */}
         {totalYieldEarned > 0 ? (
-          <Card className="glass border-glass-border p-6 relative">
+          <Card className="card-flat p-6 relative">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-bold mb-1">Cumulative Yield</h2>
@@ -443,14 +363,14 @@ export default function DashboardPage() {
             </ResponsiveContainer>
           </Card>
         ) : (
-          <Card className="glass border-glass-border p-6">
+          <Card className="card-flat p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-lg font-semibold">Yield Performance</h2>
                 <p className="text-sm text-muted-foreground">No earnings data yet</p>
               </div>
             </div>
-            <div className="h-[200px] flex items-center justify-center border border-dashed border-glass-border rounded-lg bg-muted/10">
+            <div className="h-[200px] flex items-center justify-center border border-dashed border-border rounded-lg bg-muted/10">
               <div className="text-center">
                 <TrendingUp className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">
@@ -462,8 +382,8 @@ export default function DashboardPage() {
         )}
 
         {/* Invoice Table */}
-        <Card className="glass border-glass-border relative">
-          <div className="p-6 border-b border-glass-border">
+        <Card className="card-flat relative">
+          <div className="p-6 border-b border-border">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold mb-1">Your Invoices</h2>
@@ -474,7 +394,7 @@ export default function DashboardPage() {
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     placeholder="Search invoices..."
-                    className="pl-9 bg-background/50 border-glass-border"
+                    className="pl-9 bg-background/50 border-border"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -484,13 +404,13 @@ export default function DashboardPage() {
                     <Button
                       variant="outline"
                       size="icon"
-                      className={`border-glass-border bg-background/50 ${filterStatus !== 'all' ? 'border-primary bg-primary/10' : ''}`}
+                      className={`border-border bg-background/50 ${filterStatus !== 'all' ? 'border-primary bg-primary/10' : ''}`}
                       aria-label="Filter invoices"
                     >
                       <Filter className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="glass border-glass-border">
+                  <DropdownMenuContent align="end" className="card-flat">
                     <DropdownMenuItem onClick={() => setFilterStatus("all")} className={filterStatus === "all" ? "bg-primary/10" : ""}>
                       All Invoices
                     </DropdownMenuItem>
@@ -531,15 +451,15 @@ export default function DashboardPage() {
             ) : displayInvoices.length === 0 ? (
               <div className="text-center py-16 px-8">
                 <div className="relative mb-8">
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mx-auto animate-scale-in">
+                  <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto animate-scale-in">
                     <FileText className="w-10 h-10 text-primary" />
                   </div>
-                  <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-gradient-to-br from-success/30 to-success/10 flex items-center justify-center animate-float">
+                  <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-success/20 flex items-center justify-center animate-float">
                     <TrendingUp className="w-4 h-4 text-success" />
                   </div>
                 </div>
 
-                <h3 className="text-2xl font-bold mb-3 gradient-text">Ready to Start Earning?</h3>
+                <h3 className="text-2xl font-bold mb-3 text-primary">Ready to Start Earning?</h3>
                 <p className="text-base text-muted-foreground max-w-md mx-auto mb-8">
                   Transform your unpaid invoices into yield-generating assets.
                   <span className="text-foreground font-medium"> Most users mint their first invoice in under 2 minutes</span>
@@ -547,21 +467,21 @@ export default function DashboardPage() {
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
-                  <div className="p-4 rounded-lg bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20">
+                  <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
                     <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center mx-auto mb-2">
                       <FileText className="w-5 h-5 text-primary" />
                     </div>
                     <div className="text-sm font-medium mb-1">Mint Invoice</div>
                     <div className="text-xs text-muted-foreground">Tokenize your unpaid invoice</div>
                   </div>
-                  <div className="p-4 rounded-lg bg-gradient-to-br from-accent/5 to-accent/10 border border-accent/20">
-                    <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center mx-auto mb-2">
-                      <Wallet className="w-5 h-5 text-accent" />
+                  <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+                    <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center mx-auto mb-2">
+                      <Wallet className="w-5 h-5 text-primary" />
                     </div>
                     <div className="text-sm font-medium mb-1">Deposit</div>
                     <div className="text-xs text-muted-foreground">Choose your yield strategy</div>
                   </div>
-                  <div className="p-4 rounded-lg bg-gradient-to-br from-success/5 to-success/10 border border-success/20">
+                  <div className="p-4 rounded-lg bg-success/5 border border-success/20">
                     <div className="w-10 h-10 rounded-lg bg-success/20 flex items-center justify-center mx-auto mb-2">
                       <TrendingUp className="w-5 h-5 text-success" />
                     </div>
@@ -571,20 +491,20 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
-                  <Button asChild size="lg" className="bg-gradient-to-r from-primary to-accent hover:opacity-90 hover-glow shadow-lg shadow-primary/20">
+                  <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
                     <Link href="/dashboard/mint">
                       <FileText className="w-4 h-4 mr-2" />
                       Mint Your First Invoice
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" size="lg" className="border-glass-border hover:border-primary/40">
+                  <Button asChild variant="outline" size="lg" className="border-border hover:border-primary/40">
                     <Link href="/#how-it-works">
                       Learn How It Works
                     </Link>
                   </Button>
                 </div>
 
-                <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground pt-4 border-t border-glass-border max-w-md mx-auto">
+                <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground pt-4 border-t border-border max-w-md mx-auto">
                   <div className="flex items-center gap-1.5">
                     <Shield className="w-3.5 h-3.5 text-success" />
                     <span>0% default rate</span>
@@ -641,7 +561,7 @@ export default function DashboardPage() {
                           <div className="text-success font-medium">{invoice.accruedYield}</div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-glass-border">
+                      <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
                         <RiskBadge score={invoice.riskScore} />
                         <Button
                           variant="outline"
@@ -662,7 +582,7 @@ export default function DashboardPage() {
                 {/* Desktop Table */}
                 <Table className="hidden md:table">
                   <TableHeader>
-                    <TableRow className="border-glass-border hover:bg-transparent">
+                    <TableRow className="border-border hover:bg-transparent">
                       <TableHead className="text-muted-foreground">Invoice</TableHead>
                       <TableHead className="text-muted-foreground">Amount</TableHead>
                       <TableHead className="text-muted-foreground">Due</TableHead>
@@ -676,7 +596,7 @@ export default function DashboardPage() {
                   </TableHeader>
                   <TableBody>
                     {displayInvoices.map((invoice) => (
-                      <TableRow key={invoice.id} className="border-glass-border hover:bg-muted/10 cursor-pointer transition-colors group">
+                      <TableRow key={invoice.id} className="border-border hover:bg-muted/10 cursor-pointer transition-colors group">
                         <TableCell className="font-mono font-medium">
                           <Link href={`/dashboard/invoice/${invoice.tokenId || invoice.id}`} className="hover:text-primary flex items-center gap-2">
                             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -716,7 +636,7 @@ export default function DashboardPage() {
                                 <MoreVertical className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="glass border-glass-border">
+                            <DropdownMenuContent align="end" className="card-flat">
                               <DropdownMenuItem asChild>
                                 <Link href={`/dashboard/invoice/${invoice.tokenId || invoice.id}`}>View Details</Link>
                               </DropdownMenuItem>
