@@ -184,6 +184,35 @@ export class FaktoryAgent {
   private currentMarketAlert: MarketAlert | null = null;
 
   private async runAnalysisCycle(): Promise<void> {
+    // Timeout protection - wrap entire cycle with 60s timeout
+    const CYCLE_TIMEOUT_MS = 60000; // 60 seconds
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Analysis cycle timeout')), CYCLE_TIMEOUT_MS);
+    });
+
+    try {
+      await Promise.race([
+        this.runAnalysisCycleInternal(),
+        timeoutPromise
+      ]);
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Analysis cycle timeout') {
+        console.error('⚠️ Analysis cycle exceeded 60s timeout, skipping...');
+        this.broadcastThought({
+          type: 'error',
+          tokenId: 'system',
+          message: '⏱️ Analysis cycle timed out - will retry next interval',
+          timestamp: Date.now(),
+        });
+        this.tripCircuitBreaker(); // Trip circuit breaker on timeout
+      } else {
+        throw error; // Re-throw other errors
+      }
+    }
+  }
+
+  private async runAnalysisCycleInternal(): Promise<void> {
     // Check circuit breaker
     if (this.checkCircuitBreaker()) {
       console.log('⏸️ Circuit breaker is open, skipping cycle');

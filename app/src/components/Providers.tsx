@@ -6,6 +6,7 @@ import { config } from '@/lib/wagmi';
 import { useState } from 'react';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { NetworkCheck } from '@/components/network-check';
+import { ConfigValidation } from '@/components/config-validation';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient({
@@ -22,6 +23,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ErrorBoundary>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
+          <ConfigValidation />
           <NetworkCheck>
             {children}
           </NetworkCheck>
