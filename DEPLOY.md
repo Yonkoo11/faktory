@@ -80,14 +80,42 @@ pnpm install
 pnpm dev
 ```
 
-## Step 5: Test the Demo Flow
+## Step 5: Verify Configuration
 
-1. Open http://localhost:3000
-2. Connect your wallet to Mantle Sepolia
-3. Tokenize an invoice
-4. Deposit to yield vault
-5. Watch the agent analyze and optimize
-6. Use demo buttons to trigger market scenarios
+After setting up, verify your configuration is correct:
+
+**Contract Address Validation**:
+- Open http://localhost:3000
+- If you see a red error banner at the top, your contract addresses are invalid
+- Check your `app/.env` file and ensure all addresses are correct (not 0x0000...)
+- The banner will list which specific addresses are invalid
+
+**Agent Health Check**:
+- Navigate to http://localhost:3000/dashboard/agent
+- Verify "Connected" status in top-right corner
+- Watch for analysis cycles (every 30 seconds)
+- If agent shows "Disconnected", check agent terminal for errors
+
+## Step 6: Run End-to-End Tests
+
+Use the comprehensive test checklist:
+
+```bash
+# Open the E2E test checklist
+cat E2E_TEST_CHECKLIST.md
+```
+
+Complete the manual testing flows:
+1. **Invoice Lifecycle**: Mint → Deposit → Agent Analysis → Change Strategy → Withdraw
+2. **Error Handling**: Invalid addresses, timeouts, network disconnection
+3. **UI/UX Verification**: Landing page, dashboard, agent activity
+4. **Performance**: Build time, load time, transaction speed
+
+**Expected Results**:
+- All contract calls succeed
+- Agent completes cycles in <30 seconds (timeout at 60s)
+- No console errors
+- Smooth UI transitions
 
 ## Video Demo Script (2-3 minutes)
 
@@ -140,10 +168,71 @@ pnpm dev
 ## Troubleshooting
 
 ### "Insufficient funds"
-Get more MNT from the faucet.
+Get more MNT from the faucet: https://faucet.sepolia.mantle.xyz/
 
 ### "Agent not connecting"
 Make sure the agent is running and WS_PORT matches NEXT_PUBLIC_AGENT_WS_URL.
+- Check agent terminal for errors
+- Verify WebSocket port is not blocked by firewall
+- Try restarting the agent service
 
 ### "Contract call failed"
 Verify the contract addresses in .env match your deployment.
+- The red error banner will show which addresses are invalid
+- Ensure addresses are not 0x0000...
+- Verify contracts are actually deployed to the network
+
+### "Configuration Error" banner appears
+Your environment variables are not set correctly:
+1. Check `app/.env` file exists (copy from `app/.env.example`)
+2. Ensure all `NEXT_PUBLIC_*_ADDRESS` variables are set
+3. Verify addresses are valid checksummed Ethereum addresses
+4. Restart the dev server after changing .env
+
+### "Analysis cycle timed out"
+The agent's analysis cycle exceeded 60 seconds:
+- This is normal if RPC is slow or network is congested
+- The agent will automatically retry on the next cycle
+- Circuit breaker will trip after repeated timeouts
+- Check Mantle Sepolia network status
+
+### "WebSocket disconnected"
+The agent WebSocket connection dropped:
+- Agent will automatically reconnect with exponential backoff
+- Max 5 reconnection attempts
+- If persistent, check agent service logs
+- Verify NEXT_PUBLIC_AGENT_WS_URL is correct
+
+### "Transaction underpriced"
+Gas price too low for current network conditions:
+- MetaMask will suggest a higher gas price
+- Accept the suggested price
+- Mantle gas is extremely cheap, even at higher prices
+
+---
+
+## Production Deployment
+
+### Frontend (Vercel)
+```bash
+cd app
+vercel --prod
+```
+
+Set environment variables in Vercel dashboard:
+- All `NEXT_PUBLIC_*` variables from `.env`
+
+### Agent Service (Railway/Render)
+```bash
+cd agent
+# Push to Railway or Render
+# Set environment variables in platform dashboard
+```
+
+Required environment variables:
+- `MANTLE_RPC_URL`
+- `AGENT_PRIVATE_KEY`
+- `ANTHROPIC_API_KEY`
+- All contract addresses
+
+Update frontend `NEXT_PUBLIC_AGENT_WS_URL` to point to production agent.
