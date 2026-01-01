@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { AgentActivity } from "@/components/AgentActivity"
+import { AgentActivity } from "@/features/agent"
 import { useYieldVault } from "@/hooks/use-yield-vault"
 import { IconBox } from "@/components/ui/icon-box"
 import {

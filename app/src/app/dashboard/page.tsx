@@ -10,7 +10,7 @@ import { Area, AreaChart, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis
 import { TrendingUp, Wallet, FileText, MoreVertical, ArrowUpRight, Search, Filter, Loader2, Shield, CheckCircle2, Clock, AlertTriangle, Info, RefreshCw, Zap, Lock } from "lucide-react"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Input } from "@/components/ui/input"
-import { DepositModal } from "@/components/deposit-modal"
+import { DepositModal } from "@/features/vault"
 import { SkeletonCard, SkeletonPortfolioCard, SkeletonInvoiceCard, SkeletonInvoiceTable } from "@/components/ui/skeleton-card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { toast } from "sonner"
