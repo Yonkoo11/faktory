@@ -43,6 +43,9 @@ export const queryKeys = {
     deposits: () => [...queryKeys.vault.all, 'deposits'] as const,
     deposit: (tokenId: string | number) =>
       [...queryKeys.vault.deposits(), tokenId] as const,
+    yield: (tokenId: string | number) =>
+      [...queryKeys.vault.all, 'yield', tokenId] as const,
+    activeCount: () => [...queryKeys.vault.all, 'activeCount'] as const,
     strategies: () => [...queryKeys.vault.all, 'strategies'] as const,
     apy: (strategy: string) => [...queryKeys.vault.all, 'apy', strategy] as const,
   },
