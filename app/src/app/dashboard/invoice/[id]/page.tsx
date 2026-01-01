@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { DepositModal } from "@/components/deposit-modal"
+import { DepositModal } from "@/features/vault"
 import {
   Dialog,
   DialogContent,
