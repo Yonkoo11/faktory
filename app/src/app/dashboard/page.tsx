@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Area, AreaChart, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis } from "recharts"
 import { TrendingUp, Wallet, FileText, MoreVertical, ArrowUpRight, Search, Filter, Loader2, Shield, CheckCircle2, Clock, AlertTriangle, Info, RefreshCw, Zap, Lock } from "lucide-react"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Input } from "@/components/ui/input"
@@ -24,6 +23,7 @@ import { StatusBadge } from "@/components/ui/status-badge"
 import { StatCard } from "@/components/ui/stat-card"
 import { IconBox } from "@/components/ui/icon-box"
 import { RiskBadge } from "@/components/domain/invoices/risk-badge"
+import { YieldChart, PortfolioAllocation, RiskDistribution, PerformanceMetrics, useAnalytics } from "@/features/analytics"
 
 // Type for invoice display
 interface InvoiceDisplay {
@@ -40,21 +40,7 @@ interface InvoiceDisplay {
   paymentProbability: number
 }
 
-// Mock data for yield chart (will be replaced with real data)
-const yieldData = [
-  { date: "Jan 1", value: 0 },
-  { date: "Jan 8", value: 124 },
-  { date: "Jan 15", value: 287 },
-  { date: "Jan 22", value: 456 },
-  { date: "Jan 29", value: 623 },
-  { date: "Feb 5", value: 845 },
-  { date: "Feb 12", value: 1024 },
-  { date: "Feb 19", value: 1189 },
-  { date: "Feb 26", value: 1369 },
-]
-
 export default function DashboardPage() {
-  const [timeRange, setTimeRange] = useState("30D")
   const [depositModalOpen, setDepositModalOpen] = useState(false)
   const [selectedInvoice, setSelectedInvoice] = useState<{ id: string; amount: string } | null>(null)
   const [invoices, setInvoices] = useState<InvoiceDisplay[]>([])
@@ -66,6 +52,7 @@ export default function DashboardPage() {
   const { address, isConnected } = useAccount()
   const { totalInvoices, userBalance, activeInvoices, isLoading: isLoadingNFT } = useInvoiceNFT()
   const { tvl, totalYield, activeDepositsCount, conservativeAPY, aggressiveAPY } = useYieldVault()
+  const { allocationData, riskDistribution, yieldHistory, performanceMetrics, isLoading: isLoadingAnalytics } = useAnalytics()
 
   // Fetch invoices from API
   useEffect(() => {
@@ -197,6 +184,11 @@ export default function DashboardPage() {
           </Badge>
         </div>
 
+        {/* Performance Metrics - Key Analytics */}
+        {!isLoadingAnalytics && (
+          <PerformanceMetrics metrics={performanceMetrics} />
+        )}
+
         {/* Portfolio Overview Cards - Hero metric + supporting metrics */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {isLoadingNFT ? (
@@ -262,81 +254,17 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Yield Chart - Only show when there's real yield data */}
-        {totalYieldEarned > 0 ? (
-          <Card className="card-flat p-6 relative">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-xl font-bold mb-1">Cumulative Yield</h2>
-                <p className="text-sm text-muted-foreground">Your earnings over time</p>
-              </div>
-              <div className="flex gap-2">
-                {["7D", "30D", "90D", "All"].map((range) => (
-                  <Button
-                    key={range}
-                    variant={timeRange === range ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setTimeRange(range)}
-                    className={timeRange === range ? "bg-primary" : ""}
-                  >
-                    {range}
-                  </Button>
-                ))}
-              </div>
-            </div>
+        {/* Yield Chart - Professional Analytics */}
+        {!isLoadingAnalytics && (
+          <YieldChart data={yieldHistory} />
+        )}
 
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={yieldData}>
-                <defs>
-                  <linearGradient id="yieldGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis
-                  stroke="hsl(var(--muted-foreground))"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => `$${value}`}
-                />
-                <RechartsTooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "0.5rem",
-                    color: "hsl(var(--foreground))",
-                  }}
-                  formatter={(value) => [`$${Number(value).toFixed(2)}`, "Yield"]}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="value"
-                  stroke="hsl(var(--primary))"
-                  strokeWidth={2}
-                  fill="url(#yieldGradient)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </Card>
-        ) : (
-          <Card className="card-flat p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-lg font-semibold">Yield Performance</h2>
-                <p className="text-sm text-muted-foreground">No earnings data yet</p>
-              </div>
-            </div>
-            <div className="h-[200px] flex items-center justify-center border border-dashed border-border rounded-lg bg-muted/10">
-              <div className="text-center">
-                <TrendingUp className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  Deposit an invoice to see yield accumulation
-                </p>
-              </div>
-            </div>
-          </Card>
+        {/* Analytics Grid - Portfolio Allocation & Risk Distribution */}
+        {!isLoadingAnalytics && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <PortfolioAllocation data={allocationData} />
+            <RiskDistribution data={riskDistribution} />
+          </div>
         )}
 
         {/* Invoice Table */}

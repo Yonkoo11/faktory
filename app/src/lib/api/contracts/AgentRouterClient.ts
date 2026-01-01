@@ -74,7 +74,7 @@ export class AgentRouterClient {
         functionName: 'config',
       })
 
-      const config = result as [bigint, boolean]
+      const config = result as unknown as [bigint, boolean]
 
       return {
         minConfidence: config[0],
