@@ -129,8 +129,6 @@ export function useMintInvoiceMutation() {
       dataCommitment: Address;
       amountCommitment: Address;
       dueDate: bigint;
-      riskScore: number;
-      paymentProbability: number;
     }) => {
       if (!publicClient || !walletClient) {
         throw new Error('Clients not available');
@@ -139,13 +137,11 @@ export function useMintInvoiceMutation() {
       const { request } = await publicClient.simulateContract({
         address: contracts.invoiceNFT,
         abi: InvoiceNFTABI,
-        functionName: 'mintInvoice',
+        functionName: 'mint',
         args: [
           params.dataCommitment,
           params.amountCommitment,
           params.dueDate,
-          params.riskScore,
-          params.paymentProbability,
         ],
         account: walletClient.account,
       });
