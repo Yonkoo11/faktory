@@ -72,6 +72,13 @@ export const InvoiceNFTABI = [
     stateMutability: 'view',
   },
   {
+    type: 'function',
+    name: 'balanceOf',
+    inputs: [{ name: 'owner', type: 'address' }],
+    outputs: [{ type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
     type: 'event',
     name: 'InvoiceMinted',
     inputs: [
@@ -150,6 +157,44 @@ export const YieldVaultABI = [
     inputs: [],
     outputs: [{ type: 'uint256' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'getActiveDepositsCount',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'HOLD_APY',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'CONSERVATIVE_APY',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'AGGRESSIVE_APY',
+    inputs: [],
+    outputs: [{ type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    name: 'changeStrategy',
+    inputs: [
+      { name: 'tokenId', type: 'uint256' },
+      { name: 'newStrategy', type: 'uint8' },
+    ],
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'event',
