@@ -19,7 +19,11 @@
   --primary-subtle: oklch(0.92 0.06 250); /* Light blue tint */
   --primary-glow: oklch(0.65 0.22 250 / 0.3); /* Glow effect */
 
-  /* Gradient variables removed - not part of professional design system */
+  /* Button Gradient Variables */
+  --gradient-primary-from: oklch(0.65 0.22 250); /* Primary blue */
+  --gradient-primary-to: oklch(0.55 0.20 260); /* Darker blue */
+  --gradient-success-from: oklch(0.70 0.20 145); /* Emerald green */
+  --gradient-success-to: oklch(0.60 0.18 155); /* Darker green */
 
   --secondary: oklch(0.5 0.02 240); /* Slate gray */
   --secondary-foreground: oklch(0.95 0 0);
