@@ -1,0 +1,339 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Stripe-Inspired Light Theme - Premium SaaS Design */
+
+  /* Base Colors - Light & Bright */
+  --background: #ffffff;
+  --foreground: #0a2540; /* Navy text - Stripe's primary */
+  --card: #ffffff;
+  --card-foreground: #0a2540;
+  --popover: #ffffff;
+  --popover-foreground: #0a2540;
+
+  /* Primary - Stripe Blurple */
+  --primary: #635bff; /* Stripe's signature purple */
+  --primary-foreground: #ffffff;
+  --primary-hover: #7795f8; /* Lighter purple for hover */
+  --primary-muted: #f6f9fc; /* Very light purple tint */
+
+  /* Secondary - Muted Grays */
+  --secondary: #f6f9fc; /* Light gray background */
+  --secondary-foreground: #425466;
+  --muted: #f6f9fc;
+  --muted-foreground: #727f96; /* Mid-gray for secondary text */
+  --accent: #f6f9fc;
+  --accent-foreground: #0a2540;
+
+  /* Borders & Inputs */
+  --border: #e6ebf1; /* Light border */
+  --input: #f6f9fc;
+  --ring: #635bff;
+
+  /* Semantic Colors - Vibrant */
+  --destructive: #ff333d; /* Stripe red */
+  --destructive-foreground: #ffffff;
+  --success: #00d924; /* Bright green */
+  --success-foreground: #ffffff;
+  --warning: #ffcb57; /* Gold */
+  --warning-foreground: #0a2540;
+
+  /* Stripe Gradient Orb Colors */
+  --gradient-purple: #a960ee;
+  --gradient-cyan: #90e0ff;
+  --gradient-pink: #ff6bda;
+  --gradient-orange: #ff9d6e;
+
+  /* Typography - Inter Variable (Linear-inspired) */
+  --font-sans: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
+
+  /* Font Weights - Precise */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* Typography Scale - Stripe-style */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.875rem;  /* 30px */
+  --text-4xl: 2.25rem;   /* 36px */
+  --text-5xl: 3rem;      /* 48px */
+  --text-6xl: 3.75rem;   /* 60px */
+  --text-7xl: 4.5rem;    /* 72px */
+
+  /* Spacing - 4px base (Stripe grid) */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+  --space-20: 5rem;    /* 80px */
+  --space-24: 6rem;    /* 96px */
+  --space-32: 8rem;    /* 128px */
+
+  /* Shadows - Stripe-style (soft & layered) */
+  --shadow-sm: 0 1px 2px rgba(10, 37, 64, 0.03);
+  --shadow-md: 0 2px 4px rgba(10, 37, 64, 0.06), 0 4px 6px rgba(10, 37, 64, 0.04);
+  --shadow-lg: 0 6px 12px rgba(10, 37, 64, 0.08), 0 8px 16px rgba(10, 37, 64, 0.06);
+  --shadow-xl: 0 12px 24px rgba(10, 37, 64, 0.10), 0 16px 32px rgba(10, 37, 64, 0.08);
+  --shadow-2xl: 0 24px 48px rgba(10, 37, 64, 0.12), 0 32px 64px rgba(10, 37, 64, 0.10);
+
+  /* Glow Effects (subtle, not overpowering) */
+  --shadow-glow-primary: 0 0 20px rgba(99, 91, 255, 0.15), 0 0 40px rgba(99, 91, 255, 0.08);
+  --shadow-glow-success: 0 0 20px rgba(0, 217, 36, 0.15), 0 0 40px rgba(0, 217, 36, 0.08);
+
+  /* Border Radius - Smooth */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Animation - Stripe's easing */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    letter-spacing: -0.01em;
+  }
+
+  /* Stripe-style card utilities */
+  .card-stripe {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    transition: box-shadow var(--duration-normal) var(--ease-smooth),
+                transform var(--duration-normal) var(--ease-smooth);
+  }
+
+  .card-stripe:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  .card-elevated {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Gradient text (Linear-inspired) */
+  .text-gradient-purple {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--gradient-purple) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gradient-vibrant {
+    background: linear-gradient(135deg, var(--gradient-purple) 0%, var(--gradient-pink) 50%, var(--gradient-cyan) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Button styles - Stripe-inspired */
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: var(--font-semibold);
+    transition: all var(--duration-normal) var(--ease-smooth);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-hover);
+    box-shadow: var(--shadow-glow-primary);
+    transform: translateY(-1px);
+  }
+
+  /* Animated gradient orbs background (Stripe-style) */
+  .gradient-orbs-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    animation: float-orb 20s ease-in-out infinite;
+  }
+
+  .orb-purple {
+    background: radial-gradient(circle, var(--gradient-purple) 0%, transparent 70%);
+    width: 600px;
+    height: 600px;
+    top: -10%;
+    right: -10%;
+  }
+
+  .orb-cyan {
+    background: radial-gradient(circle, var(--gradient-cyan) 0%, transparent 70%);
+    width: 500px;
+    height: 500px;
+    bottom: -15%;
+    left: -10%;
+    animation-delay: -5s;
+  }
+
+  .orb-pink {
+    background: radial-gradient(circle, var(--gradient-pink) 0%, transparent 70%);
+    width: 400px;
+    height: 400px;
+    top: 40%;
+    left: 50%;
+    animation-delay: -10s;
+  }
+
+  /* Sophisticated micro-interactions */
+  .hover-lift {
+    transition: transform var(--duration-normal) var(--ease-smooth),
+                box-shadow var(--duration-normal) var(--ease-smooth);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .hover-scale {
+    transition: transform var(--duration-fast) var(--ease-smooth);
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  /* Smooth fade-in animations */
+  .fade-in {
+    animation: fadeIn var(--duration-slow) var(--ease-smooth);
+  }
+
+  .slide-up {
+    animation: slideUp var(--duration-slow) var(--ease-smooth);
+  }
+}
+
+/* Animation keyframes */
+@keyframes float-orb {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scrollbar styling - subtle */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Selection color */
+::selection {
+  background: rgba(99, 91, 255, 0.15);
+  color: var(--foreground);
+}

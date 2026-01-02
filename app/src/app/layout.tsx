@@ -1,8 +1,16 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import { Inter } from "next/font/google";
+import "./globals-light-stripe.css";
 import { Providers } from "@/components/Providers";
 import { Toaster } from "sonner";
 import { KeyboardShortcutsProvider } from "@/components/keyboard-shortcuts-provider";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-sans",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
   title: "Faktory Protocol - Turn Unpaid Invoices Into Yield",
@@ -15,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
       <body className="font-sans antialiased">
         <Providers>{children}</Providers>
         <Toaster position="bottom-right" />
