@@ -144,19 +144,153 @@ faktory/
 
 ---
 
-## Risks & Limitations
+## Known Limitations (Hackathon Prototype)
 
-**This is a hackathon prototype.**
+**This is a demonstration project built for Mantle Global Hackathon 2025.**
 
-- Smart contracts are **not audited**
-- No security review has been performed
-- Use testnet only — do not deposit real funds
-- Yields are estimates, not guarantees
+### What's Real vs Simulated
 
-Production deployment would require:
-- Professional security audit
-- Legal review for securities compliance
-- Proper key management infrastructure
+#### ✅ Fully Functional
+- Smart contracts deployed on Mantle Sepolia testnet
+- Wallet connection and transaction signing
+- Invoice NFT minting and ownership tracking
+- Deposit/withdrawal flows
+- Dashboard UI and data visualization
+- Agent service with WebSocket communication
+
+#### ⚠️ Simulated for Demo
+**Yields are SIMULATED:**
+- YieldVault uses hardcoded APY rates:
+  - Conservative: 3.5% APY (constant)
+  - Aggressive: 7.0% APY (constant)
+- Yield calculation: `(principal × APY × time) / (365 days × 10000)` on-chain
+- Real Lendle integration exists in contract architecture but not activated
+- TVL and yield numbers shown in dashboard are for demonstration only
+
+**Why simulated?** Integrating live Lendle pools requires:
+- Production Lendle deployment addresses on Mantle
+- Mainnet USDC/USDT liquidity
+- Ongoing gas costs for rebalancing
+- Complex error handling for pool liquidity changes
+
+For hackathon purposes, simulated yields demonstrate the mechanism without those dependencies.
+
+#### ⚠️ Partial Implementation
+**QuickBooks Integration:**
+- OAuth flow exists and connects successfully
+- Invoice data import/parsing NOT implemented
+- Users must manually enter invoice details after OAuth
+- Production would require QuickBooks API SDK integration and field mapping
+
+**Agent Service:**
+- Runs as single Node.js process (port 8080)
+- No database persistence (in-memory state only)
+- No automatic restart on failure
+- Requires manual startup: `cd agent && pnpm dev`
+- Production would require:
+  - Job queue (Redis/Bull) for reliability
+  - PostgreSQL for decision history
+  - Multiple instances with leader election
+  - Health monitoring and auto-restart
+
+**Privacy Commitments:**
+- Invoice data stored as `keccak256` hashes on-chain
+- Reveal verification function exists but not used in UI
+- API endpoints still return full invoice metadata
+- True privacy would require zero-knowledge proofs or selective disclosure UI
+
+### What This Is NOT
+
+**This is NOT invoice factoring:**
+- We do not advance cash to businesses
+- We do not provide liquidity against invoices
+- We do not assume default risk
+- Traditional factoring pays 80-90% upfront; we pay nothing upfront
+
+**This IS a yield optimizer:**
+- For crypto-native freelancers who already have invoices
+- Earns DeFi yield while waiting for client payment
+- Equivalent to depositing into Lendle directly, with invoice tracking
+
+**Why not just use Lendle?**
+- Invoice NFTs provide better accounting (track which yield came from which client)
+- Agent automates rebalancing between Conservative/Aggressive strategies
+- Future composability (NFTs can be traded, used as collateral)
+- For single invoices, Lendle direct is simpler; for 10+ invoices, Faktory adds value
+
+### Security & Legal Disclaimers
+
+**Not Production-Ready:**
+- Smart contracts are **NOT audited** (cost: $30-50k)
+- No formal security review performed
+- Use **testnet only** — do not deposit real funds
+- Deployer retains admin privileges (pause, emergency withdraw)
+
+**Regulatory Risks:**
+- Invoice factoring is regulated in most jurisdictions
+- May require state-by-state licensing in the US
+- Securities law considerations (is invoice NFT a security?)
+- AML/KYC requirements not implemented
+
+**Technical Risks:**
+- Agent service is single point of failure
+- No monitoring or alerting infrastructure
+- Race conditions possible in frontend-blockchain-API state sync
+- Gas price spikes could make transactions uneconomical
+
+### Production Deployment Requirements
+
+To go from hackathon demo to production would require:
+
+**Security:**
+- Professional smart contract audit ($30-50k)
+- Penetration testing of frontend and agent
+- Formal threat modeling
+- Bug bounty program
+
+**Legal:**
+- Legal entity formation
+- Regulatory compliance review
+- State licenses (if required)
+- Terms of Service and Privacy Policy
+- Securities law analysis
+
+**Infrastructure:**
+- Multi-region deployment
+- Database (PostgreSQL) for metadata
+- Job queue (Redis) for agent reliability
+- Monitoring (Datadog/Sentry)
+- Error tracking and alerting
+- Load balancing and auto-scaling
+
+**Integration:**
+- Real Lendle pool integration with error handling
+- Live Pyth oracle integration for risk scoring
+- QuickBooks API SDK for invoice import
+- Webhook handlers for external updates
+
+**Capital:**
+- Liquidity provision mechanism (if pursuing factoring model)
+- Treasury management
+- Insurance for smart contract risk
+
+**Estimated cost:** $200k-500k and 6-12 months of engineering time.
+
+### Honest Assessment
+
+**What we proved:**
+- Invoice tokenization is technically feasible
+- DeFi yields can be tracked per-invoice
+- AI agents can automate strategy decisions
+- Clean architecture and professional UI/UX are possible in Web3
+
+**What we didn't prove:**
+- Product-market fit (do crypto-native freelancers want this?)
+- Unit economics (no revenue model defined)
+- Go-to-market (how to reach target users?)
+- Competitive advantage (why not use Lendle directly?)
+
+**This project demonstrates technical competence, not business viability.**
 
 ---
 
