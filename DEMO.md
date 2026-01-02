@@ -193,7 +193,8 @@ See [agent/README.md](agent/README.md) for setup instructions.
 **View contracts:**
 - [InvoiceNFT](https://sepolia.mantlescan.xyz/address/0xf35be6ffebf91acc27a78696cf912595c6b08aaa)
 - [YieldVault](https://sepolia.mantlescan.xyz/address/0xd2cad31a080b0dae98d9d6427e500b50bcb92774)
-- [AgentRouter](https://sepolia.mantlescan.xyz/address/0xec5bfee9d17e25cc8d52b8cb7fb81d8cabb53c5f)
+- [AgentRouter](https://sepolia.mantlescan.xyz/address/0xede6db2855bacf191e5b2e2d91b6276bb56bf183)
+- [MockOracle](https://sepolia.mantlescan.xyz/address/0xd0db0eb608107862e963737fe87ffdff7f400e3c)
 
 ### 2. Professional UI/UX
 
