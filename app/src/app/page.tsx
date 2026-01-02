@@ -33,6 +33,9 @@ import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useLendleMarkets } from '@/hooks/use-lendle'
 import { useProtocolStats } from '@/hooks/use-protocol-stats'
+import { useCounter } from '@/hooks/use-counter'
+import { useScrollReveal } from '@/hooks/use-scroll-reveal'
+import { useParallax } from '@/hooks/use-parallax'
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
@@ -42,17 +45,53 @@ export default function LandingPage() {
   const lendleMarkets = useLendleMarkets()
   const protocolStats = useProtocolStats()
 
+  // Counter animations for stats
+  const tvlCounter = useCounter({ end: 0, duration: 2000, delay: 300 })
+  const apyCounter = useCounter({ end: 7, duration: 2000, delay: 400 })
+  const invoicesCounter = useCounter({ end: protocolStats.totalInvoices, duration: 2000, delay: 500 })
+
+  // Live yields counters
+  const usdcYield = useCounter({
+    end: parseFloat(lendleMarkets.USDC.supplyAPY || '0'),
+    duration: 2000,
+    decimals: 2,
+    delay: 600
+  })
+  const usdtYield = useCounter({
+    end: parseFloat(lendleMarkets.USDT.supplyAPY || '0'),
+    duration: 2000,
+    decimals: 2,
+    delay: 700
+  })
+  const wethYield = useCounter({
+    end: parseFloat(lendleMarkets.WETH.supplyAPY || '0'),
+    duration: 2000,
+    decimals: 2,
+    delay: 800
+  })
+
+  // Parallax effects for gradient orbs
+  const orbPurpleRef = useParallax({ speed: -0.3 })
+  const orbCyanRef = useParallax({ speed: -0.4 })
+  const orbPinkRef = useParallax({ speed: -0.2 })
+
+  // Scroll reveal animations
+  const statsReveal = useScrollReveal({ threshold: 0.2 })
+  const featuresReveal = useScrollReveal({ threshold: 0.1 })
+  const stepsReveal = useScrollReveal({ threshold: 0.2 })
+  const trustReveal = useScrollReveal({ threshold: 0.3 })
+
   useEffect(() => {
     setMounted(true)
   }, [])
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* ANIMATED GRADIENT ORBS BACKGROUND - Stripe Style */}
+      {/* ANIMATED GRADIENT ORBS BACKGROUND - Stripe Style with Parallax */}
       <div className="gradient-orbs-bg">
-        <div className="orb orb-purple" />
-        <div className="orb orb-cyan" />
-        <div className="orb orb-pink" />
+        <div ref={orbPurpleRef} className="orb orb-purple parallax-slow" />
+        <div ref={orbCyanRef} className="orb orb-cyan parallax-slow" />
+        <div ref={orbPinkRef} className="orb orb-pink parallax-slow" />
       </div>
 
       {/* Header - Stripe-style minimal */}
@@ -147,12 +186,12 @@ export default function LandingPage() {
           {/* CTA Buttons */}
           <div className="flex flex-wrap gap-4 justify-center mb-16 slide-up">
             <Link href="/dashboard">
-              <Button size="lg" className="btn-primary text-lg px-10 py-6">
+              <Button size="lg" className="btn-primary button-scale text-lg px-10 py-6">
                 Start Earning Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="text-lg px-10 py-6 hover-scale">
+            <Button size="lg" variant="outline" className="text-lg px-10 py-6 hover-glow-smooth">
               Learn More
             </Button>
           </div>
@@ -164,29 +203,29 @@ export default function LandingPage() {
               <span className="text-muted-foreground">Live Yields:</span>
             </div>
             <span className="font-semibold">
-              USDC <span className="text-success">{lendleMarkets.USDC.supplyAPY || '...'}%</span>
+              USDC <span className="text-success">{usdcYield}%</span>
             </span>
             <span className="text-border">·</span>
             <span className="font-semibold">
-              USDT <span className="text-success">{lendleMarkets.USDT.supplyAPY || '...'}%</span>
+              USDT <span className="text-success">{usdtYield}%</span>
             </span>
             <span className="text-border">·</span>
             <span className="font-semibold">
-              WETH <span className="text-success">{lendleMarkets.WETH.supplyAPY || '...'}%</span>
+              WETH <span className="text-success">{wethYield}%</span>
             </span>
           </div>
         </div>
       </section>
 
       {/* STATS SECTION - Stripe-style horizontal cards */}
-      <section className="py-16 px-6 border-t border-border bg-secondary/30">
+      <section ref={statsReveal.ref} className="py-16 px-6 border-t border-border bg-secondary/30">
         <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className={`grid grid-cols-1 md:grid-cols-3 gap-8 scroll-reveal ${statsReveal.isVisible ? 'is-visible' : ''}`}>
 
             {/* Stat 1 - TVL */}
-            <div className="card-stripe text-center p-10 hover-lift">
+            <div className="card-stripe text-center p-10 hover-tilt">
               <div className="text-5xl md:text-6xl font-bold text-gradient-primary mb-3">
-                $0
+                ${tvlCounter}
               </div>
               <div className="text-sm text-muted-foreground uppercase tracking-wide font-medium">
                 Total Value Locked
@@ -194,9 +233,9 @@ export default function LandingPage() {
             </div>
 
             {/* Stat 2 - Target APY (Gold accent) */}
-            <div className="card-stripe text-center p-10 hover-lift" style={{boxShadow: 'var(--shadow-glow-gold)'}}>
+            <div className="card-stripe text-center p-10 hover-tilt scroll-reveal-delay-1" style={{boxShadow: 'var(--shadow-glow-gold)'}}>
               <div className="text-5xl md:text-6xl font-bold text-gradient-gold mb-3">
-                3-7%
+                3-{apyCounter}%
               </div>
               <div className="text-sm text-muted-foreground uppercase tracking-wide font-medium">
                 Target APY
@@ -204,9 +243,9 @@ export default function LandingPage() {
             </div>
 
             {/* Stat 3 - Invoices */}
-            <div className="card-stripe text-center p-10 hover-lift">
+            <div className="card-stripe text-center p-10 hover-tilt scroll-reveal-delay-2">
               <div className="text-5xl md:text-6xl font-bold text-gradient-primary mb-3">
-                {protocolStats.totalInvoices}
+                {invoicesCounter}
               </div>
               <div className="text-sm text-muted-foreground uppercase tracking-wide font-medium">
                 Invoices Tokenized
@@ -232,10 +271,10 @@ export default function LandingPage() {
           </div>
 
           {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div ref={featuresReveal.ref} className={`grid grid-cols-1 md:grid-cols-2 gap-8 scroll-reveal ${featuresReveal.isVisible ? 'is-visible' : ''}`}>
 
             {/* Feature 1 - Privacy */}
-            <div className="card-elevated p-10 space-y-5 hover-lift">
+            <div className="card-elevated p-10 space-y-5 hover-tilt">
               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Lock className="w-7 h-7 text-primary" />
               </div>
@@ -257,7 +296,7 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 2 - AI Agent */}
-            <div className="card-elevated p-10 space-y-5 hover-lift">
+            <div className="card-elevated p-10 space-y-5 hover-tilt scroll-reveal-delay-1">
               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Zap className="w-7 h-7 text-primary" />
               </div>
@@ -279,7 +318,7 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 3 - Real Yield */}
-            <div className="card-elevated p-10 space-y-5 hover-lift">
+            <div className="card-elevated p-10 space-y-5 hover-tilt scroll-reveal-delay-2">
               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <TrendingUp className="w-7 h-7 text-primary" />
               </div>
@@ -301,7 +340,7 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 4 - Security */}
-            <div className="card-elevated p-10 space-y-5 hover-lift">
+            <div className="card-elevated p-10 space-y-5 hover-tilt scroll-reveal-delay-3">
               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Shield className="w-7 h-7 text-primary" />
               </div>
@@ -339,7 +378,7 @@ export default function LandingPage() {
       </section>
 
       {/* HOW IT WORKS - Step-by-step */}
-      <section className="py-32 px-6 bg-secondary/30 border-y border-border">
+      <section ref={stepsReveal.ref} className="py-32 px-6 bg-secondary/30 border-y border-border">
         <div className="container mx-auto max-w-6xl">
 
           <div className="text-center mb-20">
@@ -351,7 +390,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className={`grid grid-cols-1 md:grid-cols-3 gap-12 scroll-reveal ${stepsReveal.isVisible ? 'is-visible' : ''}`}>
 
             {/* Step 1 */}
             <div className="text-center space-y-5">
@@ -400,11 +439,11 @@ export default function LandingPage() {
       </section>
 
       {/* TRUST BAR - Powered By */}
-      <section className="py-20 px-6">
+      <section ref={trustReveal.ref} className="py-20 px-6">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <div className="text-sm text-muted-foreground uppercase tracking-wide mb-8">Powered By</div>
-            <div className="flex flex-wrap items-center justify-center gap-16">
+            <div className={`flex flex-wrap items-center justify-center gap-16 scroll-reveal ${trustReveal.isVisible ? 'is-visible' : ''}`}>
 
               <div className="flex items-center gap-4 hover-scale cursor-pointer">
                 <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center shadow-md">
@@ -450,12 +489,12 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-wrap gap-6 justify-center">
             <Link href="/dashboard">
-              <Button size="lg" className="btn-primary text-lg px-12 py-7">
+              <Button size="lg" className="btn-primary button-scale text-lg px-12 py-7">
                 Launch App
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="text-lg px-12 py-7 hover-scale">
+            <Button size="lg" variant="outline" className="text-lg px-12 py-7 hover-glow-smooth">
               View Documentation
             </Button>
           </div>
