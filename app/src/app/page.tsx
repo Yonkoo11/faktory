@@ -164,12 +164,6 @@ export default function LandingPage() {
       <section className="relative pt-40 pb-32 px-6">
         <div className="container mx-auto max-w-5xl text-center relative z-10">
 
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary font-medium text-sm mb-8 fade-in">
-            <Sparkles className="w-4 h-4" />
-            Mantle Global Hackathon 2025
-          </div>
-
           {/* Main Headline */}
           <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 slide-up" style={{letterSpacing: '-0.02em'}}>
             Earn{" "}
@@ -511,9 +505,16 @@ export default function LandingPage() {
               </div>
               <span className="font-semibold">Faktory Protocol</span>
             </div>
-            <p className="text-sm text-muted-foreground">
-              © 2026 Faktory Protocol. Built on Mantle Network.
-            </p>
+            <div className="flex flex-col md:flex-row items-center gap-3 text-sm text-muted-foreground">
+              <p>© 2026 Faktory Protocol</p>
+              <span className="hidden md:inline">•</span>
+              <p className="flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" />
+                Built for Mantle Global Hackathon 2025
+              </p>
+              <span className="hidden md:inline">•</span>
+              <p>Open Source</p>
+            </div>
           </div>
         </div>
       </footer>
