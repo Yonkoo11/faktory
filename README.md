@@ -90,11 +90,15 @@ This project succeeds if:
 
 ## Deployed Contracts (Mantle Sepolia)
 
+**Deployment Date:** 2026-01-02
+
 | Contract | Address |
 |----------|---------|
-| InvoiceNFT | `0xf35be6ffebf91acc27a78696cf912595c6b08aaa` |
-| YieldVault | `0xd2cad31a080b0dae98d9d6427e500b50bcb92774` |
-| AgentRouter | `0xec5bfee9d17e25cc8d52b8cb7fb81d8cabb53c5f` |
+| InvoiceNFT | [`0xf35be6ffebf91acc27a78696cf912595c6b08aaa`](https://sepolia.mantlescan.xyz/address/0xf35be6ffebf91acc27a78696cf912595c6b08aaa) |
+| YieldVault | [`0xd2cad31a080b0dae98d9d6427e500b50bcb92774`](https://sepolia.mantlescan.xyz/address/0xd2cad31a080b0dae98d9d6427e500b50bcb92774) |
+| AgentRouter | [`0xede6db2855bacf191e5b2e2d91b6276bb56bf183`](https://sepolia.mantlescan.xyz/address/0xede6db2855bacf191e5b2e2d91b6276bb56bf183) |
+| PrivacyRegistry | [`0xec5bfee9d17e25cc8d52b8cb7fb81d8cabb53c5f`](https://sepolia.mantlescan.xyz/address/0xec5bfee9d17e25cc8d52b8cb7fb81d8cabb53c5f) |
+| MockOracle | [`0xd0db0eb608107862e963737fe87ffdff7f400e3c`](https://sepolia.mantlescan.xyz/address/0xd0db0eb608107862e963737fe87ffdff7f400e3c) |
 
 [View on Mantle Sepolia Explorer](https://sepolia.mantlescan.xyz/)
 
