@@ -42,3 +42,6 @@ coverage/
 
 # Internal planning docs
 .planning/
+COMPREHENSIVE_CRITIQUE.md
+.vercel
+.env*.local
