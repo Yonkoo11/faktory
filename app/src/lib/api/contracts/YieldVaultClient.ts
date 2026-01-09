@@ -35,11 +35,14 @@ export interface DepositParams {
  * Deposit data from contract
  */
 export interface Deposit {
-  principal: bigint
+  tokenId: bigint
+  owner: `0x${string}`
   strategy: Strategy
-  startTime: bigint
-  lastInteractionTime: bigint
+  depositTime: bigint
+  principal: bigint
   accruedYield: bigint
+  lastYieldUpdate: bigint
+  active: boolean
 }
 
 /**
@@ -101,7 +104,7 @@ export class YieldVaultClient {
       const result = await this.publicClient.readContract({
         address: this.address,
         abi: YieldVaultABI,
-        functionName: 'totalYield',
+        functionName: 'totalYieldGenerated',
       })
       return result as bigint
     } catch (error) {
@@ -117,7 +120,7 @@ export class YieldVaultClient {
       const result = await this.publicClient.readContract({
         address: this.address,
         abi: YieldVaultABI,
-        functionName: 'totalDeposits',
+        functionName: 'getActiveDepositsCount',
       })
       return result as bigint
     } catch (error) {
@@ -133,23 +136,35 @@ export class YieldVaultClient {
       const result = await this.publicClient.readContract({
         address: this.address,
         abi: YieldVaultABI,
-        functionName: 'deposits',
+        functionName: 'getDeposit',
         args: [tokenId],
       })
 
-      const deposit = result as [bigint, number, bigint, bigint, bigint]
+      const deposit = result as unknown as {
+        tokenId: bigint
+        owner: `0x${string}`
+        strategy: number
+        depositTime: bigint
+        principal: bigint
+        accruedYield: bigint
+        lastYieldUpdate: bigint
+        active: boolean
+      }
 
       // Check if deposit exists (principal > 0)
-      if (deposit[0] === 0n) {
+      if (deposit.principal === BigInt(0)) {
         return null
       }
 
       return {
-        principal: deposit[0],
-        strategy: deposit[1] as Strategy,
-        startTime: deposit[2],
-        lastInteractionTime: deposit[3],
-        accruedYield: deposit[4],
+        tokenId: deposit.tokenId,
+        owner: deposit.owner,
+        strategy: deposit.strategy as Strategy,
+        depositTime: deposit.depositTime,
+        principal: deposit.principal,
+        accruedYield: deposit.accruedYield,
+        lastYieldUpdate: deposit.lastYieldUpdate,
+        active: deposit.active,
       }
     } catch (error) {
       throw parseContractError(error)
@@ -161,11 +176,25 @@ export class YieldVaultClient {
    */
   async getStrategyAPY(strategy: Strategy): Promise<bigint> {
     try {
+      let functionName: 'HOLD_APY' | 'CONSERVATIVE_APY' | 'AGGRESSIVE_APY'
+      switch (strategy) {
+        case Strategy.Hold:
+          functionName = 'HOLD_APY'
+          break
+        case Strategy.Conservative:
+          functionName = 'CONSERVATIVE_APY'
+          break
+        case Strategy.Aggressive:
+          functionName = 'AGGRESSIVE_APY'
+          break
+        default:
+          functionName = 'HOLD_APY'
+      }
+
       const result = await this.publicClient.readContract({
         address: this.address,
         abi: YieldVaultABI,
-        functionName: 'getAPY',
-        args: [strategy],
+        functionName,
       })
       return result as bigint
     } catch (error) {
@@ -181,7 +210,7 @@ export class YieldVaultClient {
       const result = await this.publicClient.readContract({
         address: this.address,
         abi: YieldVaultABI,
-        functionName: 'calculateYield',
+        functionName: 'getAccruedYield',
         args: [tokenId],
       })
       return result as bigint
@@ -195,7 +224,7 @@ export class YieldVaultClient {
    */
   async hasActiveDeposit(tokenId: bigint): Promise<boolean> {
     const deposit = await this.getDeposit(tokenId)
-    return deposit !== null && deposit.principal > 0n
+    return deposit !== null && deposit.principal > BigInt(0)
   }
 
   // ==================== Write Methods ====================

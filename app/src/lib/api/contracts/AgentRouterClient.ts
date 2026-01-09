@@ -15,7 +15,9 @@ import { Strategy } from './YieldVaultClient'
  */
 export interface AgentConfig {
   minConfidence: bigint
-  enabled: boolean
+  maxGasPrice: bigint
+  autoExecute: boolean
+  active: boolean
 }
 
 /**
@@ -24,9 +26,10 @@ export interface AgentConfig {
 export interface AgentDecision {
   tokenId: bigint
   recommendedStrategy: Strategy
+  reasoning: string
   confidence: bigint
-  reason: string
   timestamp: bigint
+  executed: boolean
 }
 
 /**
@@ -74,11 +77,13 @@ export class AgentRouterClient {
         functionName: 'config',
       })
 
-      const config = result as unknown as [bigint, boolean]
+      const config = result as unknown as [bigint, bigint, boolean, boolean]
 
       return {
         minConfidence: config[0],
-        enabled: config[1],
+        maxGasPrice: config[1],
+        autoExecute: config[2],
+        active: config[3],
       }
     } catch (error) {
       throw parseContractError(error)
@@ -109,23 +114,31 @@ export class AgentRouterClient {
       const result = await this.publicClient.readContract({
         address: this.address,
         abi: AgentRouterABI,
-        functionName: 'getDecision',
+        functionName: 'getLatestDecision',
         args: [tokenId],
       })
 
-      const decision = result as [bigint, number, bigint, string, bigint]
+      const decision = result as unknown as {
+        tokenId: bigint
+        recommendedStrategy: number
+        reasoning: string
+        confidence: bigint
+        timestamp: bigint
+        executed: boolean
+      }
 
       // Check if decision exists (timestamp > 0)
-      if (decision[4] === 0n) {
+      if (decision.timestamp === BigInt(0)) {
         return null
       }
 
       return {
-        tokenId: decision[0],
-        recommendedStrategy: decision[1] as Strategy,
-        confidence: decision[2],
-        reason: decision[3],
-        timestamp: decision[4],
+        tokenId: decision.tokenId,
+        recommendedStrategy: decision.recommendedStrategy as Strategy,
+        reasoning: decision.reasoning,
+        confidence: decision.confidence,
+        timestamp: decision.timestamp,
+        executed: decision.executed,
       }
     } catch (error) {
       throw parseContractError(error)
@@ -136,13 +149,13 @@ export class AgentRouterClient {
    * Check if analysis is needed for a token
    * (based on time since last decision)
    */
-  async needsAnalysis(tokenId: bigint): Promise<boolean> {
+  async needsAnalysis(tokenId: bigint, maxAge: bigint = BigInt(86400)): Promise<boolean> {
     try {
       const result = await this.publicClient.readContract({
         address: this.address,
         abi: AgentRouterABI,
         functionName: 'needsAnalysis',
-        args: [tokenId],
+        args: [tokenId, maxAge],
       })
       return result as boolean
     } catch (error) {
@@ -158,7 +171,7 @@ export class AgentRouterClient {
       const total = await this.getTotalDecisions()
       const ids: bigint[] = []
 
-      for (let i = 0n; i < total; i++) {
+      for (let i = BigInt(0); i < total; i = i + BigInt(1)) {
         ids.push(i)
       }
 
@@ -174,7 +187,7 @@ export class AgentRouterClient {
    * Execute agent's recommended strategy
    * Requires wallet connection
    */
-  async executeDecision(tokenId: bigint): Promise<Hash> {
+  async executeDecision(tokenId: bigint, decisionIndex: bigint): Promise<Hash> {
     if (!this.walletClient) {
       throw new Error('Wallet client required for write operations')
     }
@@ -184,7 +197,7 @@ export class AgentRouterClient {
         address: this.address,
         abi: AgentRouterABI,
         functionName: 'executeDecision',
-        args: [tokenId],
+        args: [tokenId, decisionIndex],
         account: this.walletClient.account,
       })
 
@@ -199,7 +212,7 @@ export class AgentRouterClient {
    * Update agent configuration
    * Requires wallet connection and ownership
    */
-  async updateConfig(minConfidence: bigint, enabled: boolean): Promise<Hash> {
+  async updateConfig(minConfidence: bigint, maxGasPrice: bigint, autoExecute: boolean): Promise<Hash> {
     if (!this.walletClient) {
       throw new Error('Wallet client required for write operations')
     }
@@ -209,7 +222,7 @@ export class AgentRouterClient {
         address: this.address,
         abi: AgentRouterABI,
         functionName: 'updateConfig',
-        args: [minConfidence, enabled],
+        args: [minConfidence, maxGasPrice, autoExecute],
         account: this.walletClient.account,
       })
 

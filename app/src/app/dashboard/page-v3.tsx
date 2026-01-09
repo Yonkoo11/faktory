@@ -57,7 +57,7 @@ export default function DashboardV3() {
 
   const { address, isConnected } = useAccount()
   const { totalInvoices, userBalance, activeInvoices, isLoading: isLoadingNFT } = useInvoiceNFT()
-  const { tvl, totalYield, activeDepositsCount, conservativeAPY, aggressiveAPY } = useYieldVault()
+  const { tvlRaw, totalYieldRaw, activeDepositsCount, conservativeAPY, aggressiveAPY } = useYieldVault()
 
   // Fetch invoices from API
   useEffect(() => {
@@ -190,7 +190,7 @@ export default function DashboardV3() {
               <DollarSign className="w-4 h-4 text-gray-400" />
             </div>
             <div className="text-3xl font-bold font-mono text-gray-900">
-              ${Number(formatUnits(tvl, 18)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ${Number(formatUnits(tvlRaw, 18)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div className="flex items-center gap-1 mt-2 text-xs text-emerald-600">
               <TrendingUp className="w-3 h-3" />
@@ -205,7 +205,7 @@ export default function DashboardV3() {
               <Zap className="w-4 h-4 text-gray-400" />
             </div>
             <div className="text-3xl font-bold font-mono text-gray-900">
-              ${Number(formatUnits(totalYield, 18)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ${Number(formatUnits(totalYieldRaw, 18)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div className="flex items-center gap-1 mt-2 text-xs text-emerald-600">
               <TrendingUp className="w-3 h-3" />

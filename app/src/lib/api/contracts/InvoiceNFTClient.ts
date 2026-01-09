@@ -32,10 +32,11 @@ export interface MintInvoiceParams {
  * Invoice data from contract
  */
 export interface Invoice {
-  owner: Address
   dataCommitment: `0x${string}`
   amountCommitment: `0x${string}`
   dueDate: bigint
+  createdAt: bigint
+  issuer: Address
   status: InvoiceStatus
   riskScore: number
   paymentProbability: number
@@ -120,16 +121,26 @@ export class InvoiceNFTClient {
         args: [tokenId],
       })
 
-      const invoice = result as [Address, `0x${string}`, `0x${string}`, bigint, number, number, number]
+      const invoice = result as unknown as {
+        dataCommitment: `0x${string}`
+        amountCommitment: `0x${string}`
+        dueDate: bigint
+        createdAt: bigint
+        issuer: Address
+        status: number
+        riskScore: number
+        paymentProbability: number
+      }
 
       return {
-        owner: invoice[0],
-        dataCommitment: invoice[1],
-        amountCommitment: invoice[2],
-        dueDate: invoice[3],
-        status: invoice[4] as InvoiceStatus,
-        riskScore: invoice[5],
-        paymentProbability: invoice[6],
+        dataCommitment: invoice.dataCommitment,
+        amountCommitment: invoice.amountCommitment,
+        dueDate: invoice.dueDate,
+        createdAt: invoice.createdAt,
+        issuer: invoice.issuer,
+        status: invoice.status as InvoiceStatus,
+        riskScore: invoice.riskScore,
+        paymentProbability: invoice.paymentProbability,
       }
     } catch (error) {
       throw parseContractError(error)
@@ -187,15 +198,15 @@ export class InvoiceNFTClient {
   }
 
   /**
-   * Check if address is authorized to reveal invoice data
+   * Verify invoice reveal (check if data matches commitment)
    */
-  async isAuthorizedToReveal(tokenId: bigint, address: Address): Promise<boolean> {
+  async verifyReveal(tokenId: bigint, invoiceData: `0x${string}`, salt: `0x${string}`): Promise<boolean> {
     try {
       const result = await this.publicClient.readContract({
         address: this.address,
         abi: InvoiceNFTABI,
-        functionName: 'isAuthorizedToReveal',
-        args: [tokenId, address],
+        functionName: 'verifyReveal',
+        args: [tokenId, invoiceData, salt],
       })
       return result as boolean
     } catch (error) {
