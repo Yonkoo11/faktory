@@ -151,7 +151,7 @@ export default function DashboardV3() {
                 Mantle
               </span>
               {isConnected && address && (
-                <span className="hidden md:inline-block px-3 py-1.5 rounded-md text-sm font-mono text-gray-700 bg-gray-100">
+                <span className="hidden md:inline-block px-3 py-1.5 rounded-md text-sm font-mono text-gray-700 bg-gray-100" suppressHydrationWarning>
                   {address.slice(0, 6)}...{address.slice(-4)}
                 </span>
               )}

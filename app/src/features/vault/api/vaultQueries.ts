@@ -57,7 +57,7 @@ export function useVaultDeposit(tokenId?: bigint) {
   return useQuery({
     queryKey: queryKeys.vault.deposit(tokenId?.toString() || '0'),
     queryFn: async () => {
-      if (!publicClient || !tokenId) throw new Error('Missing required params');
+      if (!publicClient || tokenId === undefined) throw new Error('Missing required params');
 
       const result = await publicClient.readContract({
         address: contracts.yieldVault,
@@ -81,7 +81,7 @@ export function useAccruedYield(tokenId?: bigint) {
   return useQuery({
     queryKey: queryKeys.vault.yield(tokenId?.toString() || '0'),
     queryFn: async () => {
-      if (!publicClient || !tokenId) throw new Error('Missing required params');
+      if (!publicClient || tokenId === undefined) throw new Error('Missing required params');
 
       const result = await publicClient.readContract({
         address: contracts.yieldVault,

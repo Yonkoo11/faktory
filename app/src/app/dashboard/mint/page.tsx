@@ -40,41 +40,40 @@ function MintInvoiceContent() {
   const [step, setStep] = useState(1)
   const [selectedQBInvoice, setSelectedQBInvoice] = useState<QuickBooksInvoice | null>(null)
   const [formErrors, setFormErrors] = useState<{ amount?: string; dueDate?: string }>({})
-  const [formData, setFormData] = useState(() => {
-    // Load saved form data from localStorage
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('faktory-mint-form')
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved)
-          return {
-            clientName: parsed.clientName || "",
-            amount: parsed.amount || "",
-            currency: parsed.currency || "USD",
-            dueDate: parsed.dueDate ? new Date(parsed.dueDate) : undefined,
-            allowDisclosure: parsed.allowDisclosure || false,
-            file: null, // Files can't be persisted
-            quickbooksId: parsed.quickbooksId || null,
-          }
-        } catch (e) {
-          console.error('Failed to load saved form data:', e)
-        }
+  const [formData, setFormData] = useState({
+    clientName: "",
+    amount: "",
+    currency: "USD",
+    dueDate: undefined as Date | undefined,
+    allowDisclosure: false,
+    file: null as File | null,
+    quickbooksId: null as string | null,
+  })
+
+  // Load saved form data from localStorage on mount (client-side only)
+  useEffect(() => {
+    const saved = localStorage.getItem('faktory-mint-form')
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved)
+        setFormData({
+          clientName: parsed.clientName || "",
+          amount: parsed.amount || "",
+          currency: parsed.currency || "USD",
+          dueDate: parsed.dueDate ? new Date(parsed.dueDate) : undefined,
+          allowDisclosure: parsed.allowDisclosure || false,
+          file: null, // Files can't be persisted
+          quickbooksId: parsed.quickbooksId || null,
+        })
+      } catch (e) {
+        console.error('Failed to load saved form data:', e)
       }
     }
-    return {
-      clientName: "",
-      amount: "",
-      currency: "USD",
-      dueDate: undefined as Date | undefined,
-      allowDisclosure: false,
-      file: null as File | null,
-      quickbooksId: null as string | null,
-    }
-  })
+  }, [])
 
   // Save form data to localStorage whenever it changes
   useEffect(() => {
-    if (typeof window !== 'undefined' && !isSuccess) {
+    if (!isSuccess) {
       const toSave = {
         clientName: formData.clientName,
         amount: formData.amount,
@@ -259,7 +258,7 @@ function MintInvoiceContent() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" variant="gradient-success" asChild className="shadow-xl hover:shadow-2xl">
-                <Link href="/dashboard">
+                <Link href={`/dashboard/invoice/${mintedTokenId}`}>
                   Deposit to Earn Yield
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>

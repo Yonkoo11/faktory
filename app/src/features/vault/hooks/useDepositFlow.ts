@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDepositToVault, useYieldVault } from '@/hooks/use-yield-vault';
 import { useLendleAPY } from '@/hooks/use-lendle';
 import { Strategy } from '@/lib/contracts/abis';
@@ -6,6 +6,10 @@ import { parseUnits } from 'viem';
 
 export type StrategyType = 'hold' | 'conservative' | 'aggressive';
 export type DepositStep = 'input' | 'approving' | 'depositing' | 'success' | 'error';
+
+// Timeout configuration
+const CONFIRMATION_TIMEOUT_MS = 60_000; // 60 seconds
+const WARNING_THRESHOLD_MS = 45_000; // Show warning at 45 seconds
 
 const strategyMap: Record<StrategyType, Strategy> = {
   hold: Strategy.Hold,
@@ -26,6 +30,12 @@ export function useDepositFlow({ tokenId, invoiceAmount, onSuccess }: UseDeposit
   const [step, setStep] = useState<DepositStep>('input');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Timeout tracking state
+  const [confirmationStartTime, setConfirmationStartTime] = useState<number | null>(null);
+  const [showTimeoutWarning, setShowTimeoutWarning] = useState(false);
+  const timeoutTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const { conservativeAPY, aggressiveAPY } = useYieldVault();
   const { supplyAPY: lendleAPY, isLive: hasLendleData } = useLendleAPY('USDC');
 
@@ -41,15 +51,30 @@ export function useDepositFlow({ tokenId, invoiceAmount, onSuccess }: UseDeposit
     isApproving,
     isApproveConfirming,
     isApproveSuccess,
+    approveError,
+    approveConfirmError,
     isDepositing,
     isDepositConfirming,
     isDepositSuccess,
     depositError,
+    depositConfirmError,
   } = useDepositToVault();
+
+  // Debug logging for approval state
+  useEffect(() => {
+    console.log('📊 Approval State:', {
+      approveHash,
+      isApproving,
+      isApproveConfirming,
+      isApproveSuccess,
+      step,
+    });
+  }, [approveHash, isApproving, isApproveConfirming, isApproveSuccess, step]);
 
   // Handle approval success - move to deposit step
   useEffect(() => {
     if (isApproveSuccess && step === 'approving' && tokenId) {
+      console.log('✅ Approval succeeded, moving to deposit');
       setStep('depositing');
       deposit({
         tokenId,
@@ -98,7 +123,15 @@ export function useDepositFlow({ tokenId, invoiceAmount, onSuccess }: UseDeposit
     return error.message;
   };
 
-  // Handle errors
+  // Handle transaction submission errors
+  useEffect(() => {
+    if (approveError) {
+      console.error('❌ Approve error:', approveError);
+      setStep('error');
+      setErrorMessage(getUserFriendlyError(approveError));
+    }
+  }, [approveError]);
+
   useEffect(() => {
     if (depositError) {
       setStep('error');
@@ -106,22 +139,69 @@ export function useDepositFlow({ tokenId, invoiceAmount, onSuccess }: UseDeposit
     }
   }, [depositError]);
 
-  const handleDeposit = async () => {
-    if (!tokenId) {
+  // Handle confirmation errors
+  useEffect(() => {
+    if (approveConfirmError) {
+      setStep('error');
+      setErrorMessage(getUserFriendlyError(approveConfirmError));
+    }
+  }, [approveConfirmError]);
+
+  useEffect(() => {
+    if (depositConfirmError) {
+      setStep('error');
+      setErrorMessage(getUserFriendlyError(depositConfirmError));
+    }
+  }, [depositConfirmError]);
+
+  // Timeout tracking for confirmations
+  useEffect(() => {
+    if (isApproveConfirming || isDepositConfirming) {
+      if (!confirmationStartTime) {
+        setConfirmationStartTime(Date.now());
+        setShowTimeoutWarning(false);
+
+        // Set warning timer (45s)
+        warningTimerRef.current = setTimeout(() => {
+          setShowTimeoutWarning(true);
+        }, WARNING_THRESHOLD_MS);
+
+        // Set timeout timer (60s)
+        timeoutTimerRef.current = setTimeout(() => {
+          setStep('error');
+          setErrorMessage(
+            'Transaction confirmation timed out. Your transaction may still be processing. ' +
+            'Click "Check Status" to verify manually, or try again.'
+          );
+        }, CONFIRMATION_TIMEOUT_MS);
+      }
+    } else {
+      // Clear timers when confirmation completes
+      if (timeoutTimerRef.current) clearTimeout(timeoutTimerRef.current);
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+      timeoutTimerRef.current = null;
+      warningTimerRef.current = null;
+      setConfirmationStartTime(null);
+      setShowTimeoutWarning(false);
+    }
+
+    return () => {
+      if (timeoutTimerRef.current) clearTimeout(timeoutTimerRef.current);
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
+    };
+  }, [isApproveConfirming, isDepositConfirming, confirmationStartTime]);
+
+  const handleDeposit = () => {
+    if (tokenId === undefined) {
       setErrorMessage('No token ID provided');
       setStep('error');
       return;
     }
 
+    console.log('🔵 Starting deposit flow for tokenId:', tokenId);
     setStep('approving');
     setErrorMessage(null);
-
-    try {
-      await approve(tokenId);
-    } catch (err) {
-      setStep('error');
-      setErrorMessage(err instanceof Error ? err.message : 'Approval failed');
-    }
+    approve(tokenId);
   };
 
   const handleReset = () => {
@@ -166,6 +246,10 @@ export function useDepositFlow({ tokenId, invoiceAmount, onSuccess }: UseDeposit
     isApproveConfirming,
     isDepositing,
     isDepositConfirming,
+
+    // Timeout tracking
+    showTimeoutWarning,
+    confirmationStartTime,
 
     // Computed
     isProcessing,

@@ -47,6 +47,12 @@
   --gradient-pink: #ff6bda;
   --gradient-orange: #ff9d6e;
 
+  /* Button Gradient Variables */
+  --gradient-primary-from: #635bff; /* Stripe purple */
+  --gradient-primary-to: #a960ee; /* Gradient purple */
+  --gradient-success-from: #00d924; /* Success green */
+  --gradient-success-to: #00a820; /* Darker green */
+
   /* Typography - Inter Variable (Linear-inspired) */
   --font-sans: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, 'Cascadia Code', monospace;
@@ -408,4 +414,15 @@
 ::selection {
   background: rgba(99, 91, 255, 0.15);
   color: var(--foreground);
+}
+
+/* Button Gradient Utilities - Direct gradient application */
+.btn-gradient-primary {
+  background: linear-gradient(to right, var(--gradient-primary-from), var(--gradient-primary-to)) !important;
+  color: var(--primary-foreground) !important;
+}
+
+.btn-gradient-success {
+  background: linear-gradient(to right, var(--gradient-success-from), var(--gradient-success-to)) !important;
+  color: #ffffff !important;
 }

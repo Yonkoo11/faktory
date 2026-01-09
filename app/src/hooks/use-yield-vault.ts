@@ -121,18 +121,48 @@ export function useDepositToVault() {
   const yieldVaultAddress = getYieldVaultAddress(chainId)
   const invoiceNFTAddress = getInvoiceNFTAddress(chainId)
 
-  const { writeContract: approveNFT, data: approveHash, isPending: isApproving } = useWriteContract()
+  const { writeContract: approveNFT, data: approveHash, isPending: isApproving, error: approveError } = useWriteContract()
   const { writeContract: depositToVault, data: depositHash, isPending: isDepositing, error: depositError } = useWriteContract()
 
-  const { isLoading: isApproveConfirming, isSuccess: isApproveSuccess } = useWaitForTransactionReceipt({
+  const {
+    isLoading: isApproveConfirming,
+    isSuccess: isApproveSuccess,
+    error: approveConfirmError,
+  } = useWaitForTransactionReceipt({
     hash: approveHash,
+    timeout: 60_000, // 60 second timeout
+    pollingInterval: 3_000, // Poll every 3 seconds
+    confirmations: 1, // Wait for 1 confirmation (Mantle Sepolia is fast)
+    query: {
+      enabled: !!approveHash,
+      retry: 3,
+      retryDelay: 2000,
+    },
   })
 
-  const { isLoading: isDepositConfirming, isSuccess: isDepositSuccess } = useWaitForTransactionReceipt({
+  const {
+    isLoading: isDepositConfirming,
+    isSuccess: isDepositSuccess,
+    error: depositConfirmError,
+  } = useWaitForTransactionReceipt({
     hash: depositHash,
+    timeout: 60_000, // 60 second timeout
+    pollingInterval: 3_000, // Poll every 3 seconds
+    confirmations: 1, // Wait for 1 confirmation (Mantle Sepolia is fast)
+    query: {
+      enabled: !!depositHash,
+      retry: 3,
+      retryDelay: 2000,
+    },
   })
 
-  const approve = async (tokenId: bigint) => {
+  const approve = (tokenId: bigint) => {
+    console.log('🟢 Calling approveNFT with:', {
+      invoiceNFT: invoiceNFTAddress,
+      yieldVault: yieldVaultAddress,
+      tokenId: tokenId.toString(),
+      chainId,
+    });
     approveNFT({
       address: invoiceNFTAddress,
       abi: InvoiceNFTABI,
@@ -162,10 +192,13 @@ export function useDepositToVault() {
     isApproving,
     isApproveConfirming,
     isApproveSuccess,
+    approveError,
+    approveConfirmError,
     isDepositing,
     isDepositConfirming,
     isDepositSuccess,
     depositError,
+    depositConfirmError,
   }
 }
 

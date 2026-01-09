@@ -45,6 +45,8 @@ export function DepositModal({
     isProcessing,
     currentStep,
     isConfirming,
+    showTimeoutWarning,
+    confirmationStartTime,
     handleDeposit,
     handleReset,
     handleRetry,
@@ -87,6 +89,8 @@ export function DepositModal({
         isConfirming={isConfirming}
         approveHash={approveHash}
         depositHash={depositHash}
+        showTimeoutWarning={showTimeoutWarning}
+        confirmationStartTime={confirmationStartTime}
       />
     );
   }
@@ -141,14 +145,14 @@ export function DepositModal({
             </Button>
             <Button
               onClick={handleDeposit}
-              disabled={!acceptRisk || !depositAmount || !tokenId || isProcessing}
+              disabled={!acceptRisk || !depositAmount || tokenId === undefined || isProcessing}
               className="flex-1 bg-gradient-to-r from-primary to-accent hover:opacity-90"
             >
               Confirm Deposit
             </Button>
           </div>
 
-          {!tokenId && (
+          {tokenId === undefined && (
             <p className="text-xs text-warning text-center">
               Token ID is required. Please select an invoice from your portfolio.
             </p>
