@@ -41,7 +41,6 @@ export function useAgentWebSocket() {
       const ws = new WebSocket(AGENT_WS_URL);
 
       ws.onopen = () => {
-        console.log('Connected to InvoiceAgent');
         setConnected(true);
         setConnecting(false);
         setRetryCount(0);
@@ -65,7 +64,6 @@ export function useAgentWebSocket() {
       };
 
       ws.onclose = () => {
-        console.log('Disconnected from InvoiceAgent');
         setConnected(false);
         setConnecting(false);
 
@@ -73,12 +71,10 @@ export function useAgentWebSocket() {
           const newCount = prev + 1;
           if (newCount >= MAX_RETRIES) {
             setMaxRetriesReached(true);
-            console.log('Max reconnection attempts reached');
             return prev;
           }
 
           const delay = Math.min(BASE_DELAY * Math.pow(2, newCount), MAX_DELAY);
-          console.log(`Reconnecting in ${delay}ms (attempt ${newCount + 1}/${MAX_RETRIES})`);
           reconnectTimeoutRef.current = setTimeout(connect, delay);
           return newCount;
         });

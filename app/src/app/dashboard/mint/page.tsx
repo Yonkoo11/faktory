@@ -204,7 +204,6 @@ function MintInvoiceContent() {
 
       // Store the salt securely (in production, save to database)
       if (result) {
-        console.log("Commitment data:", result)
         toast.success("Invoice minted successfully!", {
           id: toastId,
           description: "Your invoice has been tokenized on Mantle",

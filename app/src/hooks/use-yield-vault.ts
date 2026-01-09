@@ -157,12 +157,6 @@ export function useDepositToVault() {
   })
 
   const approve = (tokenId: bigint) => {
-    console.log('🟢 Calling approveNFT with:', {
-      invoiceNFT: invoiceNFTAddress,
-      yieldVault: yieldVaultAddress,
-      tokenId: tokenId.toString(),
-      chainId,
-    });
     approveNFT({
       address: invoiceNFTAddress,
       abi: InvoiceNFTABI,

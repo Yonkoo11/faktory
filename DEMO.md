@@ -3,7 +3,7 @@
 > **For Hackathon Judges:** This 2-minute guide shows you exactly what Faktory does and how to test it.
 
 **Live Demo:** https://faktory-app.vercel.app
-**GitHub:** https://github.com/[your-username]/faktory
+**GitHub:** https://github.com/Yonkoo11/faktory
 
 ---
 
@@ -410,7 +410,7 @@ This project followed a **10-tier professional development process**:
 
 ### Frontend Only
 ```bash
-git clone https://github.com/[your-username]/faktory
+git clone https://github.com/Yonkoo11/faktory
 cd faktory
 pnpm install
 cd app && pnpm dev

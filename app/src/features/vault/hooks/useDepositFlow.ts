@@ -60,21 +60,9 @@ export function useDepositFlow({ tokenId, invoiceAmount, onSuccess }: UseDeposit
     depositConfirmError,
   } = useDepositToVault();
 
-  // Debug logging for approval state
-  useEffect(() => {
-    console.log('📊 Approval State:', {
-      approveHash,
-      isApproving,
-      isApproveConfirming,
-      isApproveSuccess,
-      step,
-    });
-  }, [approveHash, isApproving, isApproveConfirming, isApproveSuccess, step]);
-
   // Handle approval success - move to deposit step
   useEffect(() => {
     if (isApproveSuccess && step === 'approving' && tokenId) {
-      console.log('✅ Approval succeeded, moving to deposit');
       setStep('depositing');
       deposit({
         tokenId,
@@ -198,7 +186,6 @@ export function useDepositFlow({ tokenId, invoiceAmount, onSuccess }: UseDeposit
       return;
     }
 
-    console.log('🔵 Starting deposit flow for tokenId:', tokenId);
     setStep('approving');
     setErrorMessage(null);
     approve(tokenId);
