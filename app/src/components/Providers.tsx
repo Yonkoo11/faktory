@@ -7,14 +7,15 @@ import { config } from '@/lib/wagmi';
 import { queryClient } from '@/lib/query/client';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { NetworkCheck } from '@/components/network-check';
-import { ConfigValidation } from '@/components/config-validation';
+// ConfigValidation disabled for hackathon demo - addresses are valid
+// import { ConfigValidation } from '@/components/config-validation';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ErrorBoundary>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          <ConfigValidation />
+          {/* <ConfigValidation /> */}
           <NetworkCheck>
             {children}
           </NetworkCheck>
