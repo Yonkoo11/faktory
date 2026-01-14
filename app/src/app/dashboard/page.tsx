@@ -23,8 +23,6 @@ import { useYieldVault } from "@/hooks/use-yield-vault"
 import { formatUnits } from "viem"
 import {
   TrendingUp,
-  TrendingDown,
-  Wallet,
   FileText,
   PlusCircle,
   Search,
@@ -56,7 +54,7 @@ export default function DashboardV3() {
   const [searchQuery, setSearchQuery] = useState("")
 
   const { address, isConnected } = useAccount()
-  const { totalInvoices, userBalance, activeInvoices, isLoading: isLoadingNFT } = useInvoiceNFT()
+  const { totalInvoices } = useInvoiceNFT()
   const { tvl, totalYield, activeDepositsCount, conservativeAPY, aggressiveAPY } = useYieldVault()
 
   // Fetch invoices from API
@@ -184,7 +182,7 @@ export default function DashboardV3() {
         {/* Portfolio Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {/* Total Value */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all duration-200">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-600">Total Value</span>
               <DollarSign className="w-4 h-4 text-gray-400" />
@@ -199,10 +197,10 @@ export default function DashboardV3() {
           </div>
 
           {/* Total Yield */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all duration-200">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-600">Total Yield</span>
-              <Zap className="w-4 h-4 text-gray-400" />
+              <Zap className="w-4 h-4 text-emerald-500" />
             </div>
             <div className="text-3xl font-bold font-mono text-gray-900">
               ${Number(formatUnits(BigInt(totalYield || 0), 18)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -214,7 +212,7 @@ export default function DashboardV3() {
           </div>
 
           {/* Active Invoices */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
+          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all duration-200">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-600">Active Invoices</span>
               <FileText className="w-4 h-4 text-gray-400" />
@@ -229,7 +227,7 @@ export default function DashboardV3() {
         </div>
 
         {/* Invoices Table */}
-        <div className="bg-white border border-gray-200 rounded-lg">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
           {/* Table Header */}
           <div className="border-b border-gray-200 px-6 py-4">
             <div className="flex items-center justify-between">

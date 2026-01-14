@@ -18,7 +18,6 @@ import {
   Zap,
   TrendingUp,
   Menu,
-  Radio,
   DollarSign,
   Shield,
   Check,
@@ -29,7 +28,6 @@ import {
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button-v2"
-import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useLendleMarkets } from '@/hooks/use-lendle'
 import { useProtocolStats } from '@/hooks/use-protocol-stats'
@@ -190,10 +188,10 @@ export default function LandingPage() {
             </Button>
           </div>
 
-          {/* Live Rates - Stripe style */}
-          <div className="inline-flex items-center gap-4 px-6 py-4 rounded-xl bg-card border border-border shadow-md text-sm slide-up">
+          {/* Live Rates - Stripe style with emerald accent for brand consistency */}
+          <div className="inline-flex items-center gap-4 px-6 py-4 rounded-xl bg-card border border-border shadow-md text-sm slide-up hover:shadow-lg transition-shadow duration-300">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-muted-foreground">Live Yields:</span>
             </div>
             <span className="font-semibold">
@@ -377,7 +375,7 @@ export default function LandingPage() {
 
           <div className="text-center mb-20">
             <h2 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight">
-              Start earning in <span className="text-gradient-gold">60 seconds</span>
+              Start earning in <span className="text-gradient-emerald">60 seconds</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Three simple steps to turn unpaid invoices into yield-generating assets
@@ -483,7 +481,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-wrap gap-6 justify-center">
             <Link href="/dashboard">
-              <Button size="lg" className="btn-primary button-scale text-lg px-12 py-7">
+              <Button size="lg" className="btn-emerald button-scale text-lg px-12 py-7">
                 Launch App
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
