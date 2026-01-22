@@ -67,6 +67,13 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
         address indexed authorizedAddress
     );
 
+    event InvoicePaid(
+        uint256 indexed tokenId,
+        address indexed payer,
+        uint256 amount,
+        uint256 timestamp
+    );
+
     // ============ Modifiers ============
 
     modifier onlyYieldVault() {
@@ -204,6 +211,52 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
         bytes32 commitment = invoices[tokenId].dataCommitment;
         bytes32 computed = keccak256(abi.encodePacked(invoiceData, salt));
         return commitment == computed;
+    }
+
+    // ============ x402 Payment Functions ============
+
+    /// @notice Pay an invoice (x402 Payment Required flow)
+    /// @dev Accepts native currency payment and marks invoice as Paid
+    /// @param tokenId The invoice token ID to pay
+    function payInvoice(uint256 tokenId) external payable {
+        Invoice storage invoice = invoices[tokenId];
+
+        require(
+            invoice.status == InvoiceStatus.Active ||
+            invoice.status == InvoiceStatus.InYield,
+            "Invoice not payable"
+        );
+        require(msg.value > 0, "Payment required");
+
+        // Mark as paid
+        InvoiceStatus oldStatus = invoice.status;
+        invoice.status = InvoiceStatus.Paid;
+
+        // Transfer payment to invoice owner
+        address owner = ownerOf(tokenId);
+        (bool success, ) = payable(owner).call{value: msg.value}("");
+        require(success, "Payment transfer failed");
+
+        emit InvoiceStatusUpdated(tokenId, oldStatus, InvoiceStatus.Paid);
+        emit InvoicePaid(tokenId, msg.sender, msg.value, block.timestamp);
+    }
+
+    /// @notice Get payment details for an invoice (x402-style query)
+    /// @param tokenId The invoice token ID
+    /// @return isPaid Whether the invoice has been paid
+    /// @return owner The address to pay (invoice owner)
+    /// @return dueDate When payment is due
+    function getPaymentInfo(uint256 tokenId) external view returns (
+        bool isPaid,
+        address owner,
+        uint256 dueDate
+    ) {
+        Invoice storage invoice = invoices[tokenId];
+        return (
+            invoice.status == InvoiceStatus.Paid,
+            ownerOf(tokenId),
+            invoice.dueDate
+        );
     }
 
     // ============ View Functions ============

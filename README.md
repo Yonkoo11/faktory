@@ -1,10 +1,23 @@
 # Faktory Protocol
 
-> Earn yield on unpaid invoices while you wait to get paid.
+> AI-Managed B2B Payments on Cronos
 
-Faktory lets B2B businesses earn DeFi yield on outstanding invoices. Mint your invoice as an NFT, deposit to a yield vault, and withdraw your principal plus earnings when your client pays. Your invoice details stay private — only cryptographic hashes go on-chain.
+Faktory demonstrates AI-driven PayTech by letting autonomous agents optimize yield strategies for tokenized B2B invoices. Mint your invoice as an NFT, let the AI agent manage yield exposure while waiting for payment, and settle on-chain when your client pays. Your invoice details stay private — only cryptographic hashes go on-chain.
 
-**[Live Demo](https://faktory-app.vercel.app/)** · Built for Mantle Global Hackathon 2025
+**[Live Demo](https://faktory-app.vercel.app/)** · Built for Cronos x402 PayTech Hackathon
+
+---
+
+## x402: Agentic Finance in Action
+
+Faktory showcases the x402 vision of autonomous financial agents:
+
+- **AI Agent Monitors 24/7** — Continuously analyzes invoice health, risk scores, and yield opportunities
+- **Autonomous Strategy Recommendations** — Agent evaluates Conservative vs Aggressive yield strategies based on invoice due dates and payment probability
+- **Human-in-the-Loop** — Auto-executes only above 70% confidence; user approves lower-confidence decisions
+- **On-Chain Payments** — Clients pay invoices directly via smart contract, settling the entire lifecycle on Cronos
+
+This is what happens when machines handle real financial decisions autonomously.
 
 ---
 
@@ -25,13 +38,14 @@ Crypto-native freelancers, consultants, and small agencies who:
 ## What Faktory Does
 
 ```
-Connect Wallet → Mint Invoice → Deposit to Vault → Earn Yield → Withdraw
+Connect Wallet → Mint Invoice → Deposit to Vault → AI Manages Yield → Client Pays On-Chain → Withdraw
 ```
 
 1. **Mint** — Create an NFT representing your invoice
-2. **Deposit** — Put equivalent USDC into a yield vault
-3. **Earn** — Vault generates 3-7% APY via Lendle Protocol
-4. **Withdraw** — Get principal + yield when your client pays
+2. **Deposit** — Put equivalent CRO into a yield vault
+3. **AI Agent** — Monitors and optimizes your yield strategy
+4. **Pay** — Client pays invoice directly on-chain via x402
+5. **Withdraw** — Get principal + yield when payment settles
 
 ---
 
@@ -41,7 +55,7 @@ Connect Wallet → Mint Invoice → Deposit to Vault → Earn Yield → Withdraw
 - **Collect payments** — We don't chase your clients
 - **Verify invoices** — We trust what you enter
 - **Guarantee returns** — DeFi yields fluctuate
-- **Support fiat** — Crypto only (USDC/USDT)
+- **Support fiat** — Crypto only
 - **Onboard non-crypto users** — Wallet required
 
 ---
@@ -51,16 +65,18 @@ Connect Wallet → Mint Invoice → Deposit to Vault → Earn Yield → Withdraw
 This project succeeds if:
 - User can mint an invoice in < 2 minutes
 - User can deposit and see yield accruing
+- AI agent analyzes and recommends strategies
+- Client can pay invoice on-chain
 - User can withdraw principal + yield without issues
-- User understands what's happening at every step
 
 ---
 
 ## Scope
 
 **In scope (what we built):**
-- Wallet connection
+- Wallet connection (Cronos Testnet)
 - Invoice minting (manual entry)
+- On-chain payment (x402 pay invoice)
 - Deposit to yield vault
 - Dashboard (portfolio, yield tracking)
 - Withdrawal flow
@@ -79,28 +95,29 @@ This project succeeds if:
 
 | Layer | Technology |
 |-------|------------|
-| Network | Mantle L2 |
+| Network | Cronos (Chain ID 338) |
 | Contracts | Solidity (Foundry) |
 | Frontend | Next.js + wagmi + Tailwind |
 | Agent | TypeScript + WebSocket |
-| Yield | Lendle Protocol |
-| Oracles | Pyth Network |
+| Yield | Simulated (for demo) |
+| Oracles | MockOracle (for demo) |
 
 ---
 
-## Deployed Contracts (Mantle Sepolia)
+## Deployed Contracts (Cronos Testnet)
 
-**Deployment Date:** 2026-01-02
+**Chain ID:** 338
+**Deployment Date:** 2026-01-22
 
 | Contract | Address |
 |----------|---------|
-| InvoiceNFT | [`0xf35be6ffebf91acc27a78696cf912595c6b08aaa`](https://sepolia.mantlescan.xyz/address/0xf35be6ffebf91acc27a78696cf912595c6b08aaa) |
-| YieldVault | [`0xd2cad31a080b0dae98d9d6427e500b50bcb92774`](https://sepolia.mantlescan.xyz/address/0xd2cad31a080b0dae98d9d6427e500b50bcb92774) |
-| AgentRouter | [`0xede6db2855bacf191e5b2e2d91b6276bb56bf183`](https://sepolia.mantlescan.xyz/address/0xede6db2855bacf191e5b2e2d91b6276bb56bf183) |
-| PrivacyRegistry | [`0xec5bfee9d17e25cc8d52b8cb7fb81d8cabb53c5f`](https://sepolia.mantlescan.xyz/address/0xec5bfee9d17e25cc8d52b8cb7fb81d8cabb53c5f) |
-| MockOracle | [`0xd0db0eb608107862e963737fe87ffdff7f400e3c`](https://sepolia.mantlescan.xyz/address/0xd0db0eb608107862e963737fe87ffdff7f400e3c) |
+| InvoiceNFT | [`0xEde6Db2855BACF191E5B2E2d91B6276bB56bf183`](https://explorer.cronos.org/testnet3/address/0xEde6Db2855BACF191E5B2E2d91B6276bB56bf183) |
+| YieldVault | [`0xD0db0eb608107862E963737FE87ffdFF7f400e3C`](https://explorer.cronos.org/testnet3/address/0xD0db0eb608107862E963737FE87ffdFF7f400e3C) |
+| AgentRouter | [`0xb8F4546e24e437779bC09c3b70ce70Ff9542bdD4`](https://explorer.cronos.org/testnet3/address/0xb8F4546e24e437779bC09c3b70ce70Ff9542bdD4) |
+| PrivacyRegistry | [`0xf9e5a9E147856D9B26aB04202D79C2c3dA4a326B`](https://explorer.cronos.org/testnet3/address/0xf9e5a9E147856D9B26aB04202D79C2c3dA4a326B) |
+| MockOracle | [`0x9A6d36A0487EA52df43E7704a97F47844C4Eac4E`](https://explorer.cronos.org/testnet3/address/0x9A6d36A0487EA52df43E7704a97F47844C4Eac4E) |
 
-[View on Mantle Sepolia Explorer](https://sepolia.mantlescan.xyz/)
+[View on Cronos Explorer](https://explorer.cronos.org/testnet3)
 
 ---
 
@@ -111,6 +128,19 @@ This project succeeds if:
 - Node.js 18+
 - pnpm
 - Foundry (for contracts)
+- MetaMask with Cronos Testnet configured
+
+### Add Cronos Testnet to MetaMask
+
+| Setting | Value |
+|---------|-------|
+| Network Name | Cronos Testnet |
+| RPC URL | https://evm-t3.cronos.org |
+| Chain ID | 338 |
+| Symbol | TCRO |
+| Explorer | https://explorer.cronos.org/testnet3 |
+
+Get test CRO from the [Cronos Faucet](https://cronos.org/faucet).
 
 ### Run Locally
 
@@ -131,7 +161,7 @@ Visit `http://localhost:3000`
 
 ```bash
 cd contracts
-forge script script/Deploy.s.sol --rpc-url https://rpc.sepolia.mantle.xyz --broadcast
+forge script script/DeployCronos.s.sol --rpc-url https://evm-t3.cronos.org --broadcast --slow
 ```
 
 ---
@@ -148,153 +178,81 @@ faktory/
 
 ---
 
+## x402 Payment Flow
+
+The `payInvoice` function enables on-chain invoice settlement:
+
+```solidity
+function payInvoice(uint256 tokenId) external payable {
+    // Validates invoice is payable (Active or InYield)
+    // Transfers payment to invoice owner
+    // Updates status to Paid
+    // Emits InvoicePaid event
+}
+```
+
+Clients can pay invoices directly through the UI or programmatically via the smart contract.
+
+---
+
 ## Known Limitations (Hackathon Prototype)
 
-**This is a demonstration project built for Mantle Global Hackathon 2025.**
+**This is a demonstration project built for Cronos x402 PayTech Hackathon.**
 
 ### What's Real vs Simulated
 
-#### ✅ Fully Functional
-- Smart contracts deployed on Mantle Sepolia testnet
+#### Fully Functional
+- Smart contracts deployed on Cronos Testnet
 - Wallet connection and transaction signing
 - Invoice NFT minting and ownership tracking
+- On-chain invoice payment (x402)
 - Deposit/withdrawal flows
 - Dashboard UI and data visualization
 - Agent service with WebSocket communication
 
-#### ⚠️ Simulated for Demo
+#### Simulated for Demo
 **Yields are SIMULATED:**
 - YieldVault uses hardcoded APY rates:
   - Conservative: 3.5% APY (constant)
   - Aggressive: 7.0% APY (constant)
 - Yield calculation: `(principal × APY × time) / (365 days × 10000)` on-chain
-- Real Lendle integration exists in contract architecture but not activated
-- TVL and yield numbers shown in dashboard are for demonstration only
+- Real DeFi integration exists in contract architecture but not activated for demo
 
-**Why simulated?** Integrating live Lendle pools requires:
-- Production Lendle deployment addresses on Mantle
-- Mainnet USDC/USDT liquidity
-- Ongoing gas costs for rebalancing
-- Complex error handling for pool liquidity changes
+**Why simulated?** Integrating live DeFi pools requires production addresses, mainnet liquidity, and complex error handling. For hackathon purposes, simulated yields demonstrate the mechanism.
 
-For hackathon purposes, simulated yields demonstrate the mechanism without those dependencies.
-
-#### ⚠️ Partial Implementation
-**QuickBooks Integration:**
-- OAuth flow exists and connects successfully
-- Invoice data import/parsing NOT implemented
-- Users must manually enter invoice details after OAuth
-- Production would require QuickBooks API SDK integration and field mapping
-
+#### Partial Implementation
 **Agent Service:**
 - Runs as single Node.js process (port 8080)
 - No database persistence (in-memory state only)
-- No automatic restart on failure
-- Requires manual startup: `cd agent && pnpm dev`
-- Production would require:
-  - Job queue (Redis/Bull) for reliability
-  - PostgreSQL for decision history
-  - Multiple instances with leader election
-  - Health monitoring and auto-restart
+- Production would require job queue, PostgreSQL, and monitoring
 
 **Privacy Commitments:**
 - Invoice data stored as `keccak256` hashes on-chain
-- Reveal verification function exists but not used in UI
-- API endpoints still return full invoice metadata
-- True privacy would require zero-knowledge proofs or selective disclosure UI
-
-### What This Is NOT
-
-**This is NOT invoice factoring:**
-- We do not advance cash to businesses
-- We do not provide liquidity against invoices
-- We do not assume default risk
-- Traditional factoring pays 80-90% upfront; we pay nothing upfront
-
-**This IS a yield optimizer:**
-- For crypto-native freelancers who already have invoices
-- Earns DeFi yield while waiting for client payment
-- Equivalent to depositing into Lendle directly, with invoice tracking
-
-**Why not just use Lendle?**
-- Invoice NFTs provide better accounting (track which yield came from which client)
-- Agent automates rebalancing between Conservative/Aggressive strategies
-- Future composability (NFTs can be traded, used as collateral)
-- For single invoices, Lendle direct is simpler; for 10+ invoices, Faktory adds value
+- Reveal verification exists but not used in UI
+- True privacy would require zero-knowledge proofs
 
 ### Security & Legal Disclaimers
 
 **Not Production-Ready:**
-- Smart contracts are **NOT audited** (cost: $30-50k)
+- Smart contracts are **NOT audited**
 - No formal security review performed
 - Use **testnet only** — do not deposit real funds
-- Deployer retains admin privileges (pause, emergency withdraw)
-
-**Regulatory Risks:**
-- Invoice factoring is regulated in most jurisdictions
-- May require state-by-state licensing in the US
-- Securities law considerations (is invoice NFT a security?)
-- AML/KYC requirements not implemented
-
-**Technical Risks:**
-- Agent service is single point of failure
-- No monitoring or alerting infrastructure
-- Race conditions possible in frontend-blockchain-API state sync
-- Gas price spikes could make transactions uneconomical
-
-### Production Deployment Requirements
-
-To go from hackathon demo to production would require:
-
-**Security:**
-- Professional smart contract audit ($30-50k)
-- Penetration testing of frontend and agent
-- Formal threat modeling
-- Bug bounty program
-
-**Legal:**
-- Legal entity formation
-- Regulatory compliance review
-- State licenses (if required)
-- Terms of Service and Privacy Policy
-- Securities law analysis
-
-**Infrastructure:**
-- Multi-region deployment
-- Database (PostgreSQL) for metadata
-- Job queue (Redis) for agent reliability
-- Monitoring (Datadog/Sentry)
-- Error tracking and alerting
-- Load balancing and auto-scaling
-
-**Integration:**
-- Real Lendle pool integration with error handling
-- Live Pyth oracle integration for risk scoring
-- QuickBooks API SDK for invoice import
-- Webhook handlers for external updates
-
-**Capital:**
-- Liquidity provision mechanism (if pursuing factoring model)
-- Treasury management
-- Insurance for smart contract risk
-
-**Estimated cost:** $200k-500k and 6-12 months of engineering time.
+- Deployer retains admin privileges
 
 ### Honest Assessment
 
 **What we proved:**
 - Invoice tokenization is technically feasible
-- DeFi yields can be tracked per-invoice
+- On-chain payments work (x402)
 - AI agents can automate strategy decisions
 - Clean architecture and professional UI/UX are possible in Web3
 
 **What we didn't prove:**
-- Product-market fit (do crypto-native freelancers want this?)
-- Unit economics (no revenue model defined)
-- Go-to-market (how to reach target users?)
-- Competitive advantage (why not use Lendle directly?)
+- Product-market fit
+- Unit economics
+- Go-to-market strategy
 
-**This project demonstrates technical competence, not business viability.**
+**This project demonstrates technical competence in agentic finance.**
 
 ---
 

@@ -15,11 +15,11 @@ export function CostCalculator({ className }: CostCalculatorProps) {
 
   // Cost estimates (conservative)
   const L1_COST_PER_TX = 0.50 // $0.50 average on Ethereum
-  const MANTLE_COST_PER_TX = 0.001 // $0.001 on Mantle
+  const CRONOS_COST_PER_TX = 0.001 // $0.001 on Cronos
 
   const dailyCostL1 = txPerDay * L1_COST_PER_TX
-  const dailyCostMantle = txPerDay * MANTLE_COST_PER_TX
-  const dailySavings = dailyCostL1 - dailyCostMantle
+  const dailyCostCronos = txPerDay * CRONOS_COST_PER_TX
+  const dailySavings = dailyCostL1 - dailyCostCronos
   const monthlySavings = dailySavings * 30
   const savingsPercent = ((dailySavings / dailyCostL1) * 100).toFixed(0)
 
@@ -31,7 +31,7 @@ export function CostCalculator({ className }: CostCalculatorProps) {
         </div>
         <div>
           <h3 className="font-semibold">Cost Savings Calculator</h3>
-          <p className="text-xs text-muted-foreground">See how much Mantle saves you</p>
+          <p className="text-xs text-muted-foreground">See how much Cronos saves you</p>
         </div>
       </div>
 
@@ -65,9 +65,9 @@ export function CostCalculator({ className }: CostCalculatorProps) {
           <div className="text-xs text-muted-foreground">per day</div>
         </div>
         <div className="p-4 rounded-lg bg-success/10 border border-success/20">
-          <div className="text-xs text-muted-foreground mb-1">Mantle</div>
+          <div className="text-xs text-muted-foreground mb-1">Cronos</div>
           <div className="text-2xl font-bold text-success">
-            ${dailyCostMantle.toFixed(2)}
+            ${dailyCostCronos.toFixed(2)}
           </div>
           <div className="text-xs text-muted-foreground">per day</div>
         </div>

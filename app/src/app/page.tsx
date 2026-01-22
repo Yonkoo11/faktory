@@ -1,11 +1,14 @@
 "use client"
 
 /**
- * Faktory Protocol Landing Page - Stripe/Linear Light Theme
+ * Faktory Protocol - Landing Page
  *
- * COMPLETE REDESIGN - Light, bright, sophisticated
- * Inspired by: Stripe, Linear, Vercel
- * Theme: Professional SaaS with animated gradient orbs
+ * Aesthetic: Premium Industrial Finance
+ * - Deep indigo primary + emerald accents
+ * - Tasteful gradient text on hero (not orbs)
+ * - Subtle background gradient accent
+ * - Strong typography hierarchy
+ * - Finance-appropriate color psychology
  */
 
 import { useState, useEffect } from "react"
@@ -18,22 +21,15 @@ import {
   Zap,
   TrendingUp,
   Menu,
-  DollarSign,
   Shield,
   Check,
-  BarChart3,
-  FileText,
-  Sparkles,
-  Globe,
+  ChevronRight,
 } from "lucide-react"
 
-import { Button } from "@/components/ui/button-v2"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useLendleMarkets } from '@/hooks/use-lendle'
 import { useProtocolStats } from '@/hooks/use-protocol-stats'
-import { useCounter } from '@/hooks/use-counter'
-import { useScrollReveal } from '@/hooks/use-scroll-reveal'
-import { useParallax } from '@/hooks/use-parallax'
+import { AnimatedCounter } from '@/components/animated-counter'
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
@@ -43,113 +39,62 @@ export default function LandingPage() {
   const lendleMarkets = useLendleMarkets()
   const protocolStats = useProtocolStats()
 
-  // Counter animations for stats
-  const tvlCounter = useCounter({ end: 0, duration: 2000, delay: 300 })
-  const apyCounter = useCounter({ end: 7, duration: 2000, delay: 400 })
-  const invoicesCounter = useCounter({ end: protocolStats.totalInvoices, duration: 2000, delay: 500 })
-
-  // Live yields counters
-  const usdcYield = useCounter({
-    end: parseFloat(lendleMarkets.USDC.supplyAPY || '0'),
-    duration: 2000,
-    decimals: 2,
-    delay: 600
-  })
-  const usdtYield = useCounter({
-    end: parseFloat(lendleMarkets.USDT.supplyAPY || '0'),
-    duration: 2000,
-    decimals: 2,
-    delay: 700
-  })
-  const wethYield = useCounter({
-    end: parseFloat(lendleMarkets.WETH.supplyAPY || '0'),
-    duration: 2000,
-    decimals: 2,
-    delay: 800
-  })
-
-  // Parallax effects for gradient orbs
-  const orbPurpleRef = useParallax({ speed: -0.3 })
-  const orbCyanRef = useParallax({ speed: -0.4 })
-  const orbPinkRef = useParallax({ speed: -0.2 })
-
-  // Scroll reveal animations
-  const statsReveal = useScrollReveal({ threshold: 0.2 })
-  const featuresReveal = useScrollReveal({ threshold: 0.1 })
-  const stepsReveal = useScrollReveal({ threshold: 0.2 })
-  const trustReveal = useScrollReveal({ threshold: 0.3 })
-
   useEffect(() => {
     setMounted(true)
   }, [])
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* ANIMATED GRADIENT ORBS BACKGROUND - Stripe Style with Parallax */}
-      <div className="gradient-orbs-bg">
-        <div ref={orbPurpleRef} className="orb orb-purple parallax-slow" />
-        <div ref={orbCyanRef} className="orb orb-cyan parallax-slow" />
-        <div ref={orbPinkRef} className="orb orb-pink parallax-slow" />
-      </div>
+    <div className="min-h-screen bg-background noise-texture">
+      {/* Navigation */}
+      <header className="fixed top-0 w-full z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/logo.svg" alt="Faktory" className="w-8 h-8" />
+            <span className="font-display font-semibold text-lg tracking-tight">Faktory</span>
+          </Link>
 
-      {/* Header - Stripe-style minimal */}
-      <header className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-6 lg:px-12 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold">F</span>
-            </div>
-            <span className="text-xl font-semibold tracking-tight">Faktory</span>
-          </div>
-
-          <div className="flex items-center gap-4">
             {mounted && isConnected && address ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="hidden md:inline-flex"
+              <button
                 onClick={() => disconnect()}
+                className="hidden md:inline-flex px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 {address.slice(0, 6)}...{address.slice(-4)}
-              </Button>
+              </button>
             ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="hidden md:inline-flex"
+              <button
                 onClick={() => connect({ connector: injected() })}
                 disabled={isPending}
+                className="hidden md:inline-flex px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 Connect Wallet
-              </Button>
+              </button>
             )}
 
-            <Link href="/dashboard" className="hidden md:block">
-              <Button size="sm" className="btn-primary">
-                Launch App
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+            <Link href="/dashboard" className="hidden md:inline-flex btn-primary">
+              Launch App
+              <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
 
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
+                <button className="md:hidden p-2 hover:bg-muted rounded-md">
                   <Menu className="w-5 h-5" />
-                </Button>
+                </button>
               </SheetTrigger>
-              <SheetContent side="right">
-                <div className="flex flex-col gap-6 mt-8">
+              <SheetContent side="right" className="w-72">
+                <div className="flex flex-col gap-4 mt-8">
                   {mounted && isConnected && address ? (
-                    <Button variant="outline" onClick={() => disconnect()}>
+                    <button onClick={() => disconnect()} className="btn-outline w-full">
                       {address.slice(0, 6)}...{address.slice(-4)}
-                    </Button>
+                    </button>
                   ) : (
-                    <Button variant="outline" onClick={() => connect({ connector: injected() })}>
+                    <button onClick={() => connect({ connector: injected() })} className="btn-outline w-full">
                       Connect Wallet
-                    </Button>
+                    </button>
                   )}
-                  <Link href="/dashboard">
-                    <Button className="w-full">Launch App</Button>
+                  <Link href="/dashboard" className="btn-primary w-full text-center">
+                    Launch App
                   </Link>
                 </div>
               </SheetContent>
@@ -158,365 +103,303 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* HERO SECTION - Stripe-style centered with high spacing */}
-      <section className="relative pt-40 pb-32 px-6">
-        <div className="container mx-auto max-w-5xl text-center relative z-10">
+      {/* Hero Section */}
+      <section className="hero-gradient grid-pattern pt-32 pb-24 px-6 relative overflow-hidden">
+        {/* Floating Particles */}
+        <div className="particles-container">
+          <div className="particle" />
+          <div className="particle" />
+          <div className="particle" />
+          <div className="particle" />
+          <div className="particle" />
+          <div className="particle" />
+          <div className="particle" />
+          <div className="particle" />
+        </div>
 
-          {/* Main Headline */}
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 slide-up" style={{letterSpacing: '-0.02em'}}>
-            Earn{" "}
-            <span className="text-gradient-purple">3-7% APY</span>
-            {" "}on unpaid invoices
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          {/* Headline - Editorial Style */}
+          <h1 className="reveal-up delay-100 headline-editorial headline-xl mb-6">
+            Turn unpaid invoices
+            <br />
+            <span className="text-gradient-hero">into yield</span>
           </h1>
 
-          {/* Subtitle */}
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed slide-up">
-            Tokenize business invoices. Deposit to DeFi yield vaults. Withdraw anytime.
-            <span className="block mt-3 text-foreground font-medium">No lockups. No credit checks. No KYC required.</span>
+          {/* Subheadline */}
+          <p className="reveal-up delay-200 text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+            Tokenize business invoices. Deposit to DeFi vaults. Earn{' '}
+            <span className="yield-highlight text-foreground font-semibold">3-7% APY</span>{' '}
+            while you wait for payment.
+            <span className="block mt-3 text-foreground font-medium">No lockups. No credit checks. No KYC.</span>
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-wrap gap-4 justify-center mb-16 slide-up">
-            <Link href="/dashboard">
-              <Button size="lg" className="btn-primary button-scale text-lg px-10 py-6">
-                Start Earning Now
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+          {/* CTA */}
+          <div className="reveal-up delay-300 flex flex-wrap items-center justify-center gap-4 mb-16">
+            <Link href="/dashboard" className="btn-primary-lg pulse-glow">
+              Start Earning
+              <ArrowRight className="w-4 h-4" />
             </Link>
-            <Button size="lg" variant="outline" className="text-lg px-10 py-6 hover-glow-smooth">
+            <a href="#how-it-works" className="btn-outline text-base px-8 py-3">
               Learn More
-            </Button>
+            </a>
           </div>
 
-          {/* Live Rates - Stripe style with emerald accent for brand consistency */}
-          <div className="inline-flex items-center gap-4 px-6 py-4 rounded-xl bg-card border border-border shadow-md text-sm slide-up hover:shadow-lg transition-shadow duration-300">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-muted-foreground">Live Yields:</span>
+          {/* Live Rates - Terminal Style */}
+          <div className="reveal-scale delay-500 data-ticker data-live">
+            <div className="flex items-center gap-2 mr-4">
+              <span className="status-dot status-active" />
+              <span className="data-ticker-label">Live yields</span>
             </div>
-            <span className="font-semibold">
-              USDC <span className="text-success">{usdcYield}%</span>
-            </span>
-            <span className="text-border">·</span>
-            <span className="font-semibold">
-              USDT <span className="text-success">{usdtYield}%</span>
-            </span>
-            <span className="text-border">·</span>
-            <span className="font-semibold">
-              WETH <span className="text-success">{wethYield}%</span>
-            </span>
-          </div>
-        </div>
-      </section>
-
-      {/* STATS SECTION - Stripe-style horizontal cards */}
-      <section ref={statsReveal.ref} className="py-16 px-6 border-t border-border bg-secondary/30">
-        <div className="container mx-auto max-w-6xl">
-          <div className={`grid grid-cols-1 md:grid-cols-3 gap-8 scroll-reveal ${statsReveal.isVisible ? 'is-visible' : ''}`}>
-
-            {/* Stat 1 - TVL */}
-            <div className="card-stripe text-center p-10 hover-tilt">
-              <div className="text-5xl md:text-6xl font-bold text-gradient-primary mb-3">
-                ${tvlCounter}
-              </div>
-              <div className="text-sm text-muted-foreground uppercase tracking-wide font-medium">
-                Total Value Locked
-              </div>
+            <div className="data-ticker-item">
+              <span className="data-ticker-label">USDC</span>
+              <span className="data-ticker-value">{lendleMarkets.USDC.supplyAPY || '0.00'}%</span>
             </div>
-
-            {/* Stat 2 - Target APY (Gold accent) */}
-            <div className="card-stripe text-center p-10 hover-tilt scroll-reveal-delay-1" style={{boxShadow: 'var(--shadow-glow-gold)'}}>
-              <div className="text-5xl md:text-6xl font-bold text-gradient-gold mb-3">
-                3-{apyCounter}%
-              </div>
-              <div className="text-sm text-muted-foreground uppercase tracking-wide font-medium">
-                Target APY
-              </div>
+            <div className="data-ticker-item">
+              <span className="data-ticker-label">USDT</span>
+              <span className="data-ticker-value">{lendleMarkets.USDT.supplyAPY || '0.00'}%</span>
             </div>
-
-            {/* Stat 3 - Invoices */}
-            <div className="card-stripe text-center p-10 hover-tilt scroll-reveal-delay-2">
-              <div className="text-5xl md:text-6xl font-bold text-gradient-primary mb-3">
-                {invoicesCounter}
-              </div>
-              <div className="text-sm text-muted-foreground uppercase tracking-wide font-medium">
-                Invoices Tokenized
-              </div>
+            <div className="data-ticker-item">
+              <span className="data-ticker-label">WETH</span>
+              <span className="data-ticker-value">{lendleMarkets.WETH.supplyAPY || '0.00'}%</span>
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* FEATURES SECTION - Linear-style clean cards */}
-      <section className="py-32 px-6">
-        <div className="container mx-auto max-w-6xl">
+      {/* Stats Section */}
+      <section className="py-16 px-6 border-y border-border bg-muted/30">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="stat-card breathing-border">
+              <div className="stat-card-value">
+                <AnimatedCounter end={0} prefix="$" className="stat-card-value" />
+              </div>
+              <div className="stat-card-label">Total Value Locked</div>
+            </div>
+            <div className="stat-card breathing-border">
+              <div className="stat-card-value text-gradient-hero">
+                <AnimatedCounter end={3} className="stat-card-value text-gradient-hero" />
+                -
+                <AnimatedCounter end={7} suffix="%" className="stat-card-value text-gradient-hero" />
+              </div>
+              <div className="stat-card-label">Target APY</div>
+            </div>
+            <div className="stat-card breathing-border">
+              <div className="stat-card-value">
+                <AnimatedCounter end={protocolStats.totalInvoices} className="stat-card-value" />
+              </div>
+              <div className="stat-card-label">Invoices Tokenized</div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          {/* Section Header */}
-          <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight">
-              Built for <span className="text-gradient-purple">Web3</span> businesses
+      {/* Features Section */}
+      <section className="py-24 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="headline-editorial headline-lg mb-4">
+              Built for serious businesses
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              The first protocol to unlock liquidity from unpaid invoices without credit checks, underwriters, or KYC friction.
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              The first protocol to unlock invoice liquidity without credit checks or underwriters.
             </p>
           </div>
 
-          {/* Features Grid */}
-          <div ref={featuresReveal.ref} className={`grid grid-cols-1 md:grid-cols-2 gap-8 scroll-reveal ${featuresReveal.isVisible ? 'is-visible' : ''}`}>
-
-            {/* Feature 1 - Privacy */}
-            <div className="card-elevated p-10 space-y-5 hover-tilt">
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <Lock className="w-7 h-7 text-primary" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Feature 1 */}
+            <div className="feature-card">
+              <div className="feature-icon">
+                <Lock className="w-5 h-5" />
               </div>
-              <div>
-                <div className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wide mb-4">
-                  Privacy First
-                </div>
-                <h3 className="text-2xl font-bold mb-3">Cryptographic Privacy</h3>
-                <p className="text-muted-foreground leading-relaxed mb-4">
-                  Your invoice data stays private. We use cryptographic commitment hashes—only you control who sees the details.
-                </p>
-                <div className="flex items-start gap-3 text-sm">
-                  <Check className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground">
-                    <strong className="text-foreground">Unlike competitors</strong>: No public disclosure of clients, amounts, or contracts.
-                  </span>
-                </div>
-              </div>
+              <h3 className="font-display text-xl font-semibold mb-3">Cryptographic Privacy</h3>
+              <p className="text-muted-foreground mb-4">
+                Invoice data stays private with commitment hashes. Only you control who sees the details.
+              </p>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-success" />
+                  <span>No public disclosure</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-success" />
+                  <span>Selective disclosure controls</span>
+                </li>
+              </ul>
             </div>
 
-            {/* Feature 2 - AI Agent */}
-            <div className="card-elevated p-10 space-y-5 hover-tilt scroll-reveal-delay-1">
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <Zap className="w-7 h-7 text-primary" />
+            {/* Feature 2 */}
+            <div className="feature-card">
+              <div className="feature-icon">
+                <Zap className="w-5 h-5" />
               </div>
-              <div>
-                <div className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wide mb-4">
-                  AI Powered
-                </div>
-                <h3 className="text-2xl font-bold mb-3">Autonomous Optimization</h3>
-                <p className="text-muted-foreground leading-relaxed mb-4">
-                  Our AI agent continuously monitors DeFi markets and rebalances your deposits to maximize yield—24/7, automatically.
-                </p>
-                <div className="flex items-start gap-3 text-sm">
-                  <Check className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground">
-                    <strong className="text-foreground">Set it and forget it</strong>: No manual intervention required.
-                  </span>
-                </div>
-              </div>
+              <h3 className="font-display text-xl font-semibold mb-3">AI Yield Optimization</h3>
+              <p className="text-muted-foreground mb-4">
+                Autonomous agent monitors DeFi markets 24/7 and rebalances your deposits for maximum yield.
+              </p>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-success" />
+                  <span>Set and forget</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-success" />
+                  <span>Confidence-based execution</span>
+                </li>
+              </ul>
             </div>
 
-            {/* Feature 3 - Real Yield */}
-            <div className="card-elevated p-10 space-y-5 hover-tilt scroll-reveal-delay-2">
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <TrendingUp className="w-7 h-7 text-primary" />
+            {/* Feature 3 */}
+            <div className="feature-card">
+              <div className="feature-icon">
+                <TrendingUp className="w-5 h-5" />
               </div>
-              <div>
-                <div className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wide mb-4">
-                  Real Yield
-                </div>
-                <h3 className="text-2xl font-bold mb-3">Sustainable Returns</h3>
-                <p className="text-muted-foreground leading-relaxed mb-4">
-                  Earn 3-7% APY from battle-tested DeFi lending protocols—not inflated by token emissions or ponzi mechanics.
-                </p>
-                <div className="flex items-start gap-3 text-sm">
-                  <Check className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-                  <span className="text-muted-foreground">
-                    <strong className="text-foreground">Powered by Lendle</strong>: Proven lending infrastructure on Mantle.
-                  </span>
-                </div>
-              </div>
+              <h3 className="font-display text-xl font-semibold mb-3">Real DeFi Yield</h3>
+              <p className="text-muted-foreground mb-4">
+                Earn sustainable 3-7% APY from battle-tested lending protocols, not inflated by token emissions.
+              </p>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-success" />
+                  <span>Powered by Lendle</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-success" />
+                  <span>No lockups or penalties</span>
+                </li>
+              </ul>
             </div>
 
-            {/* Feature 4 - Security */}
-            <div className="card-elevated p-10 space-y-5 hover-tilt scroll-reveal-delay-3">
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <Shield className="w-7 h-7 text-primary" />
+            {/* Feature 4 */}
+            <div className="feature-card">
+              <div className="feature-icon">
+                <Shield className="w-5 h-5" />
               </div>
-              <div>
-                <div className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wide mb-4">
-                  Battle Tested
-                </div>
-                <h3 className="text-2xl font-bold mb-3">Institutional Security</h3>
-                <p className="text-muted-foreground leading-relaxed mb-4">
-                  Fully auditable smart contracts. No admin keys. No backdoors. All contracts verified on Mantlescan.
-                </p>
-                <div className="grid grid-cols-2 gap-3 mt-5">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-success" />
-                    <span>Open Source</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-success" />
-                    <span>Immutable</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-success" />
-                    <span>Pyth Oracles</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-success" />
-                    <span>Verified</span>
-                  </div>
-                </div>
-              </div>
+              <h3 className="font-display text-xl font-semibold mb-3">Institutional Security</h3>
+              <p className="text-muted-foreground mb-4">
+                Fully auditable smart contracts with no admin keys. All contracts verified on Cronoscan.
+              </p>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-success" />
+                  <span>Open source</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-success" />
+                  <span>Pyth price oracles</span>
+                </li>
+              </ul>
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* HOW IT WORKS - Step-by-step */}
-      <section ref={stepsReveal.ref} className="py-32 px-6 bg-secondary/30 border-y border-border">
-        <div className="container mx-auto max-w-6xl">
-
-          <div className="text-center mb-20">
-            <h2 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight">
-              Start earning in <span className="text-gradient-emerald">60 seconds</span>
+      {/* How It Works */}
+      <section id="how-it-works" className="py-24 px-6 border-y border-border bg-muted/30">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="headline-editorial headline-lg mb-4">
+              Start earning in 60 seconds
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Three simple steps to turn unpaid invoices into yield-generating assets
+            <p className="text-xl text-muted-foreground">
+              Three steps to turn unpaid invoices into yield
             </p>
           </div>
 
-          <div className={`grid grid-cols-1 md:grid-cols-3 gap-12 scroll-reveal ${stepsReveal.isVisible ? 'is-visible' : ''}`}>
-
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Step 1 */}
-            <div className="text-center space-y-5">
-              <div className="w-20 h-20 rounded-full bg-primary mx-auto flex items-center justify-center shadow-lg">
-                <FileText className="w-10 h-10 text-white" />
-              </div>
-              <div className="space-y-3">
-                <div className="text-sm font-semibold text-primary uppercase tracking-wide">Step 1</div>
-                <h3 className="text-2xl font-bold">Mint Invoice NFT</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Upload your invoice and mint it as an ERC-721 NFT with cryptographic proof
-                </p>
-              </div>
+            <div className="process-step">
+              <div className="process-step-number">01</div>
+              <h3 className="font-display text-xl font-semibold mb-3">Mint Invoice NFT</h3>
+              <p className="text-muted-foreground text-sm">
+                Upload your invoice and mint it as an ERC-721 NFT with cryptographic proof
+              </p>
             </div>
 
             {/* Step 2 */}
-            <div className="text-center space-y-5">
-              <div className="w-20 h-20 rounded-full bg-primary mx-auto flex items-center justify-center shadow-lg">
-                <DollarSign className="w-10 h-10 text-white" />
-              </div>
-              <div className="space-y-3">
-                <div className="text-sm font-semibold text-primary uppercase tracking-wide">Step 2</div>
-                <h3 className="text-2xl font-bold">Deposit to Vault</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Lock your NFT and deposit stablecoins to start earning yield immediately
-                </p>
-              </div>
+            <div className="process-step">
+              <div className="process-step-number">02</div>
+              <h3 className="font-display text-xl font-semibold mb-3">Deposit to Vault</h3>
+              <p className="text-muted-foreground text-sm">
+                Lock your NFT and deposit stablecoins to start earning yield immediately
+              </p>
             </div>
 
             {/* Step 3 */}
-            <div className="text-center space-y-5">
-              <div className="w-20 h-20 rounded-full bg-primary mx-auto flex items-center justify-center shadow-lg">
-                <TrendingUp className="w-10 h-10 text-white" />
-              </div>
-              <div className="space-y-3">
-                <div className="text-sm font-semibold text-primary uppercase tracking-wide">Step 3</div>
-                <h3 className="text-2xl font-bold">Earn & Withdraw</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Watch your balance grow. Withdraw anytime—no lockups or penalties
-                </p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* TRUST BAR - Powered By */}
-      <section ref={trustReveal.ref} className="py-20 px-6">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <div className="text-sm text-muted-foreground uppercase tracking-wide mb-8">Powered By</div>
-            <div className={`flex flex-wrap items-center justify-center gap-16 scroll-reveal ${trustReveal.isVisible ? 'is-visible' : ''}`}>
-
-              <div className="flex items-center gap-4 hover-scale cursor-pointer">
-                <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center shadow-md">
-                  <Globe className="w-6 h-6 text-white" />
-                </div>
-                <span className="font-semibold text-lg">Mantle L2</span>
-              </div>
-
-              <div className="flex items-center gap-4 hover-scale cursor-pointer">
-                <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center shadow-md">
-                  <DollarSign className="w-6 h-6 text-white" />
-                </div>
-                <span className="font-semibold text-lg">Lendle</span>
-              </div>
-
-              <div className="flex items-center gap-4 hover-scale cursor-pointer">
-                <div className="w-12 h-12 rounded-xl bg-purple-600 flex items-center justify-center shadow-md">
-                  <BarChart3 className="w-6 h-6 text-white" />
-                </div>
-                <span className="font-semibold text-lg">Pyth Network</span>
-              </div>
-
-              <div className="flex items-center gap-4 hover-scale cursor-pointer">
-                <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center shadow-md">
-                  <Zap className="w-6 h-6 text-white" />
-                </div>
-                <span className="font-semibold text-lg">AI Agent</span>
-              </div>
-
+            <div className="process-step">
+              <div className="process-step-number">03</div>
+              <h3 className="font-display text-xl font-semibold mb-3">Earn & Withdraw</h3>
+              <p className="text-muted-foreground text-sm">
+                Watch your balance grow. Withdraw anytime with no lockups or penalties
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FINAL CTA */}
-      <section className="py-32 px-6 bg-gradient-to-br from-primary/5 via-transparent to-primary/5">
-        <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 tracking-tight">
+      {/* Trust Bar */}
+      <section className="py-16 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <div className="stat-card-label">Powered By</div>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-12">
+            <div className="trust-item">
+              <div className="trust-icon">M</div>
+              <span className="font-semibold">Cronos</span>
+            </div>
+            <div className="trust-item">
+              <div className="trust-icon">L</div>
+              <span className="font-semibold">Lendle</span>
+            </div>
+            <div className="trust-item">
+              <div className="trust-icon">P</div>
+              <span className="font-semibold">Pyth Network</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="cta-section py-24 px-6">
+        <div className="max-w-3xl mx-auto text-center relative z-10">
+          <h2 className="headline-editorial headline-lg mb-6">
             Ready to unlock your invoice value?
           </h2>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-12 leading-relaxed max-w-2xl mx-auto">
-            Join the future of invoice financing—where DeFi meets business cash flow
+          <p className="text-xl opacity-80 mb-10">
+            Join the future of invoice financing where DeFi meets business cash flow
           </p>
-          <div className="flex flex-wrap gap-6 justify-center">
-            <Link href="/dashboard">
-              <Button size="lg" className="btn-emerald button-scale text-lg px-12 py-7">
-                Launch App
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link href="/dashboard" className="btn-primary-lg bg-white text-secondary hover:bg-gray-100">
+              Launch App
+              <ArrowRight className="w-4 h-4" />
             </Link>
-            <Button size="lg" variant="outline" className="text-lg px-12 py-7 hover-glow-smooth">
-              View Documentation
-            </Button>
+            <a
+              href="https://github.com/Yonkoo11/faktory"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-6 py-4 text-base font-medium opacity-80 hover:opacity-100 transition-opacity"
+            >
+              View Source
+              <ChevronRight className="ml-1 w-4 h-4" />
+            </a>
           </div>
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="py-12 px-6 border-t border-border">
-        <div className="container mx-auto max-w-6xl">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-                <span className="text-white font-bold">F</span>
-              </div>
-              <span className="font-semibold">Faktory Protocol</span>
-            </div>
-            <div className="flex flex-col md:flex-row items-center gap-3 text-sm text-muted-foreground">
-              <p>© 2026 Faktory Protocol</p>
-              <span className="hidden md:inline">•</span>
-              <p className="flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" />
-                Built for Mantle Global Hackathon 2025
-              </p>
-              <span className="hidden md:inline">•</span>
-              <p>Open Source</p>
-            </div>
+      {/* Footer */}
+      <footer className="py-8 px-6 border-t border-border">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <img src="/logo.svg" alt="Faktory" className="w-6 h-6" />
+            <span className="font-semibold text-sm">Faktory Protocol</span>
+          </div>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <span>Built for Cronos x402 PayTech Hackathon</span>
+            <span>Open Source</span>
           </div>
         </div>
       </footer>
-
     </div>
   )
 }

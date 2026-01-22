@@ -1,18 +1,13 @@
 "use client"
 
 /**
- * Faktory Protocol Dashboard V3 - Complete Redesign
+ * Faktory Dashboard - Swiss Financial Terminal
  *
- * Design Paradigm: Dashboard-First, Light Theme
- * Visual Thesis: "Bloomberg Terminal meets Linear"
- *
- * Key Changes from V2:
- * - Light theme (white/gray-50 backgrounds)
- * - Data-first layout (portfolio metrics prominent)
- * - Emerald brand color (not blue)
- * - Generous whitespace
- * - Financial terminal aesthetic
- * - Monospace for numbers/data
+ * Design: Indigo + Emerald with alive animations
+ * - High contrast, data-dense layout
+ * - Indigo primary, emerald for yields
+ * - Animated counters, breathing borders
+ * - Terminal-inspired data presentation
  */
 
 import { useState, useEffect } from "react"
@@ -22,22 +17,21 @@ import { useInvoiceNFT } from "@/hooks/use-invoice-nft"
 import { useYieldVault } from "@/hooks/use-yield-vault"
 import { formatUnits } from "viem"
 import {
-  TrendingUp,
-  FileText,
-  PlusCircle,
+  ArrowUpRight,
+  Plus,
   Search,
   Filter,
-  ArrowUpRight,
-  DollarSign,
-  Calendar,
+  TrendingUp,
+  Clock,
   Zap,
 } from "lucide-react"
+import { AnimatedCounter } from "@/components/animated-counter"
 
-// Type for invoice display
 interface InvoiceDisplay {
   id: string
   tokenId: string
   amount: string
+  amountRaw: number
   dueDate: string
   daysUntilDue: number
   strategy: string
@@ -45,24 +39,22 @@ interface InvoiceDisplay {
   accruedYield: string
   status: string
   riskScore: number
-  paymentProbability: number
 }
 
-export default function DashboardV3() {
+export default function Dashboard() {
   const [invoices, setInvoices] = useState<InvoiceDisplay[]>([])
-  const [isLoadingInvoices, setIsLoadingInvoices] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
 
   const { address, isConnected } = useAccount()
   const { totalInvoices } = useInvoiceNFT()
   const { tvl, totalYield, activeDepositsCount, conservativeAPY, aggressiveAPY } = useYieldVault()
 
-  // Fetch invoices from API
   useEffect(() => {
     async function fetchInvoices() {
       if (!isConnected) {
         setInvoices([])
-        setIsLoadingInvoices(false)
+        setIsLoading(false)
         return
       }
 
@@ -74,18 +66,19 @@ export default function DashboardV3() {
           const formattedInvoices: InvoiceDisplay[] = data.data.invoices.map((inv: any) => {
             const dueDate = new Date(inv.dueDate)
             const daysUntilDue = Math.ceil((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+            const principal = inv.deposit ? Number(formatUnits(BigInt(inv.deposit.principal), 18)) : 0
             return {
-              id: `INV-${inv.tokenId}`,
+              id: `INV-${String(inv.tokenId).padStart(4, '0')}`,
               tokenId: inv.tokenId,
-              amount: inv.deposit ? `$${Number(formatUnits(BigInt(inv.deposit.principal), 18)).toLocaleString()}` : "$0",
-              dueDate: dueDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+              amount: `$${principal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+              amountRaw: principal,
+              dueDate: dueDate.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
               daysUntilDue,
-              strategy: inv.deposit?.strategy || "Hold",
-              apy: inv.deposit?.strategy === "Aggressive" ? `${aggressiveAPY}%` : inv.deposit?.strategy === "Conservative" ? `${conservativeAPY}%` : "0.0%",
-              accruedYield: inv.deposit ? `~$${Number(formatUnits(BigInt(inv.deposit.accruedYield), 18)).toFixed(0)}` : "$0",
+              strategy: inv.deposit?.strategy || "—",
+              apy: inv.deposit?.strategy === "Aggressive" ? `${aggressiveAPY}%` : inv.deposit?.strategy === "Conservative" ? `${conservativeAPY}%` : "—",
+              accruedYield: inv.deposit ? `+$${Number(formatUnits(BigInt(inv.deposit.accruedYield), 18)).toFixed(2)}` : "$0.00",
               status: inv.status,
               riskScore: inv.riskScore || 75,
-              paymentProbability: inv.paymentProbability || 85,
             }
           })
           setInvoices(formattedInvoices)
@@ -93,263 +86,239 @@ export default function DashboardV3() {
       } catch (error) {
         console.error("Failed to fetch invoices:", error)
       } finally {
-        setIsLoadingInvoices(false)
+        setIsLoading(false)
       }
     }
 
     fetchInvoices()
   }, [isConnected, conservativeAPY, aggressiveAPY])
 
-  // Filter invoices based on search
   const filteredInvoices = invoices.filter((inv) =>
-    inv.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    inv.amount.toLowerCase().includes(searchQuery.toLowerCase())
+    inv.id.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
+  const tvlFormatted = Number(formatUnits(BigInt(tvl || 0), 18))
+  const yieldFormatted = Number(formatUnits(BigInt(totalYield || 0), 18))
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation */}
-      <nav className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="flex items-center justify-between h-16">
+    <div className="min-h-screen bg-background noise-texture">
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between h-14">
             {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">F</span>
+            <div className="flex items-center gap-8">
+              <Link href="/" className="flex items-center gap-2">
+                <img src="/logo.svg" alt="Faktory" className="w-8 h-8" />
+                <span className="font-display font-semibold text-lg tracking-tight">Faktory</span>
+              </Link>
+
+              {/* Nav Links */}
+              <div className="hidden md:flex items-center gap-1">
+                <Link
+                  href="/dashboard"
+                  className="px-3 py-1.5 text-sm font-medium text-foreground bg-muted rounded-md"
+                >
+                  Portfolio
+                </Link>
+                <Link
+                  href="/dashboard/mint"
+                  className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Mint
+                </Link>
+                <Link
+                  href="/dashboard/agent"
+                  className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Agent
+                </Link>
               </div>
-              <span className="text-lg font-semibold text-gray-900">Faktory</span>
             </div>
 
-            {/* Nav Links */}
-            <div className="hidden md:flex items-center gap-6">
-              <Link
-                href="/dashboard"
-                className="text-sm font-medium text-gray-900 border-b-2 border-emerald-500 pb-1"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/dashboard/mint"
-                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                Mint
-              </Link>
-              <Link
-                href="/dashboard/agent"
-                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                Agent
-              </Link>
-            </div>
-
-            {/* Actions */}
+            {/* Right Side */}
             <div className="flex items-center gap-3">
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-100 text-emerald-700">
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5"></span>
-                Mantle
-              </span>
+              <div className="network-badge">
+                Cronos Testnet
+              </div>
               {isConnected && address && (
-                <span className="hidden md:inline-block px-3 py-1.5 rounded-md text-sm font-mono text-gray-700 bg-gray-100" suppressHydrationWarning>
+                <div className="hidden md:flex items-center px-3 py-1.5 bg-muted rounded-md font-mono text-sm" suppressHydrationWarning>
                   {address.slice(0, 6)}...{address.slice(-4)}
-                </span>
+                </div>
               )}
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Page Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Portfolio</h1>
-              <p className="text-sm text-gray-600 mt-1">Manage your invoice yield portfolio</p>
-            </div>
-            <Link
-              href="/dashboard/mint"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md transition-colors"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Mint Invoice
-            </Link>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 lg:px-12 py-8">
-        {/* Portfolio Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Total Value */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all duration-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-600">Total Value</span>
-              <DollarSign className="w-4 h-4 text-gray-400" />
-            </div>
-            <div className="text-3xl font-bold font-mono text-gray-900">
-              ${Number(formatUnits(BigInt(tvl || 0), 18)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </div>
-            <div className="flex items-center gap-1 mt-2 text-xs text-emerald-600">
-              <TrendingUp className="w-3 h-3" />
-              <span>+12.5% this month</span>
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        {/* Page Header */}
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <h1 className="headline-editorial text-3xl mb-1">Portfolio</h1>
+            <p className="text-muted-foreground">Manage your invoice yield positions</p>
+          </div>
+          <Link
+            href="/dashboard/mint"
+            className="btn-primary-lg pulse-glow"
+          >
+            <Plus className="w-4 h-4" />
+            Mint Invoice
+          </Link>
+        </div>
+
+        {/* Metrics Row */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          {/* TVL */}
+          <div className="stat-card breathing-border">
+            <div className="stat-card-label">Total Value</div>
+            <div className="stat-card-value font-data">
+              <AnimatedCounter
+                end={Math.floor(tvlFormatted)}
+                prefix="$"
+                suffix={tvlFormatted % 1 > 0 ? `.${String(tvlFormatted.toFixed(2)).split('.')[1]}` : '.00'}
+              />
             </div>
           </div>
 
           {/* Total Yield */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all duration-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-600">Total Yield</span>
-              <Zap className="w-4 h-4 text-emerald-500" />
-            </div>
-            <div className="text-3xl font-bold font-mono text-gray-900">
-              ${Number(formatUnits(BigInt(totalYield || 0), 18)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </div>
-            <div className="flex items-center gap-1 mt-2 text-xs text-emerald-600">
-              <TrendingUp className="w-3 h-3" />
-              <span>+8.2% this month</span>
+          <div className="stat-card breathing-border" style={{ borderLeftColor: 'var(--accent)', borderLeftWidth: '3px' }}>
+            <div className="stat-card-label">Total Yield</div>
+            <div className="stat-card-value font-data text-success">
+              +<AnimatedCounter
+                end={Math.floor(yieldFormatted)}
+                prefix="$"
+                suffix={yieldFormatted % 1 > 0 ? `.${String(yieldFormatted.toFixed(2)).split('.')[1]}` : '.00'}
+              />
             </div>
           </div>
 
-          {/* Active Invoices */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all duration-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-600">Active Invoices</span>
-              <FileText className="w-4 h-4 text-gray-400" />
+          {/* Active Positions */}
+          <div className="stat-card breathing-border">
+            <div className="stat-card-label">Active Positions</div>
+            <div className="stat-card-value font-data">
+              <AnimatedCounter end={activeDepositsCount} />
             </div>
-            <div className="text-3xl font-bold font-mono text-gray-900">
-              {activeDepositsCount}
-            </div>
-            <div className="flex items-center gap-1 mt-2 text-xs text-gray-600">
-              <span>{totalInvoices} total minted</span>
+          </div>
+
+          {/* APY Range */}
+          <div className="stat-card breathing-border">
+            <div className="stat-card-label">APY Range</div>
+            <div className="stat-card-value font-data text-gradient-hero">
+              <AnimatedCounter end={Number(conservativeAPY)} />–<AnimatedCounter end={Number(aggressiveAPY)} suffix="%" />
             </div>
           </div>
         </div>
 
-        {/* Invoices Table */}
-        <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+        {/* Invoices Section */}
+        <div className="card-base overflow-hidden">
           {/* Table Header */}
-          <div className="border-b border-gray-200 px-6 py-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Your Invoices</h2>
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search invoices..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  />
-                </div>
-                <button className="p-2 hover:bg-gray-100 rounded-md transition-colors">
-                  <Filter className="w-4 h-4 text-gray-600" />
-                </button>
+          <div className="flex items-center justify-between p-4 border-b border-border">
+            <h2 className="font-display font-semibold text-lg">Invoices</h2>
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 pr-4 py-2 w-48 text-sm bg-muted border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                />
               </div>
+              <button className="p-2 hover:bg-muted rounded-md transition-colors">
+                <Filter className="w-4 h-4 text-muted-foreground" />
+              </button>
             </div>
           </div>
 
           {/* Table */}
-          {isLoadingInvoices ? (
-            <div className="px-6 py-12 text-center">
-              <div className="inline-block w-8 h-8 border-4 border-gray-200 border-t-emerald-500 rounded-full animate-spin"></div>
-              <p className="text-sm text-gray-600 mt-4">Loading invoices...</p>
+          {isLoading ? (
+            <div className="p-12 text-center">
+              <div className="inline-block w-6 h-6 border-2 border-muted border-t-primary rounded-full animate-spin mb-3" />
+              <p className="text-sm text-muted-foreground">Loading invoices...</p>
             </div>
           ) : filteredInvoices.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No invoices yet</h3>
-              <p className="text-sm text-gray-600 mb-6">Get started by minting your first invoice NFT</p>
-              <Link
-                href="/dashboard/mint"
-                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-medium rounded-md transition-colors"
-              >
-                <PlusCircle className="w-4 h-4" />
+            <div className="p-12 text-center">
+              <div className="w-12 h-12 mx-auto mb-4 bg-muted rounded-lg flex items-center justify-center">
+                <Zap className="w-6 h-6 text-muted-foreground" />
+              </div>
+              <h3 className="font-display font-semibold text-lg mb-2">No invoices yet</h3>
+              <p className="text-muted-foreground text-sm mb-6">Mint your first invoice NFT to start earning yield</p>
+              <Link href="/dashboard/mint" className="btn-primary inline-flex items-center gap-2">
+                <Plus className="w-4 h-4" />
                 Mint Invoice
               </Link>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-100">
+              <table className="data-table">
+                <thead>
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                      Invoice
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                      Amount
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                      Due Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                      Strategy
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                      APY
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                      Yield
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3"></th>
+                    <th>Invoice</th>
+                    <th>Amount</th>
+                    <th>Due</th>
+                    <th>Strategy</th>
+                    <th>APY</th>
+                    <th>Yield</th>
+                    <th>Status</th>
+                    <th></th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody>
                   {filteredInvoices.map((invoice) => (
                     <tr
                       key={invoice.tokenId}
-                      className="hover:bg-gray-50 transition-colors cursor-pointer"
+                      className="cursor-pointer"
                       onClick={() => window.location.href = `/dashboard/invoice/${invoice.tokenId}`}
                     >
-                      <td className="px-6 py-4 text-sm font-mono text-gray-900">
-                        {invoice.id}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-mono text-gray-900">
-                        {invoice.amount}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
-                        <div className="flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                      <td className="font-semibold text-foreground">{invoice.id}</td>
+                      <td>{invoice.amount}</td>
+                      <td>
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-muted-foreground" />
                           {invoice.dueDate}
-                        </div>
+                          {invoice.daysUntilDue <= 7 && invoice.daysUntilDue > 0 && (
+                            <span className="text-warning text-xs">({invoice.daysUntilDue}d)</span>
+                          )}
+                        </span>
                       </td>
-                      <td className="px-6 py-4 text-sm">
-                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600">
+                      <td>
+                        <span className={`badge ${invoice.strategy === 'Aggressive' ? 'badge-amber' : 'badge-neutral'}`}>
                           {invoice.strategy}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm font-mono text-gray-900">
-                        {invoice.apy}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-mono text-emerald-600">
-                        {invoice.accruedYield}
-                      </td>
-                      <td className="px-6 py-4 text-sm">
-                        {invoice.status === "InYield" ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
-                            Active
+                      <td className="text-foreground">{invoice.apy}</td>
+                      <td className="text-success font-semibold">{invoice.accruedYield}</td>
+                      <td>
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className={`status-dot ${invoice.status === 'InYield' ? 'status-active' : invoice.status === 'Minted' ? 'status-pending' : 'status-inactive'}`} />
+                          <span className="text-xs text-muted-foreground">
+                            {invoice.status === 'InYield' ? 'Active' : invoice.status === 'Minted' ? 'Pending' : invoice.status}
                           </span>
-                        ) : invoice.status === "Paid" ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                            Paid
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
-                            Pending
-                          </span>
-                        )}
+                        </span>
                       </td>
-                      <td className="px-6 py-4 text-right">
-                        <ArrowUpRight className="w-4 h-4 text-gray-400" />
+                      <td className="text-right">
+                        <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* Table Footer */}
+          {filteredInvoices.length > 0 && (
+            <div className="flex items-center justify-between p-4 border-t border-border bg-muted/30">
+              <span className="text-sm text-muted-foreground">
+                {filteredInvoices.length} invoice{filteredInvoices.length !== 1 ? 's' : ''} • {totalInvoices} total minted
+              </span>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <TrendingUp className="w-3.5 h-3.5" />
+                AI agent monitoring
+              </div>
             </div>
           )}
         </div>

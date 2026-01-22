@@ -17,7 +17,7 @@ function validateEnvironment(): { valid: boolean; warnings: string[]; errors: st
   const errors: string[] = [];
 
   const envVars: EnvValidation[] = [
-    { name: 'MANTLE_RPC_URL', value: process.env.MANTLE_RPC_URL, required: false, description: 'RPC endpoint' },
+    { name: 'CRONOS_RPC_URL', value: process.env.CRONOS_RPC_URL, required: false, description: 'RPC endpoint' },
     { name: 'AGENT_PRIVATE_KEY', value: process.env.AGENT_PRIVATE_KEY, required: false, description: 'Agent wallet key' },
     { name: 'ANTHROPIC_API_KEY', value: process.env.ANTHROPIC_API_KEY, required: false, description: 'LLM API key' },
     { name: 'WS_PORT', value: process.env.WS_PORT, required: false, description: 'WebSocket port' },
@@ -40,9 +40,9 @@ function validateEnvironment(): { valid: boolean; warnings: string[]; errors: st
   }
 
   // Validate RPC URL format
-  const rpcUrl = process.env.MANTLE_RPC_URL || 'https://rpc.sepolia.mantle.xyz';
+  const rpcUrl = process.env.CRONOS_RPC_URL || 'https://evm-t3.cronos.org';
   if (!rpcUrl.startsWith('http://') && !rpcUrl.startsWith('https://')) {
-    errors.push('MANTLE_RPC_URL must be a valid HTTP(S) URL');
+    errors.push('CRONOS_RPC_URL must be a valid HTTP(S) URL');
   }
 
   // Validate private key format if provided
@@ -61,7 +61,7 @@ function validateEnvironment(): { valid: boolean; warnings: string[]; errors: st
 }
 
 // Load configuration from environment
-const RPC_URL = process.env.MANTLE_RPC_URL || 'https://rpc.sepolia.mantle.xyz';
+const RPC_URL = process.env.CRONOS_RPC_URL || 'https://evm-t3.cronos.org';
 const PRIVATE_KEY = process.env.AGENT_PRIVATE_KEY;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const WS_PORT = parseInt(process.env.WS_PORT || '8080');
@@ -107,7 +107,7 @@ async function main() {
     console.error('See .env.example for reference.');
     process.exit(1);
   }
-  console.log('  Autonomous Invoice Yield Optimization on Mantle');
+  console.log('  x402 AI-Managed B2B Payments on Cronos');
   console.log('');
   console.log('='.repeat(60));
   console.log(`  📡 RPC: ${RPC_URL}`);

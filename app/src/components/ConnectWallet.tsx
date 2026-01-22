@@ -5,7 +5,7 @@ import { injected } from 'wagmi/connectors';
 import { CHAIN_IDS, areContractsDeployed } from '@/lib/contracts/addresses';
 
 // Supported chains for the app (in order of preference)
-const SUPPORTED_CHAINS = [CHAIN_IDS.MANTLE_TESTNET, CHAIN_IDS.LOCAL, CHAIN_IDS.MANTLE_MAINNET];
+const SUPPORTED_CHAINS = [CHAIN_IDS.CRONOS_TESTNET, CHAIN_IDS.LOCAL, CHAIN_IDS.CRONOS_MAINNET];
 
 export function ConnectWallet() {
   const { address, isConnected } = useAccount();
@@ -20,7 +20,7 @@ export function ConnectWallet() {
   // Handle switching to the correct chain
   const handleSwitchChain = () => {
     // Prefer testnet for demo
-    switchChain({ chainId: CHAIN_IDS.MANTLE_TESTNET });
+    switchChain({ chainId: CHAIN_IDS.CRONOS_TESTNET });
   };
 
   if (isConnected && address) {
@@ -34,7 +34,7 @@ export function ConnectWallet() {
             disabled={isSwitching}
             className="px-4 py-2 text-sm bg-yellow-600 hover:bg-yellow-500 rounded-lg transition-colors disabled:opacity-50"
           >
-            {isSwitching ? 'Switching...' : 'Switch to Mantle'}
+            {isSwitching ? 'Switching...' : 'Switch to Cronos'}
           </button>
           <button
             onClick={() => disconnect()}

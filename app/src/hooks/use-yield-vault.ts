@@ -132,7 +132,7 @@ export function useDepositToVault() {
     hash: approveHash,
     timeout: 60_000, // 60 second timeout
     pollingInterval: 3_000, // Poll every 3 seconds
-    confirmations: 1, // Wait for 1 confirmation (Mantle Sepolia is fast)
+    confirmations: 1, // Wait for 1 confirmation (Cronos Testnet is fast)
     query: {
       enabled: !!approveHash,
       retry: 3,
@@ -148,7 +148,7 @@ export function useDepositToVault() {
     hash: depositHash,
     timeout: 60_000, // 60 second timeout
     pollingInterval: 3_000, // Poll every 3 seconds
-    confirmations: 1, // Wait for 1 confirmation (Mantle Sepolia is fast)
+    confirmations: 1, // Wait for 1 confirmation (Cronos Testnet is fast)
     query: {
       enabled: !!depositHash,
       retry: 3,

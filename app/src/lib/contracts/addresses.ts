@@ -1,11 +1,11 @@
 // Contract addresses for Faktory Protocol
-// Update these after deploying to Mantle testnet
+// Deployed on Cronos for x402 PayTech Hackathon
 
 import { isAddress } from 'viem'
 
 export const CHAIN_IDS = {
-  MANTLE_TESTNET: 5003,
-  MANTLE_MAINNET: 5000,
+  CRONOS_TESTNET: 338,
+  CRONOS_MAINNET: 25,
   LOCAL: 31337,
 } as const
 
@@ -19,22 +19,19 @@ type ContractAddresses = {
 
 // Contract addresses per chain
 const addresses: Record<ChainId, ContractAddresses> = {
-  // Mantle Sepolia Testnet
-  [CHAIN_IDS.MANTLE_TESTNET]: {
-    invoiceNFT: (process.env.NEXT_PUBLIC_INVOICE_NFT_ADDRESS ||
-      "0x0000000000000000000000000000000000000000") as `0x${string}`,
-    yieldVault: (process.env.NEXT_PUBLIC_YIELD_VAULT_ADDRESS ||
-      "0x0000000000000000000000000000000000000000") as `0x${string}`,
-    agentRouter: (process.env.NEXT_PUBLIC_AGENT_ROUTER_ADDRESS ||
-      "0x0000000000000000000000000000000000000000") as `0x${string}`,
+  // Cronos Testnet - x402 PayTech Hackathon deployment
+  [CHAIN_IDS.CRONOS_TESTNET]: {
+    invoiceNFT: "0xEde6Db2855BACF191E5B2E2d91B6276bB56bf183",
+    yieldVault: "0xD0db0eb608107862E963737FE87ffdFF7f400e3C",
+    agentRouter: "0xb8F4546e24e437779bC09c3b70ce70Ff9542bdD4",
   },
-  // Mantle Mainnet
-  [CHAIN_IDS.MANTLE_MAINNET]: {
+  // Cronos Mainnet - not yet deployed
+  [CHAIN_IDS.CRONOS_MAINNET]: {
     invoiceNFT: "0x0000000000000000000000000000000000000000",
     yieldVault: "0x0000000000000000000000000000000000000000",
     agentRouter: "0x0000000000000000000000000000000000000000",
   },
-  // Local development (Anvil) - uses env vars or default Deploy.s.sol output
+  // Local development (Anvil)
   [CHAIN_IDS.LOCAL]: {
     invoiceNFT: (process.env.NEXT_PUBLIC_INVOICE_NFT_ADDRESS ||
       "0x5FbDB2315678afecb367f032d93F642f64180aa3") as `0x${string}`,
@@ -48,8 +45,8 @@ const addresses: Record<ChainId, ContractAddresses> = {
 export function getContractAddresses(chainId: number): ContractAddresses {
   const chainAddresses = addresses[chainId as ChainId]
   if (!chainAddresses) {
-    // Default to testnet if chain not found
-    return addresses[CHAIN_IDS.MANTLE_TESTNET]
+    // Default to Cronos testnet if chain not found
+    return addresses[CHAIN_IDS.CRONOS_TESTNET]
   }
   return chainAddresses
 }

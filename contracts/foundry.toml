@@ -16,5 +16,7 @@ remappings = [
 [rpc_endpoints]
 mantle_sepolia = "${MANTLE_SEPOLIA_RPC}"
 mantle_mainnet = "${MANTLE_MAINNET_RPC}"
+cronos_testnet = "https://evm-t3.cronos.org"
+cronos_mainnet = "https://evm.cronos.org"
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

@@ -56,6 +56,25 @@ export const InvoiceNFTABI = [
     ],
     outputs: [{ name: "", type: "bool" }],
   },
+  // x402 Payment function
+  {
+    name: "payInvoice",
+    type: "function",
+    stateMutability: "payable",
+    inputs: [{ name: "tokenId", type: "uint256" }],
+    outputs: [],
+  },
+  {
+    name: "getPaymentInfo",
+    type: "function",
+    stateMutability: "view",
+    inputs: [{ name: "tokenId", type: "uint256" }],
+    outputs: [
+      { name: "isPaid", type: "bool" },
+      { name: "owner", type: "address" },
+      { name: "dueDate", type: "uint256" },
+    ],
+  },
   // View functions
   {
     name: "getInvoice",
@@ -214,6 +233,16 @@ export const InvoiceNFTABI = [
       { name: "tokenId", type: "uint256", indexed: true },
       { name: "riskScore", type: "uint8", indexed: false },
       { name: "paymentProbability", type: "uint8", indexed: false },
+    ],
+  },
+  {
+    name: "InvoicePaid",
+    type: "event",
+    inputs: [
+      { name: "tokenId", type: "uint256", indexed: true },
+      { name: "payer", type: "address", indexed: true },
+      { name: "amount", type: "uint256", indexed: false },
+      { name: "timestamp", type: "uint256", indexed: false },
     ],
   },
 ] as const

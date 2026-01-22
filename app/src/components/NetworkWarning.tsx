@@ -2,7 +2,7 @@
 
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { SUPPORTED_CHAINS, anvil } from '@/lib/wagmi';
-import { mantleSepoliaTestnet } from 'wagmi/chains';
+import { cronosTestnet } from 'wagmi/chains';
 import { areContractsDeployed } from '@/lib/contracts/addresses';
 
 export function NetworkWarning() {
@@ -23,15 +23,15 @@ export function NetworkWarning() {
           <div className="flex items-center gap-2 text-red-400">
             <span>⚠️</span>
             <span className="text-sm">
-              Contracts not deployed on this network. Please deploy contracts or switch to Local (Anvil) for testing.
+              Contracts not deployed on this network. Please deploy contracts or switch to Cronos Testnet.
             </span>
           </div>
           <button
-            onClick={() => switchChain({ chainId: anvil.id })}
+            onClick={() => switchChain({ chainId: cronosTestnet.id })}
             disabled={isPending}
             className="px-3 py-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 rounded text-xs font-medium transition-colors"
           >
-            {isPending ? 'Switching...' : 'Switch to Local'}
+            {isPending ? 'Switching...' : 'Switch to Cronos'}
           </button>
         </div>
       </div>
@@ -46,7 +46,7 @@ export function NetworkWarning() {
         <div className="flex items-center gap-2 text-yellow-400">
           <span>⚠️</span>
           <span className="text-sm">
-            Please switch to a supported network (Anvil Local, Mantle Sepolia, or Mantle)
+            Please switch to a supported network (Anvil Local, Cronos Testnet, or Cronos)
           </span>
         </div>
         <div className="flex gap-2" role="group" aria-label="Network selection">
@@ -59,12 +59,12 @@ export function NetworkWarning() {
             {isPending ? 'Switching...' : 'Anvil (Local)'}
           </button>
           <button
-            onClick={() => switchChain({ chainId: mantleSepoliaTestnet.id })}
+            onClick={() => switchChain({ chainId: cronosTestnet.id })}
             disabled={isPending}
-            aria-label="Switch to Mantle Sepolia testnet"
+            aria-label="Switch to Cronos testnet"
             className="px-3 py-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded text-xs font-medium transition-colors"
           >
-            {isPending ? 'Switching...' : 'Mantle Sepolia'}
+            {isPending ? 'Switching...' : 'Cronos Testnet'}
           </button>
         </div>
       </div>
@@ -80,14 +80,14 @@ export function CurrentNetwork() {
 
   const networkNames: Record<number, string> = {
     31337: 'Anvil Local',
-    5003: 'Mantle Sepolia',
-    5000: 'Mantle',
+    338: 'Cronos Testnet',
+    25: 'Cronos',
   };
 
   const networkColors: Record<number, string> = {
     31337: 'bg-purple-900/50 text-purple-400 border-purple-800',
-    5003: 'bg-blue-900/50 text-blue-400 border-blue-800',
-    5000: 'bg-green-900/50 text-green-400 border-green-800',
+    338: 'bg-blue-900/50 text-blue-400 border-blue-800',
+    25: 'bg-green-900/50 text-green-400 border-green-800',
   };
 
   const name = networkNames[chainId] || `Chain ${chainId}`;

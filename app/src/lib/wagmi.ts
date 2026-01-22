@@ -1,5 +1,5 @@
 import { http, createConfig } from 'wagmi';
-import { mantleSepoliaTestnet, mantle } from 'wagmi/chains';
+import { cronosTestnet, cronos } from 'wagmi/chains';
 import { defineChain } from 'viem';
 import { injected, walletConnect } from '@wagmi/connectors';
 
@@ -24,7 +24,7 @@ export const anvil = defineChain({
 });
 
 export const config = createConfig({
-  chains: [anvil, mantleSepoliaTestnet, mantle],
+  chains: [anvil, cronosTestnet, cronos],
   connectors: [
     injected({ shimDisconnect: true }),
     walletConnect({
@@ -38,16 +38,16 @@ export const config = createConfig({
       retryCount: 3,
       retryDelay: 1000,
     }),
-    [mantleSepoliaTestnet.id]: http(
-      process.env.NEXT_PUBLIC_MANTLE_RPC || 'https://rpc.sepolia.mantle.xyz',
+    [cronosTestnet.id]: http(
+      process.env.NEXT_PUBLIC_CRONOS_RPC || 'https://evm-t3.cronos.org',
       {
         timeout: 60_000, // 60s timeout for testnet
         retryCount: 3,
         retryDelay: 2000,
       }
     ),
-    [mantle.id]: http(
-      process.env.NEXT_PUBLIC_MANTLE_MAINNET_RPC || 'https://rpc.mantle.xyz',
+    [cronos.id]: http(
+      process.env.NEXT_PUBLIC_CRONOS_MAINNET_RPC || 'https://evm.cronos.org',
       {
         timeout: 90_000, // 90s timeout for mainnet
         retryCount: 3,
@@ -55,11 +55,11 @@ export const config = createConfig({
       }
     ),
   },
-  pollingInterval: 3_000, // Poll every 3 seconds (Mantle has 6s blocks)
+  pollingInterval: 1_000, // Poll every 1 second (Cronos has fast blocks)
 });
 
 // WebSocket URL for agent
 export const AGENT_WS_URL = process.env.NEXT_PUBLIC_AGENT_WS_URL || 'ws://localhost:8080';
 
 // Supported chain IDs
-export const SUPPORTED_CHAINS = [anvil.id, mantleSepoliaTestnet.id, mantle.id];
+export const SUPPORTED_CHAINS = [anvil.id, cronosTestnet.id, cronos.id];

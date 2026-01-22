@@ -15,13 +15,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Copy, Shield, TrendingUp, Clock, CheckCircle2, ArrowLeft, ExternalLink, Zap, Calendar, Loader2, AlertCircle } from "lucide-react"
+import { Copy, Shield, TrendingUp, Clock, CheckCircle2, ArrowLeft, ExternalLink, Zap, Calendar, Loader2, AlertCircle, CreditCard } from "lucide-react"
+import { parseEther, formatEther } from "viem"
 import Link from "next/link"
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { useInvoice } from "@/hooks/use-invoice-nft"
+import { useInvoice, usePayInvoice } from "@/hooks/use-invoice-nft"
 import { useDeposit, useWithdrawFromVault, useChangeStrategy } from "@/hooks/use-yield-vault"
 import { StrategyNames } from "@/lib/abi"
-import { Strategy } from "@/lib/contracts/abis"
+import { Strategy, InvoiceStatus } from "@/lib/contracts/abis"
 
 const STRATEGY_APY = ["0%", "3.5%", "7%"]
 
@@ -35,11 +36,16 @@ export default function InvoiceDetailPage() {
   const [depositModalOpen, setDepositModalOpen] = useState(false)
   const [withdrawModalOpen, setWithdrawModalOpen] = useState(false)
   const [strategyModalOpen, setStrategyModalOpen] = useState(false)
+  const [payModalOpen, setPayModalOpen] = useState(false)
+  const [paymentAmount, setPaymentAmount] = useState("")
   const [copied, setCopied] = useState(false)
 
   // Withdraw and strategy change hooks
   const { withdraw, isPending: isWithdrawing, isConfirming: isWithdrawConfirming, isSuccess: isWithdrawSuccess, error: withdrawError } = useWithdrawFromVault()
   const { changeStrategy, isPending: isChangingStrategy, isConfirming: isStrategyConfirming, isSuccess: isStrategySuccess, error: strategyError } = useChangeStrategy()
+
+  // x402 Payment hook
+  const { payInvoice, isPending: isPaying, isConfirming: isPayConfirming, isSuccess: isPaySuccess, error: payError } = usePayInvoice()
 
   // Reset modals on success
   useEffect(() => {
@@ -53,6 +59,23 @@ export default function InvoiceDetailPage() {
       setTimeout(() => setStrategyModalOpen(false), 2000)
     }
   }, [isStrategySuccess])
+
+  useEffect(() => {
+    if (isPaySuccess) {
+      setTimeout(() => setPayModalOpen(false), 2000)
+    }
+  }, [isPaySuccess])
+
+  const handlePayInvoice = () => {
+    if (tokenId && paymentAmount) {
+      try {
+        const amountInWei = parseEther(paymentAmount)
+        payInvoice(tokenId, amountInWei)
+      } catch {
+        // Invalid amount
+      }
+    }
+  }
 
   const handleWithdraw = () => {
     if (tokenId) {
@@ -153,7 +176,7 @@ export default function InvoiceDetailPage() {
     {
       type: "minted",
       title: "Invoice Minted",
-      description: "NFT created on Mantle Network",
+      description: "NFT created on Cronos Network",
       timestamp: invoice.createdAt.toLocaleString(),
       icon: CheckCircle2,
       color: "success",
@@ -195,6 +218,17 @@ export default function InvoiceDetailPage() {
           </div>
 
           <div className="flex gap-3">
+            {/* x402 Pay Invoice Button - visible to anyone */}
+            {invoice.status !== InvoiceStatus.Paid && (
+              <Button
+                variant="outline"
+                onClick={() => setPayModalOpen(true)}
+                className="border-success/30 bg-success/10 hover:bg-success/20 text-success"
+              >
+                <CreditCard className="w-4 h-4 mr-2" />
+                Pay Invoice
+              </Button>
+            )}
             {isDeposited ? (
               <>
                 <Button
@@ -570,6 +604,98 @@ export default function InvoiceDetailPage() {
                 </p>
               </div>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* x402 Pay Invoice Modal */}
+      <Dialog open={payModalOpen} onOpenChange={setPayModalOpen}>
+        <DialogContent className="glass border-glass-border">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-success" />
+              Pay Invoice {invoiceData.id}
+            </DialogTitle>
+            <DialogDescription>
+              Complete payment for this invoice using x402 on-chain settlement.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {/* Invoice Details */}
+            <div className="p-4 bg-muted/30 rounded-lg space-y-3">
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Invoice Amount</span>
+                <span className="font-bold">{invoiceData.amount}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Due Date</span>
+                <span className="font-medium">{invoiceData.dueDate}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Pay To</span>
+                <span className="font-mono text-sm">{invoiceData.issuerAddress}</span>
+              </div>
+            </div>
+
+            {/* Payment Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Payment Amount (CRO)</label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={paymentAmount}
+                  onChange={(e) => setPaymentAmount(e.target.value)}
+                  placeholder="0.0"
+                  className="w-full p-3 bg-background border border-glass-border rounded-lg font-mono text-lg focus:outline-none focus:ring-2 focus:ring-success/50"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">CRO</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Enter the amount in CRO to pay this invoice
+              </p>
+            </div>
+
+            {/* x402 Badge */}
+            <div className="flex items-center gap-2 p-3 bg-success/10 border border-success/20 rounded-lg">
+              <Zap className="w-4 h-4 text-success" />
+              <div className="text-sm">
+                <span className="font-medium text-success">x402 Payment</span>
+                <span className="text-muted-foreground"> - Instant on-chain settlement on Cronos</span>
+              </div>
+            </div>
+
+            {payError && (
+              <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-lg">
+                <AlertCircle className="w-4 h-4" />
+                <p className="text-sm">{payError.message}</p>
+              </div>
+            )}
+
+            {isPaySuccess && (
+              <div className="flex items-center gap-2 p-3 bg-success/10 text-success rounded-lg">
+                <CheckCircle2 className="w-4 h-4" />
+                <p className="text-sm">Payment successful! Invoice marked as paid.</p>
+              </div>
+            )}
+
+            <Button
+              onClick={handlePayInvoice}
+              disabled={isPaying || isPayConfirming || !paymentAmount}
+              className="w-full bg-gradient-to-r from-success to-primary"
+            >
+              {isPaying || isPayConfirming ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {isPayConfirming ? "Confirming..." : "Processing Payment..."}
+                </>
+              ) : (
+                <>
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Pay {paymentAmount || "0"} CRO
+                </>
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

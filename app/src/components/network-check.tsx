@@ -4,7 +4,7 @@ import { useAccount, useChainId, useSwitchChain } from 'wagmi'
 import { Button } from '@/components/ui/button'
 import { AlertCircle } from 'lucide-react'
 import { SUPPORTED_CHAINS } from '@/lib/wagmi'
-import { mantleSepoliaTestnet } from 'wagmi/chains'
+import { cronosTestnet } from 'wagmi/chains'
 
 export function NetworkCheck({ children }: { children: React.ReactNode }) {
   const { isConnected } = useAccount()
@@ -25,17 +25,17 @@ export function NetworkCheck({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-warning flex-shrink-0" />
             <p className="text-sm text-warning">
-              You&apos;re connected to an unsupported network. Please switch to Mantle.
+              You&apos;re connected to an unsupported network. Please switch to Cronos.
             </p>
           </div>
           <Button
             size="sm"
             variant="outline"
             className="border-warning/30 text-warning hover:bg-warning/10 flex-shrink-0"
-            onClick={() => switchChain({ chainId: mantleSepoliaTestnet.id })}
+            onClick={() => switchChain({ chainId: cronosTestnet.id })}
             disabled={isPending}
           >
-            {isPending ? 'Switching...' : 'Switch to Mantle'}
+            {isPending ? 'Switching...' : 'Switch to Cronos'}
           </Button>
         </div>
       </div>

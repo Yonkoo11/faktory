@@ -214,6 +214,37 @@ export function useUserInvoices() {
   }
 }
 
+// x402 Payment hook - allows clients to pay invoices on-chain
+export function usePayInvoice() {
+  const chainId = useChainId()
+  const contractAddress = getInvoiceNFTAddress(chainId)
+
+  const { writeContract, data: hash, isPending, error } = useWriteContract()
+
+  const { isLoading: isConfirming, isSuccess, data: receipt } = useWaitForTransactionReceipt({
+    hash,
+  })
+
+  const payInvoice = (tokenId: bigint, amount: bigint) => {
+    writeContract({
+      address: contractAddress,
+      abi: InvoiceNFTABI,
+      functionName: "payInvoice",
+      args: [tokenId],
+      value: amount,
+    })
+  }
+
+  return {
+    payInvoice,
+    hash,
+    isPending,
+    isConfirming,
+    isSuccess,
+    error,
+  }
+}
+
 // Helper function to get status label
 function getStatusLabel(status: InvoiceStatus): string {
   const labels: Record<InvoiceStatus, string> = {

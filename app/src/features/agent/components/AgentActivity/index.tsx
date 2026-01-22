@@ -3,7 +3,7 @@
 import { useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Bot, TrendingDown, TrendingUp, RotateCcw, AlertCircle } from 'lucide-react';
+import { Bot, TrendingDown, TrendingUp, RotateCcw, AlertCircle, Sparkles } from 'lucide-react';
 import { useAgentWebSocket } from '../../hooks/useAgentWebSocket';
 import { ConnectionStatus } from '../ConnectionStatus';
 import { ActivityCard } from '../ActivityCard';
@@ -13,7 +13,7 @@ interface AgentActivityProps {
 }
 
 export function AgentActivity({ showDemoControls = false }: AgentActivityProps) {
-  const { thoughts, connected, connecting, maxRetriesReached, manualReconnect, triggerDemo } = useAgentWebSocket();
+  const { thoughts, connected, connecting, maxRetriesReached, demoMode, manualReconnect, triggerDemo } = useAgentWebSocket();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,13 +31,28 @@ export function AgentActivity({ showDemoControls = false }: AgentActivityProps) 
           </div>
           <h2 className="font-semibold">Agent Activity</h2>
         </div>
-        <ConnectionStatus
-          connected={connected}
-          connecting={connecting}
-          maxRetriesReached={maxRetriesReached}
-          onReconnect={manualReconnect}
-        />
+        {demoMode ? (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30">
+            <Sparkles className="w-3 h-3 text-primary" />
+            <span className="text-xs font-medium text-primary">Demo Mode</span>
+          </div>
+        ) : (
+          <ConnectionStatus
+            connected={connected}
+            connecting={connecting}
+            maxRetriesReached={maxRetriesReached}
+            onReconnect={manualReconnect}
+          />
+        )}
       </div>
+
+      {demoMode && (
+        <div className="px-4 py-2 border-b border-primary/20 bg-primary/5">
+          <p className="text-xs text-muted-foreground">
+            Simulating AI agent activity. In production, the agent analyzes invoices and optimizes strategies in real-time.
+          </p>
+        </div>
+      )}
 
       {showDemoControls && connected && (
         <div className="px-4 py-2 border-b border-glass-border bg-muted/30">
@@ -74,7 +89,7 @@ export function AgentActivity({ showDemoControls = false }: AgentActivityProps) 
         </div>
       )}
 
-      {!connected && !connecting && (
+      {!connected && !connecting && !demoMode && (
         <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/30 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-destructive">
             <AlertCircle className="w-4 h-4" />

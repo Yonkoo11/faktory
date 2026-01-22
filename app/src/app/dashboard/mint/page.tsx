@@ -206,7 +206,7 @@ function MintInvoiceContent() {
       if (result) {
         toast.success("Invoice minted successfully!", {
           id: toastId,
-          description: "Your invoice has been tokenized on Mantle",
+          description: "Your invoice has been tokenized on Cronos",
         })
         // Token ID will be extracted from transaction logs by the hook
       }
@@ -225,7 +225,7 @@ function MintInvoiceContent() {
   // Success state
   if (isSuccess || mintedTokenId) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background noise-texture">
         <DashboardHeader />
         <main className="container mx-auto px-4 py-16">
           <Card className="card-glass p-12 max-w-2xl mx-auto text-center">
@@ -235,7 +235,7 @@ function MintInvoiceContent() {
             <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-[var(--gradient-success-from)] to-[var(--gradient-success-to)] bg-clip-text text-transparent">
               Invoice Minted Successfully!
             </h1>
-            <p className="text-lg text-muted-foreground mb-3">Your invoice has been tokenized as an NFT on Mantle</p>
+            <p className="text-lg text-muted-foreground mb-3">Your invoice has been tokenized as an NFT on Cronos</p>
             <div className="inline-flex items-center gap-2 text-sm font-mono bg-primary/10 border border-primary/30 px-6 py-3 rounded-lg mb-6 shadow-sm">
               <span className="text-muted-foreground">Invoice ID:</span>
               <span className="font-bold text-primary text-lg">#{mintedTokenId || "..."}</span>
@@ -244,7 +244,7 @@ function MintInvoiceContent() {
             {hash && (
               <div className="mb-8">
                 <a
-                  href={`https://sepolia.mantlescan.xyz/tx/${hash}`}
+                  href={`https://explorer.cronos.org/testnet3/tx/${hash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium"
@@ -273,7 +273,7 @@ function MintInvoiceContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background noise-texture">
       <DashboardHeader />
 
       <main className="container mx-auto px-4 py-8">
@@ -281,7 +281,7 @@ function MintInvoiceContent() {
           {/* Progress Header - Simplified to 2 steps */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-3xl font-bold">Mint Invoice NFT</h1>
+              <h1 className="headline-editorial text-3xl">Mint Invoice NFT</h1>
               <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">
                 Step {step} of 2
               </Badge>
@@ -548,7 +548,7 @@ function MintInvoiceContent() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Network</span>
-                      <span className="font-semibold">Mantle Sepolia</span>
+                      <span className="font-semibold">Cronos Testnet</span>
                     </div>
                   </div>
 
@@ -597,7 +597,7 @@ function MintInvoiceContent() {
                     )}
                   </Button>
                   <p className="text-xs text-muted-foreground">
-                    Creates an NFT on Mantle. Only gas fees apply.
+                    Creates an NFT on Cronos. Only gas fees apply.
                   </p>
                 </div>
               </div>

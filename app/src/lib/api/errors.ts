@@ -233,7 +233,7 @@ export function parseContractError(error: unknown): ContractError {
       message,
       ErrorCode.CHAIN_MISMATCH,
       'Wrong network selected.',
-      'Please switch to Mantle Network in your wallet.',
+      'Please switch to Cronos Network in your wallet.',
       error
     )
   }
