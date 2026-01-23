@@ -120,17 +120,16 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center relative z-10">
           {/* Headline - Editorial Style */}
           <h1 className="reveal-up delay-100 headline-editorial headline-xl mb-6">
-            Turn unpaid invoices
+            Your AI Treasury Agent
             <br />
-            <span className="text-gradient-hero">into yield</span>
+            <span className="text-gradient-hero">for B2B Commerce</span>
           </h1>
 
           {/* Subheadline */}
           <p className="reveal-up delay-200 text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-            Tokenize business invoices. Deposit to DeFi vaults. Earn{' '}
-            <span className="yield-highlight text-foreground font-semibold">3-7% APY</span>{' '}
-            while you wait for payment.
-            <span className="block mt-3 text-foreground font-medium">No lockups. No credit checks. No KYC.</span>
+            Autonomous AI manages your invoices 24/7. Tokenize, optimize yield, settle via x402.{' '}
+            <span className="yield-highlight text-foreground font-semibold">Machines handling real financial decisions.</span>
+            <span className="block mt-3 text-foreground font-medium">No lockups. No intermediaries. Full transparency.</span>
           </p>
 
           {/* CTA */}
@@ -199,10 +198,10 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="headline-editorial headline-lg mb-4">
-              Built for serious businesses
+              Agentic Finance Infrastructure
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              The first protocol to unlock invoice liquidity without credit checks or underwriters.
+              The first autonomous treasury agent for B2B commerce on Cronos. AI manages your cash flow while you focus on business.
             </p>
           </div>
 
@@ -233,18 +232,18 @@ export default function LandingPage() {
               <div className="feature-icon">
                 <Zap className="w-5 h-5" />
               </div>
-              <h3 className="font-display text-xl font-semibold mb-3">AI Yield Optimization</h3>
+              <h3 className="font-display text-xl font-semibold mb-3">Autonomous AI Agent</h3>
               <p className="text-muted-foreground mb-4">
-                Autonomous agent monitors DeFi markets 24/7 and rebalances your deposits for maximum yield.
+                Your 24/7 treasury manager. Analyzes risk, optimizes yield, executes decisions autonomously with human-in-the-loop controls.
               </p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-success" />
-                  <span>Set and forget</span>
+                  <span>Auto-execute at 70%+ confidence</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-success" />
-                  <span>Confidence-based execution</span>
+                  <span>Real-time market analysis</span>
                 </li>
               </ul>
             </div>
@@ -254,18 +253,18 @@ export default function LandingPage() {
               <div className="feature-icon">
                 <TrendingUp className="w-5 h-5" />
               </div>
-              <h3 className="font-display text-xl font-semibold mb-3">Real DeFi Yield</h3>
+              <h3 className="font-display text-xl font-semibold mb-3">x402 Payment Rails</h3>
               <p className="text-muted-foreground mb-4">
-                Earn sustainable 3-7% APY from battle-tested lending protocols, not inflated by token emissions.
+                On-chain invoice settlement via x402. Clients pay directly to smart contracts. Instant, transparent, trustless.
               </p>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-success" />
-                  <span>Powered by Lendle</span>
+                  <span>Native CRO payments</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-success" />
-                  <span>No lockups or penalties</span>
+                  <span>Instant settlement</span>
                 </li>
               </ul>
             </div>
@@ -299,38 +298,47 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="headline-editorial headline-lg mb-4">
-              Start earning in 60 seconds
+              Let the agent handle it
             </h2>
             <p className="text-xl text-muted-foreground">
-              Three steps to turn unpaid invoices into yield
+              From invoice to settlement, fully autonomous
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {/* Step 1 */}
             <div className="process-step">
               <div className="process-step-number">01</div>
-              <h3 className="font-display text-xl font-semibold mb-3">Mint Invoice NFT</h3>
+              <h3 className="font-display text-lg font-semibold mb-3">Agent Tokenizes</h3>
               <p className="text-muted-foreground text-sm">
-                Upload your invoice and mint it as an ERC-721 NFT with cryptographic proof
+                Create invoice, agent mints it as privacy-preserving NFT
               </p>
             </div>
 
             {/* Step 2 */}
             <div className="process-step">
               <div className="process-step-number">02</div>
-              <h3 className="font-display text-xl font-semibold mb-3">Deposit to Vault</h3>
+              <h3 className="font-display text-lg font-semibold mb-3">Agent Optimizes</h3>
               <p className="text-muted-foreground text-sm">
-                Lock your NFT and deposit stablecoins to start earning yield immediately
+                AI deploys capital to yield strategies, rebalances 24/7
               </p>
             </div>
 
             {/* Step 3 */}
             <div className="process-step">
               <div className="process-step-number">03</div>
-              <h3 className="font-display text-xl font-semibold mb-3">Earn & Withdraw</h3>
+              <h3 className="font-display text-lg font-semibold mb-3">x402 Settlement</h3>
               <p className="text-muted-foreground text-sm">
-                Watch your balance grow. Withdraw anytime with no lockups or penalties
+                Client pays on-chain via x402. Machines paying machines.
+              </p>
+            </div>
+
+            {/* Step 4 */}
+            <div className="process-step">
+              <div className="process-step-number">04</div>
+              <h3 className="font-display text-lg font-semibold mb-3">Withdraw Yield</h3>
+              <p className="text-muted-foreground text-sm">
+                Get principal plus earnings. No lockups, no penalties.
               </p>
             </div>
           </div>
@@ -364,10 +372,10 @@ export default function LandingPage() {
       <section className="cta-section py-24 px-6">
         <div className="max-w-3xl mx-auto text-center relative z-10">
           <h2 className="headline-editorial headline-lg mb-6">
-            Ready to unlock your invoice value?
+            Let AI manage your treasury
           </h2>
           <p className="text-xl opacity-80 mb-10">
-            Join the future of invoice financing where DeFi meets business cash flow
+            The future of B2B commerce: autonomous agents, x402 settlement, zero intermediaries
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link href="/dashboard" className="btn-primary-lg bg-white text-secondary hover:bg-gray-100">
