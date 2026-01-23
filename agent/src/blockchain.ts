@@ -370,7 +370,7 @@ export class BlockchainService {
     try {
       // Fetch real APY from Lendle for USDC/USDT (common stablecoins)
       // In production, this would use actual asset addresses
-      const USDC_ADDRESS = '0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9'; // USDC on Mantle
+      const USDC_ADDRESS = '0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9'; // USDC placeholder (simulated yields on Cronos)
       const apy = await this.lendleYieldSource.getCurrentAPY(USDC_ADDRESS);
 
       // Scale based on strategy (Conservative = base APY, Aggressive = 2x)

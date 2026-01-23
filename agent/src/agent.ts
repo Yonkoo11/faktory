@@ -348,7 +348,7 @@ export class FaktoryAgent {
       this.broadcastThought({
         type: 'thinking',
         tokenId: 'system',
-        message: `✅ Cycle complete. Next scan in ${this.config.analysisInterval / 1000}s | Tx cost on Mantle: ${txCost.costUsd}`,
+        message: `✅ Cycle complete. Next scan in ${this.config.analysisInterval / 1000}s | Tx cost on Cronos: ${txCost.costUsd}`,
         timestamp: Date.now(),
         data: { txCostUsd: txCost.costUsd },
       });
