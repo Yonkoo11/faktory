@@ -1,13 +1,9 @@
 "use client"
 
 /**
- * Faktory Dashboard - Swiss Financial Terminal
- *
- * Design: Indigo + Emerald with alive animations
- * - High contrast, data-dense layout
- * - Indigo primary, emerald for yields
- * - Animated counters, breathing borders
- * - Terminal-inspired data presentation
+ * Faktory Dashboard - Terminal/Bloomberg Aesthetic
+ * Monospace, data-dense, green accents
+ * ALIVE: Grid background, stagger animations, pulse effects
  */
 
 import { useState, useEffect } from "react"
@@ -16,18 +12,23 @@ import { useAccount } from "wagmi"
 import { useInvoiceNFT } from "@/hooks/use-invoice-nft"
 import { useYieldVault } from "@/hooks/use-yield-vault"
 import { formatUnits } from "viem"
-import {
-  ArrowUpRight,
-  Plus,
-  Search,
-  Filter,
-  TrendingUp,
-  Clock,
-  Zap,
-  AlertCircle,
-  RefreshCw,
-} from "lucide-react"
-import { AnimatedCounter } from "@/components/animated-counter"
+import { Plus, ArrowUpRight, RefreshCw } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { StatusBar } from "@/components/ui/status-bar"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { MiniActivityFeed } from "@/components/mini-activity-feed"
+
+interface InvoiceResponse {
+  tokenId: string
+  dueDate: string
+  status: string
+  riskScore?: number
+  deposit?: {
+    principal: string
+    accruedYield: string
+    strategy?: string
+  }
+}
 
 interface InvoiceDisplay {
   id: string
@@ -68,7 +69,7 @@ export default function Dashboard() {
       const data = await response.json()
 
       if (data.success && data.data.invoices) {
-        const formattedInvoices: InvoiceDisplay[] = data.data.invoices.map((inv: any) => {
+        const formattedInvoices: InvoiceDisplay[] = data.data.invoices.map((inv: InvoiceResponse) => {
           const dueDate = new Date(inv.dueDate)
           const daysUntilDue = Math.ceil((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
           const principal = inv.deposit ? Number(formatUnits(BigInt(inv.deposit.principal), 18)) : 0
@@ -79,7 +80,7 @@ export default function Dashboard() {
             amountRaw: principal,
             dueDate: dueDate.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
             daysUntilDue,
-            strategy: inv.deposit?.strategy || "—",
+            strategy: inv.deposit?.strategy?.toLowerCase() || "—",
             apy: inv.deposit?.strategy === "Aggressive" ? `${aggressiveAPY}%` : inv.deposit?.strategy === "Conservative" ? `${conservativeAPY}%` : "—",
             accruedYield: inv.deposit ? `+$${Number(formatUnits(BigInt(inv.deposit.accruedYield), 18)).toFixed(2)}` : "$0.00",
             status: inv.status,
@@ -90,7 +91,7 @@ export default function Dashboard() {
       }
     } catch (err) {
       console.error("Failed to fetch invoices:", err)
-      setError("Failed to load invoices. Please try again.")
+      setError("Failed to load invoices")
     } finally {
       setIsLoading(false)
     }
@@ -108,243 +109,215 @@ export default function Dashboard() {
   const yieldFormatted = Number(formatUnits(BigInt(totalYield || 0), 18))
 
   return (
-    <div className="min-h-screen bg-background noise-texture">
+    <div className="min-h-screen bg-[#0a0a0a] bg-grid noise-overlay scan-line pb-8">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between h-14">
-            {/* Logo */}
-            <div className="flex items-center gap-8">
-              <Link href="/" className="flex items-center gap-2">
-                <img src="/logo.svg" alt="Faktory" className="w-8 h-8" />
-                <span className="font-display font-semibold text-lg tracking-tight">Faktory</span>
-              </Link>
+      <nav className="sticky top-0 z-50 h-12 border-b border-[#1f1f1f] bg-[#0a0a0a] px-6 flex items-center justify-between">
+        <div className="flex items-center gap-8">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-[#10b981] rounded" />
+            <span className="font-semibold text-sm">
+              <span className="text-[#10b981]">f</span>aktory
+            </span>
+          </Link>
 
-              {/* Nav Links */}
-              <div className="hidden md:flex items-center gap-1">
-                <Link
-                  href="/dashboard"
-                  className="px-3 py-1.5 text-sm font-medium text-foreground bg-muted rounded-md"
-                >
-                  Portfolio
-                </Link>
-                <Link
-                  href="/dashboard/mint"
-                  className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Mint
-                </Link>
-                <Link
-                  href="/dashboard/agent"
-                  className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Agent
-                </Link>
-              </div>
-            </div>
-
-            {/* Right Side */}
-            <div className="flex items-center gap-3">
-              <div className="network-badge">
-                Cronos Testnet
-              </div>
-              {isConnected && address && (
-                <div className="hidden md:flex items-center px-3 py-1.5 bg-muted rounded-md font-mono text-sm" suppressHydrationWarning>
-                  {address.slice(0, 6)}...{address.slice(-4)}
-                </div>
-              )}
-            </div>
+          <div className="hidden md:flex items-center gap-1">
+            <Link
+              href="/dashboard"
+              className="px-3 py-1.5 text-xs text-[#e5e5e5] bg-[#1a1a1a] rounded"
+            >
+              portfolio
+            </Link>
+            <Link
+              href="/dashboard/mint"
+              className="px-3 py-1.5 text-xs text-[#666666] hover:text-[#e5e5e5] transition-colors"
+            >
+              mint
+            </Link>
+            <Link
+              href="/dashboard/agent"
+              className="px-3 py-1.5 text-xs text-[#666666] hover:text-[#e5e5e5] transition-colors"
+            >
+              agent
+            </Link>
           </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <span className="network-badge">CRONOS</span>
+          {isConnected && address && (
+            <span className="px-3 py-1.5 text-xs bg-[#111111] border border-[#1f1f1f] rounded">
+              {address.slice(0, 6)}...{address.slice(-4)}
+            </span>
+          )}
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-6 py-8">
         {/* Page Header */}
-        <div className="flex items-start justify-between mb-8">
+        <div className="flex items-start justify-between mb-8 stagger-1">
           <div>
-            <h1 className="headline-editorial text-3xl mb-1">Portfolio</h1>
-            <p className="text-muted-foreground">Manage your invoice yield positions</p>
+            <div className="text-[10px] text-[#666666] uppercase tracking-wider mb-1">
+              Total Portfolio Value
+            </div>
+            <div className="text-[32px] font-bold tabular-nums">
+              <span className="text-[#666666]">$</span>
+              <span className="text-[#10b981]">{tvlFormatted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </div>
           </div>
-          <Link
-            href="/dashboard/mint"
-            className="btn-primary-lg pulse-glow"
-          >
-            <Plus className="w-4 h-4" />
-            Mint Invoice
+          <Link href="/dashboard/mint">
+            <Button>
+              <Plus className="w-4 h-4" />
+              mint invoice
+            </Button>
           </Link>
         </div>
 
-        {/* Metrics Row */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          {/* TVL */}
-          <div className="stat-card breathing-border">
-            <div className="stat-card-label">Total Value</div>
-            <div className="stat-card-value font-data">
-              <AnimatedCounter
-                end={Math.floor(tvlFormatted)}
-                prefix="$"
-                suffix={tvlFormatted % 1 > 0 ? `.${String(tvlFormatted.toFixed(2)).split('.')[1]}` : '.00'}
-              />
+        {/* Stats Grid - Bloomberg style */}
+        <div className="stats-grid grid-cols-4 mb-6 stagger-2">
+          <div className="stat-cell">
+            <div className="stat-label flex items-center gap-2">
+              TVL
+              <span className="w-1 h-1 rounded-full bg-[#10b981] status-pulse" />
             </div>
+            <div className="stat-value tabular-nums">${tvlFormatted.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
           </div>
-
-          {/* Total Yield */}
-          <div className="stat-card breathing-border" style={{ borderLeftColor: 'var(--accent)', borderLeftWidth: '3px' }}>
-            <div className="stat-card-label">Total Yield</div>
-            <div className="stat-card-value font-data text-success">
-              +<AnimatedCounter
-                end={Math.floor(yieldFormatted)}
-                prefix="$"
-                suffix={yieldFormatted % 1 > 0 ? `.${String(yieldFormatted.toFixed(2)).split('.')[1]}` : '.00'}
-              />
+          <div className="stat-cell">
+            <div className="stat-label flex items-center gap-2">
+              Yield Earned
+              <span className="w-1 h-1 rounded-full bg-[#10b981] status-pulse" />
             </div>
+            <div className="stat-value stat-value-green tabular-nums">+${yieldFormatted.toFixed(2)}</div>
+            {tvlFormatted > 0 && (
+              <div className="text-[11px] text-[#10b981] mt-1">+{((yieldFormatted / tvlFormatted) * 100).toFixed(2)}%</div>
+            )}
           </div>
-
-          {/* Active Positions */}
-          <div className="stat-card breathing-border">
-            <div className="stat-card-label">Active Positions</div>
-            <div className="stat-card-value font-data">
-              <AnimatedCounter end={activeDepositsCount} />
-            </div>
+          <div className="stat-cell">
+            <div className="stat-label">Active Invoices</div>
+            <div className="stat-value tabular-nums">{activeDepositsCount}</div>
           </div>
-
-          {/* APY Range */}
-          <div className="stat-card breathing-border">
-            <div className="stat-card-label">APY Range</div>
-            <div className="stat-card-value font-data text-gradient-hero">
-              <AnimatedCounter end={Number(conservativeAPY)} />–<AnimatedCounter end={Number(aggressiveAPY)} suffix="%" />
+          <div className="stat-cell">
+            <div className="stat-label flex items-center gap-2">
+              APY Range
+              <span className="w-1 h-1 rounded-full bg-[#f59e0b]" />
             </div>
+            <div className="stat-value stat-value-amber tabular-nums">{conservativeAPY}-{aggressiveAPY}%</div>
+            <div className="text-[10px] text-[#666666] mt-1">via Lendle</div>
           </div>
         </div>
 
-        {/* Invoices Section */}
-        <div className="card-base overflow-hidden">
+        {/* Mini Activity Feed */}
+        <div className="terminal-card p-4 mb-8 stagger-3">
+          <MiniActivityFeed />
+        </div>
+
+        {/* Invoices Table */}
+        <div className="border border-[#1f1f1f] rounded overflow-hidden stagger-4">
           {/* Table Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border">
-            <h2 className="font-display font-semibold text-lg">Invoices</h2>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[#1f1f1f] bg-[#111111]">
+            <span className="text-xs font-semibold">invoices</span>
             <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-[#0a0a0a] border border-[#1f1f1f] rounded text-xs">
+                <span className="text-[#666666]">search:</span>
                 <input
                   type="text"
-                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-4 py-2 w-48 text-sm bg-muted border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="bg-transparent border-none outline-none w-24 text-[#e5e5e5]"
+                  placeholder="_"
                 />
+                <span className="cursor-blink text-[#666666]">|</span>
               </div>
-              <button className="p-2 hover:bg-muted rounded-md transition-colors">
-                <Filter className="w-4 h-4 text-muted-foreground" />
-              </button>
             </div>
           </div>
 
-          {/* Table */}
+          {/* Table Content */}
           {isLoading ? (
             <div className="p-12 text-center">
-              <div className="inline-block w-6 h-6 border-2 border-muted border-t-primary rounded-full animate-spin mb-3" />
-              <p className="text-sm text-muted-foreground">Loading invoices...</p>
+              <div className="inline-block w-4 h-4 border-2 border-[#1f1f1f] border-t-[#10b981] rounded-full animate-spin mb-3" />
+              <p className="text-xs text-[#666666]">loading invoices...</p>
             </div>
           ) : error ? (
             <div className="p-12 text-center">
-              <div className="w-12 h-12 mx-auto mb-4 bg-destructive/10 rounded-lg flex items-center justify-center">
-                <AlertCircle className="w-6 h-6 text-destructive" />
-              </div>
-              <h3 className="font-display font-semibold text-lg mb-2 text-destructive">Error Loading Data</h3>
-              <p className="text-muted-foreground text-sm mb-6">{error}</p>
-              <button
-                onClick={fetchInvoices}
-                className="btn-primary inline-flex items-center gap-2"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Try Again
-              </button>
+              <div className="text-[#ef4444] text-xs mb-4">{error}</div>
+              <Button variant="secondary" size="sm" onClick={fetchInvoices}>
+                <RefreshCw className="w-3 h-3" />
+                retry
+              </Button>
             </div>
           ) : filteredInvoices.length === 0 ? (
-            <div className="p-12 text-center">
-              <div className="w-12 h-12 mx-auto mb-4 bg-muted rounded-lg flex items-center justify-center">
-                <Zap className="w-6 h-6 text-muted-foreground" />
+            <div className="p-8 text-center">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] status-pulse" />
+                <span className="text-[10px] text-[#666666] uppercase tracking-wider">Agent Standing By</span>
               </div>
-              <h3 className="font-display font-semibold text-lg mb-2">No invoices yet</h3>
-              <p className="text-muted-foreground text-sm mb-6">Mint your first invoice NFT to start earning yield</p>
-              <Link href="/dashboard/mint" className="btn-primary inline-flex items-center gap-2">
-                <Plus className="w-4 h-4" />
-                Mint Invoice
+              <div className="text-xs text-[#666666] mb-2">no invoices yet</div>
+              <div className="text-[11px] text-[#444444] mb-6">mint your first invoice to start earning yield</div>
+              <Link href="/dashboard/mint">
+                <Button size="sm">
+                  <Plus className="w-3 h-3" />
+                  mint invoice
+                </Button>
               </Link>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Invoice</th>
-                    <th>Amount</th>
-                    <th>Due</th>
-                    <th>Strategy</th>
-                    <th>APY</th>
-                    <th>Yield</th>
-                    <th>Status</th>
-                    <th></th>
+            <table className="terminal-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Amount</th>
+                  <th>Due</th>
+                  <th>Strategy</th>
+                  <th>APY</th>
+                  <th>Yield</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredInvoices.map((invoice) => (
+                  <tr
+                    key={invoice.tokenId}
+                    className="cursor-pointer"
+                    onClick={() => window.location.href = `/dashboard/invoice/${invoice.tokenId}`}
+                  >
+                    <td className="text-[#10b981] font-semibold">{invoice.id}</td>
+                    <td className="font-semibold tabular-nums">{invoice.amount}</td>
+                    <td className="text-[#666666]">{invoice.dueDate}</td>
+                    <td>{invoice.strategy}</td>
+                    <td className="tabular-nums">{invoice.apy}</td>
+                    <td className="text-[#10b981] font-semibold tabular-nums">{invoice.accruedYield}</td>
+                    <td>
+                      <span className={`status-badge ${invoice.status === 'InYield' ? 'status-active' : 'status-pending'}`}>
+                        <span className="status-dot" />
+                        {invoice.status === 'InYield' ? 'active' : invoice.status === 'Minted' ? 'pending' : invoice.status.toLowerCase()}
+                      </span>
+                    </td>
+                    <td className="text-right">
+                      <ArrowUpRight className="w-4 h-4 text-[#666666]" />
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredInvoices.map((invoice) => (
-                    <tr
-                      key={invoice.tokenId}
-                      className="cursor-pointer"
-                      onClick={() => window.location.href = `/dashboard/invoice/${invoice.tokenId}`}
-                    >
-                      <td className="font-semibold text-foreground">{invoice.id}</td>
-                      <td>{invoice.amount}</td>
-                      <td>
-                        <span className="inline-flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                          {invoice.dueDate}
-                          {invoice.daysUntilDue <= 7 && invoice.daysUntilDue > 0 && (
-                            <span className="text-warning text-xs">({invoice.daysUntilDue}d)</span>
-                          )}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`badge ${invoice.strategy === 'Aggressive' ? 'badge-amber' : 'badge-neutral'}`}>
-                          {invoice.strategy}
-                        </span>
-                      </td>
-                      <td className="text-foreground">{invoice.apy}</td>
-                      <td className="text-success font-semibold">{invoice.accruedYield}</td>
-                      <td>
-                        <span className="inline-flex items-center gap-1.5">
-                          <span className={`status-dot ${invoice.status === 'InYield' ? 'status-active' : invoice.status === 'Minted' ? 'status-pending' : 'status-inactive'}`} />
-                          <span className="text-xs text-muted-foreground">
-                            {invoice.status === 'InYield' ? 'Active' : invoice.status === 'Minted' ? 'Pending' : invoice.status}
-                          </span>
-                        </span>
-                      </td>
-                      <td className="text-right">
-                        <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           )}
 
           {/* Table Footer */}
           {filteredInvoices.length > 0 && (
-            <div className="flex items-center justify-between p-4 border-t border-border bg-muted/30">
-              <span className="text-sm text-muted-foreground">
-                {filteredInvoices.length} invoice{filteredInvoices.length !== 1 ? 's' : ''} • {totalInvoices} total minted
+            <div className="flex items-center justify-between px-4 py-3 border-t border-[#1f1f1f] bg-[#111111] text-[11px] text-[#666666]">
+              <span>{filteredInvoices.length} invoice{filteredInvoices.length !== 1 ? 's' : ''} | {totalInvoices} total minted</span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] status-pulse" />
+                agent monitoring
               </span>
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <TrendingUp className="w-3.5 h-3.5" />
-                AI agent monitoring
-              </div>
             </div>
           )}
         </div>
       </main>
+
+      {/* Status Bar */}
+      <StatusBar status="online" network="CRONOS TESTNET" />
     </div>
   )
 }
