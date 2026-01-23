@@ -12,7 +12,7 @@ interface AnimatedCounterProps {
 
 export function AnimatedCounter({
   end,
-  duration = 2000,
+  duration = 300,
   prefix = "",
   suffix = "",
   className = "",
@@ -64,8 +64,8 @@ export function AnimatedCounter({
   }
 
   return (
-    <span ref={ref} className={className}>
-      {prefix}{count}{suffix}
+    <span ref={ref} className={className} style={{ fontVariantNumeric: 'tabular-nums' }}>
+      {prefix}{count.toLocaleString()}{suffix}
     </span>
   )
 }

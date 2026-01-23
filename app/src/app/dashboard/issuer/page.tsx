@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { Lock, Eye, EyeOff, Shield, UserPlus, Copy, Check, FileText, AlertTriangle } from "lucide-react"
+import { Lock, Eye, EyeOff, Shield, UserPlus, Copy, Check, FileText, AlertTriangle, Loader2 } from "lucide-react"
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi"
 import { useInvoiceNFT } from "@/hooks/use-invoice-nft"
 import { InvoiceNFTABI } from "@/lib/contracts/abis"
@@ -169,6 +169,14 @@ export default function IssuerDashboardPage() {
             </div>
           </div>
         </Card>
+
+        {/* Loading State */}
+        {isConnected && isLoading && (
+          <Card className="glass border-glass-border p-12 text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground">Loading your invoices...</p>
+          </Card>
+        )}
 
         {/* Not Connected State */}
         {!isConnected && (

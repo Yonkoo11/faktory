@@ -15,6 +15,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Copy, Shield, TrendingUp, Clock, CheckCircle2, ArrowLeft, ExternalLink, Zap, Calendar, Loader2, AlertCircle, CreditCard } from "lucide-react"
 import { parseEther, formatEther } from "viem"
 import Link from "next/link"
@@ -35,7 +45,10 @@ export default function InvoiceDetailPage() {
 
   const [depositModalOpen, setDepositModalOpen] = useState(false)
   const [withdrawModalOpen, setWithdrawModalOpen] = useState(false)
+  const [withdrawConfirmOpen, setWithdrawConfirmOpen] = useState(false)
   const [strategyModalOpen, setStrategyModalOpen] = useState(false)
+  const [strategyConfirmOpen, setStrategyConfirmOpen] = useState(false)
+  const [pendingStrategy, setPendingStrategy] = useState<Strategy | null>(null)
   const [payModalOpen, setPayModalOpen] = useState(false)
   const [paymentAmount, setPaymentAmount] = useState("")
   const [copied, setCopied] = useState(false)
@@ -84,8 +97,14 @@ export default function InvoiceDetailPage() {
   }
 
   const handleChangeStrategy = (newStrategy: Strategy) => {
-    if (tokenId) {
-      changeStrategy(tokenId, newStrategy)
+    setPendingStrategy(newStrategy)
+    setStrategyConfirmOpen(true)
+  }
+
+  const confirmStrategyChange = () => {
+    if (tokenId && pendingStrategy !== null) {
+      changeStrategy(tokenId, pendingStrategy)
+      setStrategyConfirmOpen(false)
     }
   }
 
@@ -519,7 +538,7 @@ export default function InvoiceDetailPage() {
             )}
 
             <Button
-              onClick={handleWithdraw}
+              onClick={() => setWithdrawConfirmOpen(true)}
               disabled={isWithdrawing || isWithdrawConfirming}
               className="w-full bg-gradient-to-r from-primary to-accent"
             >
@@ -529,7 +548,7 @@ export default function InvoiceDetailPage() {
                   {isWithdrawConfirming ? "Confirming..." : "Withdrawing..."}
                 </>
               ) : (
-                "Confirm Withdrawal"
+                "Withdraw Funds"
               )}
             </Button>
           </div>
@@ -699,6 +718,58 @@ export default function InvoiceDetailPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Withdraw Confirmation AlertDialog */}
+      <AlertDialog open={withdrawConfirmOpen} onOpenChange={setWithdrawConfirmOpen}>
+        <AlertDialogContent className="glass border-glass-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-warning" />
+              Confirm Withdrawal
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This will withdraw your invoice NFT and all accrued yield from the vault.
+              You will receive {invoiceData.principal} principal + {invoiceData.accruedYield} yield.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleWithdraw}
+              className="bg-primary hover:bg-primary/90"
+            >
+              Yes, Withdraw Funds
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Strategy Change Confirmation AlertDialog */}
+      <AlertDialog open={strategyConfirmOpen} onOpenChange={setStrategyConfirmOpen}>
+        <AlertDialogContent className="glass border-glass-border">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-warning" />
+              Change Strategy
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Changing your yield strategy will affect future earnings.
+              Your current accrued yield ({invoiceData.accruedYield}) will be preserved.
+              The new APY rate will apply from now until withdrawal.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPendingStrategy(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmStrategyChange}
+              className="bg-primary hover:bg-primary/90"
+            >
+              Yes, Change Strategy
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

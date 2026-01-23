@@ -24,6 +24,8 @@ import {
   TrendingUp,
   Clock,
   Zap,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react"
 import { AnimatedCounter } from "@/components/animated-counter"
 
@@ -44,52 +46,57 @@ interface InvoiceDisplay {
 export default function Dashboard() {
   const [invoices, setInvoices] = useState<InvoiceDisplay[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
 
   const { address, isConnected } = useAccount()
   const { totalInvoices } = useInvoiceNFT()
   const { tvl, totalYield, activeDepositsCount, conservativeAPY, aggressiveAPY } = useYieldVault()
 
-  useEffect(() => {
-    async function fetchInvoices() {
-      if (!isConnected) {
-        setInvoices([])
-        setIsLoading(false)
-        return
-      }
-
-      try {
-        const response = await fetch(`/api/invoices?active=true`)
-        const data = await response.json()
-
-        if (data.success && data.data.invoices) {
-          const formattedInvoices: InvoiceDisplay[] = data.data.invoices.map((inv: any) => {
-            const dueDate = new Date(inv.dueDate)
-            const daysUntilDue = Math.ceil((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-            const principal = inv.deposit ? Number(formatUnits(BigInt(inv.deposit.principal), 18)) : 0
-            return {
-              id: `INV-${String(inv.tokenId).padStart(4, '0')}`,
-              tokenId: inv.tokenId,
-              amount: `$${principal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-              amountRaw: principal,
-              dueDate: dueDate.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-              daysUntilDue,
-              strategy: inv.deposit?.strategy || "—",
-              apy: inv.deposit?.strategy === "Aggressive" ? `${aggressiveAPY}%` : inv.deposit?.strategy === "Conservative" ? `${conservativeAPY}%` : "—",
-              accruedYield: inv.deposit ? `+$${Number(formatUnits(BigInt(inv.deposit.accruedYield), 18)).toFixed(2)}` : "$0.00",
-              status: inv.status,
-              riskScore: inv.riskScore || 75,
-            }
-          })
-          setInvoices(formattedInvoices)
-        }
-      } catch (error) {
-        console.error("Failed to fetch invoices:", error)
-      } finally {
-        setIsLoading(false)
-      }
+  const fetchInvoices = async () => {
+    if (!isConnected) {
+      setInvoices([])
+      setIsLoading(false)
+      return
     }
 
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch(`/api/invoices?active=true`)
+      const data = await response.json()
+
+      if (data.success && data.data.invoices) {
+        const formattedInvoices: InvoiceDisplay[] = data.data.invoices.map((inv: any) => {
+          const dueDate = new Date(inv.dueDate)
+          const daysUntilDue = Math.ceil((dueDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+          const principal = inv.deposit ? Number(formatUnits(BigInt(inv.deposit.principal), 18)) : 0
+          return {
+            id: `INV-${String(inv.tokenId).padStart(4, '0')}`,
+            tokenId: inv.tokenId,
+            amount: `$${principal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            amountRaw: principal,
+            dueDate: dueDate.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+            daysUntilDue,
+            strategy: inv.deposit?.strategy || "—",
+            apy: inv.deposit?.strategy === "Aggressive" ? `${aggressiveAPY}%` : inv.deposit?.strategy === "Conservative" ? `${conservativeAPY}%` : "—",
+            accruedYield: inv.deposit ? `+$${Number(formatUnits(BigInt(inv.deposit.accruedYield), 18)).toFixed(2)}` : "$0.00",
+            status: inv.status,
+            riskScore: inv.riskScore || 75,
+          }
+        })
+        setInvoices(formattedInvoices)
+      }
+    } catch (err) {
+      console.error("Failed to fetch invoices:", err)
+      setError("Failed to load invoices. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
     fetchInvoices()
   }, [isConnected, conservativeAPY, aggressiveAPY])
 
@@ -238,6 +245,21 @@ export default function Dashboard() {
             <div className="p-12 text-center">
               <div className="inline-block w-6 h-6 border-2 border-muted border-t-primary rounded-full animate-spin mb-3" />
               <p className="text-sm text-muted-foreground">Loading invoices...</p>
+            </div>
+          ) : error ? (
+            <div className="p-12 text-center">
+              <div className="w-12 h-12 mx-auto mb-4 bg-destructive/10 rounded-lg flex items-center justify-center">
+                <AlertCircle className="w-6 h-6 text-destructive" />
+              </div>
+              <h3 className="font-display font-semibold text-lg mb-2 text-destructive">Error Loading Data</h3>
+              <p className="text-muted-foreground text-sm mb-6">{error}</p>
+              <button
+                onClick={fetchInvoices}
+                className="btn-primary inline-flex items-center gap-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Try Again
+              </button>
             </div>
           ) : filteredInvoices.length === 0 ? (
             <div className="p-12 text-center">

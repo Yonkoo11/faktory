@@ -33,7 +33,7 @@
   --secondary: #18181B;
   --secondary-foreground: #FAFAFA;
   --muted: #F4F4F5;
-  --muted-foreground: #71717A;
+  --muted-foreground: #52525b;
 
   /* === ACCENT: EMERALD (for yields) === */
   --accent: #10B981;
@@ -660,17 +660,17 @@ h1, h2, h3, h4, h5, h6, .heading, .font-display {
 }
 
 .reveal-up {
-  animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: revealUp 0.25s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   opacity: 0;
 }
 
 .reveal-scale {
-  animation: revealScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: revealScale 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   opacity: 0;
 }
 
 .reveal-left {
-  animation: revealLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: revealLeft 0.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   opacity: 0;
 }
 
@@ -1061,7 +1061,7 @@ h1, h2, h3, h4, h5, h6, .heading, .font-display {
   background: var(--primary);
   border-radius: 50%;
   opacity: 0.15;
-  animation: float linear infinite;
+  animation: float ease-in-out infinite;
 }
 
 .particle:nth-child(1) {
@@ -1180,11 +1180,11 @@ h1, h2, h3, h4, h5, h6, .heading, .font-display {
 
 /* Specific counter targets */
 .counter-3 {
-  animation: countTo3 1.5s ease-out forwards;
+  animation: countTo3 0.3s ease-out forwards;
 }
 
 .counter-7 {
-  animation: countTo7 1.5s ease-out forwards;
+  animation: countTo7 0.3s ease-out forwards;
 }
 
 @keyframes countTo3 {

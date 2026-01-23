@@ -1,5 +1,6 @@
 import React from 'react'
 import { cn } from '@/lib/utils'
+import { CheckCircle, Clock, AlertTriangle, XCircle, ArrowDownCircle, Zap, CircleDot } from 'lucide-react'
 
 export type InvoiceStatus =
   | 'active'
@@ -32,36 +33,43 @@ const statusConfig = {
     label: 'Active',
     color: 'bg-primary/10 text-primary border-primary/20',
     dotColor: 'bg-primary',
+    Icon: CircleDot,
   },
   'in-yield': {
     label: 'In Yield',
     color: 'bg-success/10 text-success border-success/20',
     dotColor: 'bg-success',
+    Icon: Zap,
   },
   paid: {
     label: 'Paid',
     color: 'bg-success/10 text-success border-success/20',
     dotColor: 'bg-success',
+    Icon: CheckCircle,
   },
   withdrawn: {
     label: 'Withdrawn',
     color: 'bg-muted/50 text-muted-foreground border-muted',
     dotColor: 'bg-muted-foreground',
+    Icon: ArrowDownCircle,
   },
   'at-risk': {
     label: 'At Risk',
     color: 'bg-warning/10 text-warning border-warning/20',
     dotColor: 'bg-warning',
+    Icon: AlertTriangle,
   },
   defaulted: {
     label: 'Defaulted',
     color: 'bg-destructive/10 text-destructive border-destructive/20',
     dotColor: 'bg-destructive',
+    Icon: XCircle,
   },
   pending: {
     label: 'Pending',
     color: 'bg-muted/50 text-muted-foreground border-muted',
     dotColor: 'bg-muted-foreground',
+    Icon: Clock,
   },
 }
 
@@ -80,17 +88,20 @@ export function StatusBadge({
   const normalizedStatus = normalizeStatus(status)
   const config = statusConfig[normalizedStatus]
   const sizeStyle = sizeStyles[size]
+  const Icon = config.Icon
+
+  const iconSize = size === 'sm' ? 'w-3 h-3' : size === 'lg' ? 'w-4 h-4' : 'w-3.5 h-3.5'
 
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full border font-medium',
+        'inline-flex items-center gap-1.5 rounded-md border font-medium',
         config.color,
         sizeStyle,
         className
       )}
     >
-      {showDot && (
+      {showDot ? (
         <span className="relative flex h-2 w-2">
           {/* Animated pulse for active statuses */}
           {(normalizedStatus === 'active' || normalizedStatus === 'in-yield') && (
@@ -103,6 +114,8 @@ export function StatusBadge({
           )}
           <span className={cn('relative inline-flex h-2 w-2 rounded-full', config.dotColor)} />
         </span>
+      ) : (
+        <Icon className={iconSize} aria-hidden="true" />
       )}
       {config.label}
     </span>
