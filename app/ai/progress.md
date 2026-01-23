@@ -9,6 +9,13 @@
   - Built InteractiveDemo.tsx composition with captions
   - Submitted hackathon application to x402 PayTech Hackathon
   - Selected tracks: x402 Agentic Finance/Payment Track + Cronos Ecosystem Integrations
+  - **Enhanced background animations** - Added LiveBackground component with:
+    - Floating green particles that animate upward
+    - Vertical data streams (matrix-style effect)
+    - Ambient glow that drifts slowly
+    - Corner glow pulse
+    - Horizontal scan pulse
+    - Flicker spots for data points
 
 - **What's next:**
   - Re-render video at higher quality (lower CRF for better bitrate)
@@ -18,6 +25,7 @@
 - **Blockers/Issues:**
   - Video quality appears low on YouTube (may need higher bitrate render)
   - Voiceover audio is only 45 seconds, second half of video is silent
+  - QuickBooks integration not working (needs Intuit API credentials)
 
 ## Handover Notes
 - Demo video rendered at: `/Users/yonko/Projects/faktory/app/out/interactive-demo.mp4`

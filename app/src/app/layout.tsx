@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Toaster } from "sonner";
 import { KeyboardShortcutsProvider } from "@/components/keyboard-shortcuts-provider";
+import { LiveBackground } from "@/components/live-background";
 
 // Terminal aesthetic - monospace everything
 const jetbrains = JetBrains_Mono({
@@ -25,7 +26,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={jetbrains.variable}>
-      <body className="font-mono antialiased bg-[#0a0a0a] text-[#e5e5e5]">
+      <body className="font-mono antialiased bg-[#0a0a0a] text-[#e5e5e5] scan-pulse corner-glow">
+        <LiveBackground />
         <Providers>{children}</Providers>
         <Toaster
           position="bottom-right"

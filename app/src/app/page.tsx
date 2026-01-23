@@ -191,10 +191,8 @@ export default function LandingPage() {
       <section className="max-w-4xl mx-auto px-6 py-16 stagger-5">
         <div className="text-center">
           <div className="text-[10px] text-[#666666] uppercase tracking-wider mb-8">Powered by</div>
-          <div className="flex items-center justify-center gap-12">
-            <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
-              <span className="network-badge">CRONOS</span>
-            </div>
+          <div className="flex items-center justify-center gap-10">
+            <div className="text-[14px] font-semibold text-[#666666] hover:text-[#0052ff] transition-colors cursor-default">CRONOS</div>
             <div className="text-[14px] font-semibold text-[#666666] hover:text-[#10b981] transition-colors cursor-default">x402</div>
             <div className="text-[14px] font-semibold text-[#666666] hover:text-[#8b5cf6] transition-colors cursor-default">PYTH</div>
             <div className="text-[14px] font-semibold text-[#666666] hover:text-[#f59e0b] transition-colors cursor-default">LENDLE</div>

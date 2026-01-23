@@ -784,6 +784,167 @@
   z-index: 100;
 }
 
+/* Floating particles animation */
+@keyframes float-up {
+  0% {
+    bottom: -10%;
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--particle-opacity, 0.2);
+  }
+  90% {
+    opacity: var(--particle-opacity, 0.2);
+  }
+  100% {
+    bottom: 110%;
+    opacity: 0;
+  }
+}
+
+/* Data stream animation (matrix-like) */
+@keyframes data-stream {
+  0% {
+    top: -20%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 120%;
+    opacity: 0;
+  }
+}
+
+/* Ambient glow that moves */
+.glow-ambient {
+  background:
+    radial-gradient(ellipse 600px 400px at 20% 30%, rgba(16, 185, 129, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 500px 300px at 80% 70%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+  animation: glow-drift 20s ease-in-out infinite alternate;
+}
+
+@keyframes glow-drift {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(2%, -1%);
+  }
+  50% {
+    transform: translate(-1%, 2%);
+  }
+  75% {
+    transform: translate(1%, 1%);
+  }
+  100% {
+    transform: translate(-2%, -2%);
+  }
+}
+
+/* Radial gradient utility */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Enhanced grid with breathing effect */
+.bg-grid-alive {
+  background-image:
+    linear-gradient(to right, #1a1a1a 1px, transparent 1px),
+    linear-gradient(to bottom, #1a1a1a 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: grid-breathe 4s ease-in-out infinite;
+}
+
+@keyframes grid-breathe {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Subtle horizontal scan pulse */
+.scan-pulse::before {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(180deg, transparent 0%, rgba(16, 185, 129, 0.02) 50%, transparent 100%);
+  animation: scan-pulse 6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes scan-pulse {
+  0% {
+    top: -100px;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    top: calc(100vh + 100px);
+    opacity: 0;
+  }
+}
+
+/* Corner glow pulse */
+.corner-glow::after {
+  content: '';
+  position: fixed;
+  bottom: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+  animation: corner-pulse 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes corner-pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Flicker effects for data points */
+.flicker-1 {
+  animation: flicker 3s ease-in-out infinite;
+}
+
+.flicker-2 {
+  animation: flicker 4s ease-in-out infinite 1s;
+}
+
+.flicker-3 {
+  animation: flicker 2.5s ease-in-out infinite 0.5s;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 0; }
+  10%, 30% { opacity: 0.6; }
+  20% { opacity: 0.3; }
+  40%, 90% { opacity: 0; }
+  50% { opacity: 0.8; }
+  60% { opacity: 0.4; }
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,

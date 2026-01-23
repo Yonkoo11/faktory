@@ -15,7 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { DashboardHeader } from "@/components/dashboard-header"
+import { TerminalNav } from "@/components/terminal-nav"
+import { StatusBar } from "@/components/ui/status-bar"
 import { Lock, Eye, EyeOff, Shield, UserPlus, Copy, Check, FileText, AlertTriangle, Loader2 } from "lucide-react"
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi"
 import { useInvoiceNFT } from "@/hooks/use-invoice-nft"
@@ -113,8 +114,8 @@ export default function IssuerDashboardPage() {
   }, [isSuccess, selectedInvoice, newAddress])
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardHeader />
+    <div className="min-h-screen bg-[#0a0a0a] bg-grid noise-overlay scan-line pb-8">
+      <TerminalNav />
 
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
@@ -364,6 +365,8 @@ export default function IssuerDashboardPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <StatusBar network="CRONOS TESTNET" />
     </div>
   )
 }

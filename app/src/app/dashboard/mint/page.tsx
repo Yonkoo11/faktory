@@ -21,6 +21,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { StatusBar } from "@/components/ui/status-bar"
+import { TerminalNav } from "@/components/terminal-nav"
 import { QuickBooksConnect } from "@/components/quickbooks-connect"
 import { CalendarIcon, ArrowRight, ArrowLeft, Loader2, ExternalLink, Check, AlertCircle } from "lucide-react"
 
@@ -181,14 +182,7 @@ function MintInvoiceContent() {
   if (isSuccess || mintedTokenId) {
     return (
       <div className="min-h-screen bg-[#0a0a0a] bg-grid noise-overlay scan-line pb-8">
-        <nav className="sticky top-0 z-50 h-12 border-b border-[#1f1f1f] bg-[#0a0a0a] px-6 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-[#10b981] rounded" />
-              <span className="font-semibold text-sm">faktory</span>
-            </Link>
-          </div>
-        </nav>
+        <TerminalNav />
 
         <main className="max-w-2xl mx-auto px-6 py-16">
           <div className="terminal-card p-8 text-center">
@@ -240,38 +234,7 @@ function MintInvoiceContent() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] bg-grid noise-overlay scan-line pb-8">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 h-12 border-b border-[#1f1f1f] bg-[#0a0a0a]/95 backdrop-blur-sm px-6 flex items-center justify-between">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-[#10b981] rounded" />
-            <span className="font-semibold text-sm">
-              <span className="text-[#10b981]">f</span>aktory
-            </span>
-          </Link>
-
-          <div className="hidden md:flex items-center gap-1">
-            <Link href="/dashboard" className="px-3 py-1.5 text-xs text-[#666666] hover:text-[#e5e5e5] transition-colors">
-              portfolio
-            </Link>
-            <Link href="/dashboard/mint" className="px-3 py-1.5 text-xs text-[#e5e5e5] bg-[#1a1a1a] rounded">
-              mint
-            </Link>
-            <Link href="/dashboard/agent" className="px-3 py-1.5 text-xs text-[#666666] hover:text-[#e5e5e5] transition-colors">
-              agent
-            </Link>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <span className="network-badge">CRONOS</span>
-          {isConnected && address && (
-            <span className="px-3 py-1.5 text-xs bg-[#111111] border border-[#1f1f1f] rounded">
-              {address.slice(0, 6)}...{address.slice(-4)}
-            </span>
-          )}
-        </div>
-      </nav>
+      <TerminalNav />
 
       {/* Main Content */}
       <main className="max-w-3xl mx-auto px-6 py-8">

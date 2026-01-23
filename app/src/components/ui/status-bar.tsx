@@ -28,7 +28,7 @@ function StatusBar({
   // Fetch block number and measure latency
   const fetchBlock = useCallback(async () => {
     if (!publicClient) {
-      setConnectionStatus('offline')
+      setConnectionStatus('syncing')
       return
     }
 
