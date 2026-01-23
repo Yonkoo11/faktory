@@ -1,8 +1,8 @@
 # Faktory Protocol
 
-> AI-Managed B2B Payments on Cronos
+> Autonomous AI Treasury Agent for B2B Commerce on Cronos
 
-Faktory demonstrates AI-driven PayTech by letting autonomous agents optimize yield strategies for tokenized B2B invoices. Mint your invoice as an NFT, let the AI agent manage yield exposure while waiting for payment, and settle on-chain when your client pays. Your invoice details stay private — only cryptographic hashes go on-chain.
+Faktory is an AI-native treasury management system that transforms how businesses handle invoices. When you create an invoice, our autonomous agent takes over: tokenizing it as a privacy-preserving NFT, deploying capital to yield strategies, and settling payments via x402 rails. It's the first AI treasury agent for Web3 businesses on the Cronos ecosystem.
 
 **[Live Demo](https://faktory-app.vercel.app/)** · Built for Cronos x402 PayTech Hackathon
 
@@ -15,9 +15,20 @@ Faktory showcases the x402 vision of autonomous financial agents:
 - **AI Agent Monitors 24/7** — Continuously analyzes invoice health, risk scores, and yield opportunities
 - **Autonomous Strategy Recommendations** — Agent evaluates Conservative vs Aggressive yield strategies based on invoice due dates and payment probability
 - **Human-in-the-Loop** — Auto-executes only above 70% confidence; user approves lower-confidence decisions
-- **On-Chain Payments** — Clients pay invoices directly via smart contract, settling the entire lifecycle on Cronos
+- **x402 Payment Settlement** — Clients pay invoices directly via smart contract. Machines paying machines.
 
-This is what happens when machines handle real financial decisions autonomously.
+This is agentic finance infrastructure: machines handling real financial decisions autonomously.
+
+---
+
+## Cronos Ecosystem Integration
+
+Built natively for the Cronos ecosystem:
+
+- **x402 Payment Rails** — Full implementation of x402 on-chain invoice settlement
+- **Cronos EVM Testnet** — Live deployment on Chain ID 338
+- **Crypto.com Ecosystem Ready** — Architecture supports [Crypto.com Market Data MCP](https://mcp.crypto.com/docs) integration
+- **Pyth Network Oracles** — Price feed infrastructure for real-time risk assessment
 
 ---
 
