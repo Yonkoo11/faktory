@@ -1,0 +1,26 @@
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Bottom block (darkest) -->
+  <path d="M20 32L8 25V18L20 25L32 18V25L20 32Z" fill="#1a1a2e"/>
+  <path d="M20 25L8 18L20 11L32 18L20 25Z" fill="#2d2d44"/>
+
+  <!-- Middle block -->
+  <path d="M20 24L10 18V12L20 18L30 12V18L20 24Z" fill="#3d3d5c"/>
+  <path d="M20 18L10 12L20 6L30 12L20 18Z" fill="#4a4a6a"/>
+
+  <!-- Top block (glowing) -->
+  <defs>
+    <linearGradient id="topGlow" x1="10" y1="4" x2="30" y2="16" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="topSide" x1="20" y1="8" x2="20" y2="16" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0891b2"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <path d="M20 16L12 11V6L20 11L28 6V11L20 16Z" fill="url(#topSide)"/>
+  <path d="M20 11L12 6L20 1L28 6L20 11Z" fill="url(#topGlow)"/>
+
+  <!-- Glow effect -->
+  <path d="M20 11L12 6L20 1L28 6L20 11Z" fill="url(#topGlow)" opacity="0.5" filter="blur(2px)"/>
+</svg>
