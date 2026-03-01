@@ -30,10 +30,7 @@ contract DeployScript is Script {
         console.log("PrivacyRegistry deployed at:", address(privacyRegistry));
 
         // 4. Deploy AgentRouter
-        AgentRouter agentRouter = new AgentRouter(
-            address(invoiceNFT),
-            address(yieldVault)
-        );
+        AgentRouter agentRouter = new AgentRouter(address(invoiceNFT), address(yieldVault));
         console.log("AgentRouter deployed at:", address(agentRouter));
 
         // 5. Deploy MockOracle

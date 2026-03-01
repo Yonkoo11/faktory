@@ -26,7 +26,7 @@ contract PythOracle is Ownable {
         uint8 riskScore;
         uint8 paymentProbability;
         uint256 lastUpdated;
-        int64 collateralPrice;  // Real price from Pyth
+        int64 collateralPrice; // Real price from Pyth
     }
 
     mapping(uint256 => RiskData) public riskAssessments;
@@ -36,7 +36,7 @@ contract PythOracle is Ownable {
 
     // Fallback prices (used when Pyth is unavailable)
     int64 public fallbackEthPrice = 200000000000; // $2000 with 8 decimals
-    int64 public fallbackMntPrice = 80000000;     // $0.80 with 8 decimals
+    int64 public fallbackMntPrice = 80000000; // $0.80 with 8 decimals
     bool public useFallback = false;
 
     // Circuit breaker - pause if too many failures
@@ -50,12 +50,7 @@ contract PythOracle is Ownable {
     event FallbackActivated(string reason);
     event FallbackDeactivated();
     event FallbackPricesUpdated(int64 ethPrice, int64 mntPrice);
-    event RiskAssessed(
-        uint256 indexed tokenId,
-        uint8 riskScore,
-        uint8 paymentProbability,
-        int64 collateralPrice
-    );
+    event RiskAssessed(uint256 indexed tokenId, uint8 riskScore, uint8 paymentProbability, int64 collateralPrice);
 
     constructor(address _pyth) Ownable(msg.sender) {
         pyth = IPyth(_pyth);
@@ -166,9 +161,7 @@ contract PythOracle is Ownable {
         uint256 collateralUsdValue = (collateralValue * uint64(collateralPrice)) / 1e8;
 
         // Calculate collateralization ratio (in basis points, 10000 = 100%)
-        uint256 collateralRatio = invoiceValue > 0
-            ? (collateralUsdValue * 10000) / invoiceValue
-            : 0;
+        uint256 collateralRatio = invoiceValue > 0 ? (collateralUsdValue * 10000) / invoiceValue : 0;
 
         // Calculate days until due
         int256 daysUntilDue = int256(dueDate) - int256(block.timestamp);
@@ -189,21 +182,25 @@ contract PythOracle is Ownable {
     }
 
     /// @notice Calculate risk score based on real market data
-    function calculateRiskScore(
-        uint256 collateralRatio,
-        int256 daysUntilDue,
-        int64 collateralPrice
-    ) internal pure returns (uint8) {
+    function calculateRiskScore(uint256 collateralRatio, int256 daysUntilDue, int64 collateralPrice)
+        internal
+        pure
+        returns (uint8)
+    {
         uint256 score = 50; // Base score
 
         // Collateralization factor (0-40 points)
-        if (collateralRatio >= 15000) { // 150%+ collateralized
+        if (collateralRatio >= 15000) {
+            // 150%+ collateralized
             score += 40;
-        } else if (collateralRatio >= 12000) { // 120%+ collateralized
+        } else if (collateralRatio >= 12000) {
+            // 120%+ collateralized
             score += 30;
-        } else if (collateralRatio >= 10000) { // 100%+ collateralized
+        } else if (collateralRatio >= 10000) {
+            // 100%+ collateralized
             score += 20;
-        } else if (collateralRatio >= 8000) { // 80%+ collateralized
+        } else if (collateralRatio >= 8000) {
+            // 80%+ collateralized
             score += 10;
         }
         // Under-collateralized gets no bonus
@@ -222,7 +219,8 @@ contract PythOracle is Ownable {
 
         // Price stability factor (simplified - would use volatility in production)
         // If price is above $0.50, add stability points
-        if (collateralPrice > 50000000) { // $0.50 with 8 decimals
+        if (collateralPrice > 50000000) {
+            // $0.50 with 8 decimals
             score += 10;
         }
 
@@ -233,10 +231,7 @@ contract PythOracle is Ownable {
     }
 
     /// @notice Calculate payment probability based on real factors
-    function calculatePaymentProbability(
-        uint256 collateralRatio,
-        int256 daysUntilDue
-    ) internal pure returns (uint8) {
+    function calculatePaymentProbability(uint256 collateralRatio, int256 daysUntilDue) internal pure returns (uint8) {
         uint256 prob = 40; // Base probability
 
         // Collateralization strongly affects payment probability
@@ -281,19 +276,13 @@ contract PythOracle is Ownable {
     }
 
     /// @notice Get full risk assessment data
-    function getRiskAssessment(uint256 tokenId) external view returns (
-        uint8 riskScore,
-        uint8 paymentProbability,
-        uint256 lastUpdated,
-        int64 collateralPrice
-    ) {
+    function getRiskAssessment(uint256 tokenId)
+        external
+        view
+        returns (uint8 riskScore, uint8 paymentProbability, uint256 lastUpdated, int64 collateralPrice)
+    {
         RiskData memory data = riskAssessments[tokenId];
-        return (
-            data.riskScore,
-            data.paymentProbability,
-            data.lastUpdated,
-            data.collateralPrice
-        );
+        return (data.riskScore, data.paymentProbability, data.lastUpdated, data.collateralPrice);
     }
 
     /// @notice Get Pyth update fee

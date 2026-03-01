@@ -293,10 +293,7 @@ contract InvoiceAgentTest is Test {
         // 5. Agent analyzes and makes decision
         vm.startPrank(agent);
         agentRouter.recordDecision(
-            tokenId,
-            YieldVault.Strategy.Conservative,
-            80,
-            "Moderate risk profile, conservative strategy recommended"
+            tokenId, YieldVault.Strategy.Conservative, 80, "Moderate risk profile, conservative strategy recommended"
         );
         vm.stopPrank();
 

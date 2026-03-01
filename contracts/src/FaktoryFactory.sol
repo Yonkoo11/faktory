@@ -11,7 +11,6 @@ import "./PrivacyRegistry.sol";
 /// @notice Deploys and configures all protocol contracts in a single transaction
 /// @dev Eliminates circular dependency issues by handling initialization order internally
 contract FaktoryFactory {
-
     struct DeployedContracts {
         address invoiceNFT;
         address yieldVault;
@@ -99,7 +98,7 @@ contract FaktoryFactory {
             invoiceNFT: address(invoiceNFT),
             yieldVault: address(yieldVault),
             agentRouter: address(agentRouter),
-            mockOracle: oracleAddress,  // External oracle
+            mockOracle: oracleAddress, // External oracle
             privacyRegistry: address(privacyRegistry)
         });
 

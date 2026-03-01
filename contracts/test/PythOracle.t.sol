@@ -7,7 +7,7 @@ import "../src/PythOracle.sol";
 // Mock Pyth contract for testing (simplified - only methods used by PythOracle)
 contract MockPyth {
     int64 public ethPrice = 200000000000; // $2000 with 8 decimals
-    int64 public mntPrice = 80000000;     // $0.80 with 8 decimals
+    int64 public mntPrice = 80000000; // $0.80 with 8 decimals
     bool public shouldRevert = false;
 
     function setEthPrice(int64 _price) external {
@@ -32,19 +32,9 @@ contract MockPyth {
         require(!shouldRevert, "Mock revert");
 
         if (id == 0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace) {
-            return PythStructs.Price({
-                price: ethPrice,
-                conf: 1000000,
-                expo: -8,
-                publishTime: block.timestamp
-            });
+            return PythStructs.Price({price: ethPrice, conf: 1000000, expo: -8, publishTime: block.timestamp});
         } else if (id == 0x4e3037c822d852d79af3ac80e35eb420ee3b870dca49f9344a38ef4773fb0585) {
-            return PythStructs.Price({
-                price: mntPrice,
-                conf: 100000,
-                expo: -8,
-                publishTime: block.timestamp
-            });
+            return PythStructs.Price({price: mntPrice, conf: 100000, expo: -8, publishTime: block.timestamp});
         }
 
         revert("Unknown price feed");
@@ -93,7 +83,7 @@ contract PythOracleTest is Test {
 
     function test_SetFallbackPrices() public {
         int64 newEthPrice = 300000000000; // $3000
-        int64 newMntPrice = 100000000;    // $1.00
+        int64 newMntPrice = 100000000; // $1.00
 
         oracle.setFallbackPrices(newEthPrice, newMntPrice);
         oracle.activateFallback("Testing new prices");

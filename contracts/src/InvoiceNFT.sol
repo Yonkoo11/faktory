@@ -9,26 +9,25 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 /// @notice ERC721 representing tokenized invoices with privacy-preserving commitments
 /// @dev Invoice data is stored as commitments (hashes) for privacy - Part of Faktory Protocol
 contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
-
     // ============ Structs ============
 
     struct Invoice {
-        bytes32 dataCommitment;      // hash(invoiceData + salt) for privacy
-        bytes32 amountCommitment;    // hash(amount + salt) for range proofs
-        uint256 dueDate;             // Unix timestamp when invoice is due
-        uint256 createdAt;           // When the invoice was tokenized
-        address issuer;              // Original invoice issuer
-        InvoiceStatus status;        // Current status
-        uint8 riskScore;             // 0-100, set by oracle/agent
-        uint8 paymentProbability;    // 0-100, set by oracle/agent
+        bytes32 dataCommitment; // hash(invoiceData + salt) for privacy
+        bytes32 amountCommitment; // hash(amount + salt) for range proofs
+        uint256 dueDate; // Unix timestamp when invoice is due
+        uint256 createdAt; // When the invoice was tokenized
+        address issuer; // Original invoice issuer
+        InvoiceStatus status; // Current status
+        uint8 riskScore; // 0-100, set by oracle/agent
+        uint8 paymentProbability; // 0-100, set by oracle/agent
     }
 
     enum InvoiceStatus {
-        Active,      // Invoice is active and can be used for yield
-        InYield,     // Currently deposited in yield vault
-        Paid,        // Invoice has been paid
-        Defaulted,   // Invoice defaulted
-        Cancelled    // Invoice was cancelled
+        Active, // Invoice is active and can be used for yield
+        InYield, // Currently deposited in yield vault
+        Paid, // Invoice has been paid
+        Defaulted, // Invoice defaulted
+        Cancelled // Invoice was cancelled
     }
 
     // ============ State ============
@@ -43,36 +42,15 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
 
     // ============ Events ============
 
-    event InvoiceMinted(
-        uint256 indexed tokenId,
-        address indexed issuer,
-        bytes32 dataCommitment,
-        uint256 dueDate
-    );
+    event InvoiceMinted(uint256 indexed tokenId, address indexed issuer, bytes32 dataCommitment, uint256 dueDate);
 
-    event InvoiceStatusUpdated(
-        uint256 indexed tokenId,
-        InvoiceStatus oldStatus,
-        InvoiceStatus newStatus
-    );
+    event InvoiceStatusUpdated(uint256 indexed tokenId, InvoiceStatus oldStatus, InvoiceStatus newStatus);
 
-    event RiskScoreUpdated(
-        uint256 indexed tokenId,
-        uint8 riskScore,
-        uint8 paymentProbability
-    );
+    event RiskScoreUpdated(uint256 indexed tokenId, uint8 riskScore, uint8 paymentProbability);
 
-    event RevealAuthorized(
-        uint256 indexed tokenId,
-        address indexed authorizedAddress
-    );
+    event RevealAuthorized(uint256 indexed tokenId, address indexed authorizedAddress);
 
-    event InvoicePaid(
-        uint256 indexed tokenId,
-        address indexed payer,
-        uint256 amount,
-        uint256 timestamp
-    );
+    event InvoicePaid(uint256 indexed tokenId, address indexed payer, uint256 amount, uint256 timestamp);
 
     // ============ Modifiers ============
 
@@ -82,10 +60,7 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
     }
 
     modifier onlyAgentOrOracle() {
-        require(
-            msg.sender == agentRouter || msg.sender == oracle,
-            "Only Agent or Oracle"
-        );
+        require(msg.sender == agentRouter || msg.sender == oracle, "Only Agent or Oracle");
         _;
     }
 
@@ -122,11 +97,10 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
     /// @param amountCommitment Hash of amount for range proofs
     /// @param dueDate Unix timestamp when invoice is due
     /// @return tokenId The ID of the minted invoice
-    function mint(
-        bytes32 dataCommitment,
-        bytes32 amountCommitment,
-        uint256 dueDate
-    ) external returns (uint256 tokenId) {
+    function mint(bytes32 dataCommitment, bytes32 amountCommitment, uint256 dueDate)
+        external
+        returns (uint256 tokenId)
+    {
         require(dueDate > block.timestamp, "Due date must be in future");
         require(dataCommitment != bytes32(0), "Invalid data commitment");
 
@@ -139,7 +113,7 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
             createdAt: block.timestamp,
             issuer: msg.sender,
             status: InvoiceStatus.Active,
-            riskScore: 50,  // Default middle score
+            riskScore: 50, // Default middle score
             paymentProbability: 50
         });
 
@@ -151,11 +125,7 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
     /// @notice Update invoice status (by YieldVault or token owner only)
     /// @dev Removed contract owner from authorized callers for security
     function updateStatus(uint256 tokenId, InvoiceStatus newStatus) external {
-        require(
-            msg.sender == yieldVault ||
-            msg.sender == ownerOf(tokenId),
-            "Not authorized"
-        );
+        require(msg.sender == yieldVault || msg.sender == ownerOf(tokenId), "Not authorized");
 
         Invoice storage invoice = invoices[tokenId];
         InvoiceStatus oldStatus = invoice.status;
@@ -178,11 +148,7 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
     }
 
     /// @notice Update risk metrics (by oracle or agent)
-    function updateRiskMetrics(
-        uint256 tokenId,
-        uint8 riskScore,
-        uint8 paymentProbability
-    ) external onlyAgentOrOracle {
+    function updateRiskMetrics(uint256 tokenId, uint8 riskScore, uint8 paymentProbability) external onlyAgentOrOracle {
         require(riskScore <= 100, "Risk score > 100");
         require(paymentProbability <= 100, "Payment probability > 100");
 
@@ -194,20 +160,13 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
     }
 
     /// @notice Authorize an address to receive invoice reveal
-    function authorizeReveal(uint256 tokenId, address authorized)
-        external
-        onlyTokenOwner(tokenId)
-    {
+    function authorizeReveal(uint256 tokenId, address authorized) external onlyTokenOwner(tokenId) {
         revealAuthorized[tokenId][authorized] = true;
         emit RevealAuthorized(tokenId, authorized);
     }
 
     /// @notice Verify a data commitment reveal
-    function verifyReveal(
-        uint256 tokenId,
-        bytes calldata invoiceData,
-        bytes32 salt
-    ) external view returns (bool) {
+    function verifyReveal(uint256 tokenId, bytes calldata invoiceData, bytes32 salt) external view returns (bool) {
         bytes32 commitment = invoices[tokenId].dataCommitment;
         bytes32 computed = keccak256(abi.encodePacked(invoiceData, salt));
         return commitment == computed;
@@ -222,9 +181,7 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
         Invoice storage invoice = invoices[tokenId];
 
         require(
-            invoice.status == InvoiceStatus.Active ||
-            invoice.status == InvoiceStatus.InYield,
-            "Invoice not payable"
+            invoice.status == InvoiceStatus.Active || invoice.status == InvoiceStatus.InYield, "Invoice not payable"
         );
         require(msg.value > 0, "Payment required");
 
@@ -234,7 +191,7 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
 
         // Transfer payment to invoice owner
         address owner = ownerOf(tokenId);
-        (bool success, ) = payable(owner).call{value: msg.value}("");
+        (bool success,) = payable(owner).call{value: msg.value}("");
         require(success, "Payment transfer failed");
 
         emit InvoiceStatusUpdated(tokenId, oldStatus, InvoiceStatus.Paid);
@@ -246,17 +203,9 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
     /// @return isPaid Whether the invoice has been paid
     /// @return owner The address to pay (invoice owner)
     /// @return dueDate When payment is due
-    function getPaymentInfo(uint256 tokenId) external view returns (
-        bool isPaid,
-        address owner,
-        uint256 dueDate
-    ) {
+    function getPaymentInfo(uint256 tokenId) external view returns (bool isPaid, address owner, uint256 dueDate) {
         Invoice storage invoice = invoices[tokenId];
-        return (
-            invoice.status == InvoiceStatus.Paid,
-            ownerOf(tokenId),
-            invoice.dueDate
-        );
+        return (invoice.status == InvoiceStatus.Paid, ownerOf(tokenId), invoice.dueDate);
     }
 
     // ============ View Functions ============
@@ -282,8 +231,8 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
     /// @return bool True if invoice is past due date
     function isOverdue(uint256 tokenId) external view returns (bool) {
         Invoice storage invoice = invoices[tokenId];
-        return block.timestamp > invoice.dueDate &&
-               (invoice.status == InvoiceStatus.Active || invoice.status == InvoiceStatus.InYield);
+        return block.timestamp > invoice.dueDate
+            && (invoice.status == InvoiceStatus.Active || invoice.status == InvoiceStatus.InYield);
     }
 
     /// @notice Mark an overdue invoice as defaulted (callable by anyone after grace period)
@@ -292,16 +241,10 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
     function markDefaulted(uint256 tokenId, uint256 gracePeriodDays) external {
         Invoice storage invoice = invoices[tokenId];
 
-        require(
-            invoice.status == InvoiceStatus.Active || invoice.status == InvoiceStatus.InYield,
-            "Invoice not active"
-        );
+        require(invoice.status == InvoiceStatus.Active || invoice.status == InvoiceStatus.InYield, "Invoice not active");
 
         uint256 gracePeriod = gracePeriodDays * 1 days;
-        require(
-            block.timestamp > invoice.dueDate + gracePeriod,
-            "Grace period not expired"
-        );
+        require(block.timestamp > invoice.dueDate + gracePeriod, "Grace period not expired");
 
         InvoiceStatus oldStatus = invoice.status;
         invoice.status = InvoiceStatus.Defaulted;
@@ -318,7 +261,11 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
     /// @param limit Maximum number of results (capped at 100)
     /// @return activeIds Array of active invoice token IDs
     /// @return total Total number of invoices (for pagination calculation)
-    function getActiveInvoicesPaginated(uint256 offset, uint256 limit) external view returns (uint256[] memory activeIds, uint256 total) {
+    function getActiveInvoicesPaginated(uint256 offset, uint256 limit)
+        external
+        view
+        returns (uint256[] memory activeIds, uint256 total)
+    {
         total = _nextTokenId;
         if (limit > 100) limit = 100; // Cap to prevent gas issues
         if (offset >= total) return (new uint256[](0), total);
@@ -329,8 +276,7 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
         uint256 skipped = 0;
 
         for (uint256 i = 0; i < total && count < limit; i++) {
-            if (invoices[i].status == InvoiceStatus.Active ||
-                invoices[i].status == InvoiceStatus.InYield) {
+            if (invoices[i].status == InvoiceStatus.Active || invoices[i].status == InvoiceStatus.InYield) {
                 if (skipped >= offset) {
                     temp[count++] = i;
                 } else {
@@ -354,8 +300,7 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
 
         // Count active invoices
         for (uint256 i = 0; i < total; i++) {
-            if (invoices[i].status == InvoiceStatus.Active ||
-                invoices[i].status == InvoiceStatus.InYield) {
+            if (invoices[i].status == InvoiceStatus.Active || invoices[i].status == InvoiceStatus.InYield) {
                 activeCount++;
             }
         }
@@ -364,8 +309,7 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
         uint256[] memory activeIds = new uint256[](activeCount);
         uint256 index = 0;
         for (uint256 i = 0; i < total; i++) {
-            if (invoices[i].status == InvoiceStatus.Active ||
-                invoices[i].status == InvoiceStatus.InYield) {
+            if (invoices[i].status == InvoiceStatus.Active || invoices[i].status == InvoiceStatus.InYield) {
                 activeIds[index++] = i;
             }
         }
@@ -383,19 +327,11 @@ contract InvoiceNFT is ERC721, ERC721Enumerable, Ownable {
         return super._update(to, tokenId, auth);
     }
 
-    function _increaseBalance(address account, uint128 value)
-        internal
-        override(ERC721, ERC721Enumerable)
-    {
+    function _increaseBalance(address account, uint128 value) internal override(ERC721, ERC721Enumerable) {
         super._increaseBalance(account, value);
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721, ERC721Enumerable)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721, ERC721Enumerable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

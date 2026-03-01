@@ -63,10 +63,7 @@ contract DeployProductionScript is Script {
         console.log("PrivacyRegistry deployed at:", address(privacyRegistry));
 
         // 4. Deploy AgentRouter
-        AgentRouter agentRouter = new AgentRouter(
-            address(invoiceNFT),
-            address(yieldVault)
-        );
+        AgentRouter agentRouter = new AgentRouter(address(invoiceNFT), address(yieldVault));
         console.log("AgentRouter deployed at:", address(agentRouter));
 
         // 5. Deploy PythOracle (REAL oracle using Pyth Network)
@@ -76,10 +73,7 @@ contract DeployProductionScript is Script {
         // 6. Deploy LendleYieldSource (if data provider is set)
         address lendleYieldSource = address(0);
         if (LENDLE_DATA_PROVIDER != address(0)) {
-            LendleYieldSource lendle = new LendleYieldSource(
-                LENDLE_LENDING_POOL,
-                LENDLE_DATA_PROVIDER
-            );
+            LendleYieldSource lendle = new LendleYieldSource(LENDLE_LENDING_POOL, LENDLE_DATA_PROVIDER);
             lendleYieldSource = address(lendle);
             console.log("LendleYieldSource deployed at:", lendleYieldSource);
         } else {

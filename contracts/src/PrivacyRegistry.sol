@@ -8,15 +8,14 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 /// @notice Enables privacy-preserving verification of invoice data
 /// @dev Part of Faktory Protocol - Uses hash commitments and Merkle trees for selective disclosure
 contract PrivacyRegistry is Ownable {
-
     // ============ Structs ============
 
     struct Commitment {
-        bytes32 commitment;      // hash(data + salt)
-        address owner;           // Who created this commitment
-        uint256 timestamp;       // When created
-        bool revealed;           // Has been revealed
-        bytes32 revealedHash;    // Hash of revealed data (for verification)
+        bytes32 commitment; // hash(data + salt)
+        address owner; // Who created this commitment
+        uint256 timestamp; // When created
+        bool revealed; // Has been revealed
+        bytes32 revealedHash; // Hash of revealed data (for verification)
     }
 
     // ============ State ============
@@ -36,27 +35,13 @@ contract PrivacyRegistry is Ownable {
 
     // ============ Events ============
 
-    event CommitmentRegistered(
-        bytes32 indexed commitmentId,
-        address indexed owner,
-        bytes32 commitment
-    );
+    event CommitmentRegistered(bytes32 indexed commitmentId, address indexed owner, bytes32 commitment);
 
-    event CommitmentRevealed(
-        bytes32 indexed commitmentId,
-        bytes32 revealedHash
-    );
+    event CommitmentRevealed(bytes32 indexed commitmentId, bytes32 revealedHash);
 
-    event InvoiceVerified(
-        bytes32 indexed invoiceHash,
-        address indexed verifier
-    );
+    event InvoiceVerified(bytes32 indexed invoiceHash, address indexed verifier);
 
-    event MerkleRootUpdated(
-        bytes32 oldRoot,
-        bytes32 newRoot,
-        uint256 invoiceCount
-    );
+    event MerkleRootUpdated(bytes32 oldRoot, bytes32 newRoot, uint256 invoiceCount);
 
     event VerifierAdded(address indexed verifier);
     event VerifierRemoved(address indexed verifier);
@@ -91,17 +76,10 @@ contract PrivacyRegistry is Ownable {
     /// @notice Register a new commitment
     /// @param commitment The hash commitment (keccak256(data + salt))
     /// @return commitmentId Unique ID for this commitment
-    function registerCommitment(bytes32 commitment)
-        external
-        returns (bytes32 commitmentId)
-    {
+    function registerCommitment(bytes32 commitment) external returns (bytes32 commitmentId) {
         require(commitment != bytes32(0), "Invalid commitment");
 
-        commitmentId = keccak256(abi.encodePacked(
-            commitment,
-            msg.sender,
-            block.timestamp
-        ));
+        commitmentId = keccak256(abi.encodePacked(commitment, msg.sender, block.timestamp));
 
         require(commitments[commitmentId].commitment == bytes32(0), "Already exists");
 
@@ -121,11 +99,7 @@ contract PrivacyRegistry is Ownable {
     /// @param data The original data
     /// @param salt The salt used in the commitment
     /// @return valid Whether the reveal matches the commitment
-    function revealCommitment(
-        bytes32 commitmentId,
-        bytes calldata data,
-        bytes32 salt
-    ) external returns (bool valid) {
+    function revealCommitment(bytes32 commitmentId, bytes calldata data, bytes32 salt) external returns (bool valid) {
         Commitment storage c = commitments[commitmentId];
         require(c.commitment != bytes32(0), "Commitment not found");
         require(!c.revealed, "Already revealed");
@@ -143,11 +117,7 @@ contract PrivacyRegistry is Ownable {
 
     /// @notice Verify a commitment without revealing (check if data+salt matches)
     /// @dev This is a view function for off-chain verification
-    function verifyCommitment(
-        bytes32 commitmentId,
-        bytes calldata data,
-        bytes32 salt
-    ) external view returns (bool) {
+    function verifyCommitment(bytes32 commitmentId, bytes calldata data, bytes32 salt) external view returns (bool) {
         Commitment memory c = commitments[commitmentId];
         bytes32 computed = keccak256(abi.encodePacked(data, salt));
         return computed == c.commitment;
@@ -185,10 +155,7 @@ contract PrivacyRegistry is Ownable {
     /// @param invoiceHash The invoice hash to verify
     /// @param proof The Merkle proof
     /// @return valid Whether the proof is valid
-    function verifyInclusion(
-        bytes32 invoiceHash,
-        bytes32[] calldata proof
-    ) external view returns (bool valid) {
+    function verifyInclusion(bytes32 invoiceHash, bytes32[] calldata proof) external view returns (bool valid) {
         return MerkleProof.verify(proof, verifiedInvoicesRoot, invoiceHash);
     }
 
@@ -234,9 +201,7 @@ contract PrivacyRegistry is Ownable {
     }
 
     function _hashPair(bytes32 a, bytes32 b) internal pure returns (bytes32) {
-        return a < b
-            ? keccak256(abi.encodePacked(a, b))
-            : keccak256(abi.encodePacked(b, a));
+        return a < b ? keccak256(abi.encodePacked(a, b)) : keccak256(abi.encodePacked(b, a));
     }
 
     // ============ View Functions ============
@@ -254,11 +219,7 @@ contract PrivacyRegistry is Ownable {
     }
 
     /// @notice Generate a commitment hash (helper for frontend)
-    function computeCommitment(bytes calldata data, bytes32 salt)
-        external
-        pure
-        returns (bytes32)
-    {
+    function computeCommitment(bytes calldata data, bytes32 salt) external pure returns (bytes32) {
         return keccak256(abi.encodePacked(data, salt));
     }
 }

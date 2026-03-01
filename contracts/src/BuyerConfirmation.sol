@@ -15,11 +15,11 @@ contract BuyerConfirmation is Ownable {
     // ============ Enums ============
 
     enum TrustTier {
-        Unverified,      // 0: No verification, highest risk
-        SelfAttested,    // 1: Issuer-only claim
-        AccountingLinked,// 2: Verified via QB/Xero
-        BuyerConfirmed,  // 3: Buyer signed confirmation
-        Insured          // 4: Credit insurance backing
+        Unverified, // 0: No verification, highest risk
+        SelfAttested, // 1: Issuer-only claim
+        AccountingLinked, // 2: Verified via QB/Xero
+        BuyerConfirmed, // 3: Buyer signed confirmation
+        Insured // 4: Credit insurance backing
     }
 
     // ============ Structs ============
@@ -55,26 +55,12 @@ contract BuyerConfirmation is Ownable {
     // ============ Events ============
 
     event InvoiceConfirmed(
-        uint256 indexed invoiceId,
-        address indexed buyer,
-        address indexed issuer,
-        uint256 amount,
-        uint256 dueDate
+        uint256 indexed invoiceId, address indexed buyer, address indexed issuer, uint256 amount, uint256 dueDate
     );
 
-    event PaymentRecorded(
-        uint256 indexed invoiceId,
-        address indexed buyer,
-        uint256 amount,
-        uint256 timestamp
-    );
+    event PaymentRecorded(uint256 indexed invoiceId, address indexed buyer, uint256 amount, uint256 timestamp);
 
-    event BuyerDefaulted(
-        uint256 indexed invoiceId,
-        address indexed buyer,
-        uint256 amount,
-        uint256 daysOverdue
-    );
+    event BuyerDefaulted(uint256 indexed invoiceId, address indexed buyer, uint256 amount, uint256 daysOverdue);
 
     event PaymentOracleUpdated(address oracle, bool authorized);
 
@@ -109,13 +95,7 @@ contract BuyerConfirmation is Ownable {
         require(dueDate > block.timestamp, "Due date must be future");
 
         // Verify signature
-        bytes32 messageHash = keccak256(abi.encodePacked(
-            invoiceId,
-            amount,
-            dueDate,
-            issuer,
-            block.chainid
-        ));
+        bytes32 messageHash = keccak256(abi.encodePacked(invoiceId, amount, dueDate, issuer, block.chainid));
         bytes32 ethSignedHash = messageHash.toEthSignedMessageHash();
         address signer = ethSignedHash.recover(signature);
 
@@ -144,10 +124,7 @@ contract BuyerConfirmation is Ownable {
     /// @param invoiceId The invoice NFT token ID
     /// @param amount The amount paid
     function recordPayment(uint256 invoiceId, uint256 amount) external {
-        require(
-            paymentOracles[msg.sender] || msg.sender == owner(),
-            "Not authorized"
-        );
+        require(paymentOracles[msg.sender] || msg.sender == owner(), "Not authorized");
 
         Confirmation storage conf = confirmations[invoiceId];
         require(conf.confirmedAt > 0, "Not confirmed");
@@ -174,10 +151,7 @@ contract BuyerConfirmation is Ownable {
     /// @param invoiceId The invoice NFT token ID
     /// @param gracePeriodDays Days after due date before default
     function markDefaulted(uint256 invoiceId, uint256 gracePeriodDays) external {
-        require(
-            paymentOracles[msg.sender] || msg.sender == owner(),
-            "Not authorized"
-        );
+        require(paymentOracles[msg.sender] || msg.sender == owner(), "Not authorized");
 
         Confirmation storage conf = confirmations[invoiceId];
         require(conf.confirmedAt > 0, "Not confirmed");

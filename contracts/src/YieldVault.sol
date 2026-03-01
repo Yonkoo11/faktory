@@ -11,26 +11,25 @@ import "./InvoiceNFT.sol";
 /// @notice Holds invoice NFTs and simulates yield accrual based on strategies
 /// @dev Part of Faktory Protocol - In production, integrates with Lendle on Mantle
 contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
-
     // ============ Enums ============
 
     enum Strategy {
-        Hold,           // No yield optimization (0% simulated APY)
-        Conservative,   // Low-risk lending (3-4% simulated APY)
-        Aggressive      // Higher yield pools (6-8% simulated APY)
+        Hold, // No yield optimization (0% simulated APY)
+        Conservative, // Low-risk lending (3-4% simulated APY)
+        Aggressive // Higher yield pools (6-8% simulated APY)
     }
 
     // ============ Structs ============
 
     struct Deposit {
-        uint256 tokenId;           // Invoice NFT token ID
-        address owner;             // Original depositor
-        Strategy strategy;         // Current yield strategy
-        uint256 depositTime;       // When deposited
-        uint256 principal;         // Simulated principal (based on invoice)
-        uint256 accruedYield;      // Accumulated yield
-        uint256 lastYieldUpdate;   // Last yield calculation timestamp
-        bool active;               // Is deposit active
+        uint256 tokenId; // Invoice NFT token ID
+        address owner; // Original depositor
+        Strategy strategy; // Current yield strategy
+        uint256 depositTime; // When deposited
+        uint256 principal; // Simulated principal (based on invoice)
+        uint256 accruedYield; // Accumulated yield
+        uint256 lastYieldUpdate; // Last yield calculation timestamp
+        bool active; // Is deposit active
     }
 
     // ============ State ============
@@ -45,9 +44,9 @@ contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
 
     // APY rates in basis points (100 = 1%)
     uint256 public constant HOLD_APY = 0;
-    uint256 public constant CONSERVATIVE_APY = 350;  // 3.5%
-    uint256 public constant AGGRESSIVE_APY = 700;    // 7%
-    uint256 public constant MAX_PRINCIPAL = 1e27;    // 1 billion tokens (18 decimals) - prevents overflow
+    uint256 public constant CONSERVATIVE_APY = 350; // 3.5%
+    uint256 public constant AGGRESSIVE_APY = 700; // 7%
+    uint256 public constant MAX_PRINCIPAL = 1e27; // 1 billion tokens (18 decimals) - prevents overflow
 
     // Simulated total value for demo
     uint256 public totalValueLocked;
@@ -55,50 +54,19 @@ contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
 
     // ============ Events ============
 
-    event Deposited(
-        uint256 indexed tokenId,
-        address indexed owner,
-        Strategy strategy,
-        uint256 principal
-    );
+    event Deposited(uint256 indexed tokenId, address indexed owner, Strategy strategy, uint256 principal);
 
-    event Withdrawn(
-        uint256 indexed tokenId,
-        address indexed owner,
-        uint256 principal,
-        uint256 yield
-    );
+    event Withdrawn(uint256 indexed tokenId, address indexed owner, uint256 principal, uint256 yield);
 
-    event StrategyChanged(
-        uint256 indexed tokenId,
-        Strategy oldStrategy,
-        Strategy newStrategy
-    );
+    event StrategyChanged(uint256 indexed tokenId, Strategy oldStrategy, Strategy newStrategy);
 
-    event YieldAccrued(
-        uint256 indexed tokenId,
-        uint256 yield,
-        uint256 totalAccrued
-    );
+    event YieldAccrued(uint256 indexed tokenId, uint256 yield, uint256 totalAccrued);
 
-    event AgentAction(
-        uint256 indexed tokenId,
-        string action,
-        bytes data
-    );
+    event AgentAction(uint256 indexed tokenId, string action, bytes data);
 
-    event EmergencyWithdraw(
-        uint256 indexed tokenId,
-        address indexed owner,
-        address indexed rescuer
-    );
+    event EmergencyWithdraw(uint256 indexed tokenId, address indexed owner, address indexed rescuer);
 
-    event DefaultHandled(
-        uint256 indexed tokenId,
-        address indexed owner,
-        uint256 principal,
-        uint256 yieldForfeited
-    );
+    event DefaultHandled(uint256 indexed tokenId, address indexed owner, uint256 principal, uint256 yieldForfeited);
 
     // ============ Modifiers ============
 
@@ -175,10 +143,7 @@ contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
 
         // Verify invoice is actually defaulted
         InvoiceNFT.Invoice memory invoice = invoiceNFT.getInvoice(tokenId);
-        require(
-            invoice.status == InvoiceNFT.InvoiceStatus.Defaulted,
-            "Invoice not defaulted"
-        );
+        require(invoice.status == InvoiceNFT.InvoiceStatus.Defaulted, "Invoice not defaulted");
 
         address originalOwner = dep.owner;
         uint256 principal = dep.principal;
@@ -204,11 +169,11 @@ contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
     /// @param tokenId The invoice NFT to deposit
     /// @param strategy Initial yield strategy
     /// @param simulatedPrincipal Simulated principal value for yield calculation
-    function deposit(
-        uint256 tokenId,
-        Strategy strategy,
-        uint256 simulatedPrincipal
-    ) external nonReentrant whenNotPaused {
+    function deposit(uint256 tokenId, Strategy strategy, uint256 simulatedPrincipal)
+        external
+        nonReentrant
+        whenNotPaused
+    {
         require(invoiceNFT.ownerOf(tokenId) == msg.sender, "Not NFT owner");
         require(!deposits[tokenId].active, "Already deposited");
         require(simulatedPrincipal > 0, "Invalid principal");
@@ -271,10 +236,7 @@ contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
     function changeStrategy(uint256 tokenId, Strategy newStrategy) external whenNotPaused {
         Deposit storage dep = deposits[tokenId];
         require(dep.active, "Not active");
-        require(
-            msg.sender == dep.owner || msg.sender == agentRouter,
-            "Not authorized"
-        );
+        require(msg.sender == dep.owner || msg.sender == agentRouter, "Not authorized");
 
         // Update yield with old strategy first
         _updateYield(tokenId);
@@ -286,11 +248,11 @@ contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
     }
 
     /// @notice Agent executes a strategy action
-    function executeAgentAction(
-        uint256 tokenId,
-        Strategy strategy,
-        string calldata actionDescription
-    ) external onlyAgentRouter whenNotPaused {
+    function executeAgentAction(uint256 tokenId, Strategy strategy, string calldata actionDescription)
+        external
+        onlyAgentRouter
+        whenNotPaused
+    {
         Deposit storage dep = deposits[tokenId];
         require(dep.active, "Not active");
 
@@ -389,12 +351,7 @@ contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
 
     // ============ ERC721 Receiver ============
 
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes calldata
-    ) external pure override returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes calldata) external pure override returns (bytes4) {
         return this.onERC721Received.selector;
     }
 }

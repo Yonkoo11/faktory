@@ -48,26 +48,15 @@ contract MockLendingPool is ILendingPool {
         aTokens[asset] = aToken;
     }
 
-    function deposit(
-        address asset,
-        uint256 amount,
-        address onBehalfOf,
-        uint16
-    ) external override {
+    function deposit(address asset, uint256 amount, address onBehalfOf, uint16) external override {
         // Transfer asset from caller
         IERC20(asset).transferFrom(msg.sender, address(this), amount);
         // Mint aTokens
         mockAToken.mint(onBehalfOf, amount);
     }
 
-    function withdraw(
-        address asset,
-        uint256 amount,
-        address to
-    ) external override returns (uint256) {
-        uint256 withdrawAmount = amount == type(uint256).max
-            ? mockAToken.balanceOf(msg.sender)
-            : amount;
+    function withdraw(address asset, uint256 amount, address to) external override returns (uint256) {
+        uint256 withdrawAmount = amount == type(uint256).max ? mockAToken.balanceOf(msg.sender) : amount;
 
         // Transfer asset back
         IERC20(asset).transfer(to, withdrawAmount);
@@ -87,11 +76,12 @@ contract MockDataProvider is IProtocolDataProvider {
         aTokens[asset] = aToken;
     }
 
-    function getReserveTokensAddresses(address asset) external view override returns (
-        address aTokenAddress,
-        address stableDebtTokenAddress,
-        address variableDebtTokenAddress
-    ) {
+    function getReserveTokensAddresses(address asset)
+        external
+        view
+        override
+        returns (address aTokenAddress, address stableDebtTokenAddress, address variableDebtTokenAddress)
+    {
         return (aTokens[asset], address(0), address(0));
     }
 }
@@ -144,7 +134,7 @@ contract LendleYieldSourceTest is Test {
         vm.prank(user);
         yieldSource.deposit(tokenId, address(usdc), amount);
 
-        (address asset, uint256 principal, , uint256 depositTime) = yieldSource.getPosition(tokenId);
+        (address asset, uint256 principal,, uint256 depositTime) = yieldSource.getPosition(tokenId);
         assertEq(asset, address(usdc));
         assertEq(principal, amount);
         assertTrue(depositTime > 0);

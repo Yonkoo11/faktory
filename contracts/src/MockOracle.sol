@@ -8,12 +8,11 @@ import "./InvoiceNFT.sol";
 /// @notice Provides mock risk scores and payment probabilities for demo
 /// @dev Part of Faktory Protocol - Production integrates with RedStone on Mantle
 contract MockOracle is Ownable {
-
     // ============ Structs ============
 
     struct RiskData {
-        uint8 riskScore;           // 0-100 (higher = lower risk)
-        uint8 paymentProbability;  // 0-100
+        uint8 riskScore; // 0-100 (higher = lower risk)
+        uint8 paymentProbability; // 0-100
         uint256 lastUpdate;
         bool exists;
     }
@@ -32,11 +31,7 @@ contract MockOracle is Ownable {
 
     // ============ Events ============
 
-    event RiskDataUpdated(
-        uint256 indexed tokenId,
-        uint8 riskScore,
-        uint8 paymentProbability
-    );
+    event RiskDataUpdated(uint256 indexed tokenId, uint8 riskScore, uint8 paymentProbability);
 
     event DataProviderAdded(address indexed provider);
     event DataProviderRemoved(address indexed provider);
@@ -76,19 +71,12 @@ contract MockOracle is Ownable {
     // ============ Oracle Functions ============
 
     /// @notice Set risk data for an invoice
-    function setRiskData(
-        uint256 tokenId,
-        uint8 riskScore,
-        uint8 paymentProbability
-    ) external onlyDataProvider {
+    function setRiskData(uint256 tokenId, uint8 riskScore, uint8 paymentProbability) external onlyDataProvider {
         require(riskScore <= 100, "Risk score > 100");
         require(paymentProbability <= 100, "Payment prob > 100");
 
         riskData[tokenId] = RiskData({
-            riskScore: riskScore,
-            paymentProbability: paymentProbability,
-            lastUpdate: block.timestamp,
-            exists: true
+            riskScore: riskScore, paymentProbability: paymentProbability, lastUpdate: block.timestamp, exists: true
         });
 
         // Update the invoice NFT
@@ -98,25 +86,17 @@ contract MockOracle is Ownable {
     }
 
     /// @notice Batch update risk data
-    function batchSetRiskData(
-        uint256[] calldata tokenIds,
-        uint8[] calldata riskScores,
-        uint8[] calldata paymentProbs
-    ) external onlyDataProvider {
-        require(
-            tokenIds.length == riskScores.length &&
-            tokenIds.length == paymentProbs.length,
-            "Array mismatch"
-        );
+    function batchSetRiskData(uint256[] calldata tokenIds, uint8[] calldata riskScores, uint8[] calldata paymentProbs)
+        external
+        onlyDataProvider
+    {
+        require(tokenIds.length == riskScores.length && tokenIds.length == paymentProbs.length, "Array mismatch");
 
         for (uint256 i = 0; i < tokenIds.length; i++) {
             require(riskScores[i] <= 100 && paymentProbs[i] <= 100, "Invalid");
 
             riskData[tokenIds[i]] = RiskData({
-                riskScore: riskScores[i],
-                paymentProbability: paymentProbs[i],
-                lastUpdate: block.timestamp,
-                exists: true
+                riskScore: riskScores[i], paymentProbability: paymentProbs[i], lastUpdate: block.timestamp, exists: true
             });
 
             invoiceNFT.updateRiskMetrics(tokenIds[i], riskScores[i], paymentProbs[i]);
@@ -155,11 +135,7 @@ contract MockOracle is Ownable {
         }
 
         // Add some pseudo-randomness based on block data
-        uint256 randomish = uint256(keccak256(abi.encodePacked(
-            block.timestamp,
-            block.prevrandao,
-            tokenId
-        ))) % 20;
+        uint256 randomish = uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, tokenId))) % 20;
 
         // Adjust by +/- 10
         if (randomish < 10) {
@@ -171,10 +147,7 @@ contract MockOracle is Ownable {
         }
 
         riskData[tokenId] = RiskData({
-            riskScore: riskScore,
-            paymentProbability: paymentProb,
-            lastUpdate: block.timestamp,
-            exists: true
+            riskScore: riskScore, paymentProbability: paymentProb, lastUpdate: block.timestamp, exists: true
         });
 
         invoiceNFT.updateRiskMetrics(tokenId, riskScore, paymentProb);
@@ -202,12 +175,10 @@ contract MockOracle is Ownable {
         if (riskData[tokenId].exists) {
             return riskData[tokenId];
         }
-        return RiskData({
-            riskScore: defaultRiskScore,
-            paymentProbability: defaultPaymentProb,
-            lastUpdate: 0,
-            exists: false
-        });
+        return
+            RiskData({
+                riskScore: defaultRiskScore, paymentProbability: defaultPaymentProb, lastUpdate: 0, exists: false
+            });
     }
 
     function isStale(uint256 tokenId, uint256 maxAge) external view returns (bool) {

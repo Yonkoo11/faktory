@@ -16,7 +16,7 @@ contract MantleYieldStrategy is Ownable {
 
     // mETH - Mantle Staked Ether (liquid staking token) ~3-4% base yield
     address public constant METH_MAINNET = 0xcDA86A272531e8640cD7F1a92c01839911B90bb0;
-    address public methTestnet;  // Configurable for testnets
+    address public methTestnet; // Configurable for testnets
 
     // Stablecoins on Mantle (mainnet canonical addresses)
     address public constant USDC_MAINNET = 0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9;
@@ -33,21 +33,21 @@ contract MantleYieldStrategy is Ownable {
     // ============ Yield Strategy Types ============
 
     enum YieldSource {
-        METH_STAKING,      // mETH liquid staking (~3-4% APY)
-        CMETH_RESTAKING,   // cmETH restaking (~5-7% APY with points)
-        LENDLE_LENDING,    // Lendle lending pool (variable APY)
-        AGNI_LP            // Agni DEX LP positions (higher risk/reward)
+        METH_STAKING, // mETH liquid staking (~3-4% APY)
+        CMETH_RESTAKING, // cmETH restaking (~5-7% APY with points)
+        LENDLE_LENDING, // Lendle lending pool (variable APY)
+        AGNI_LP // Agni DEX LP positions (higher risk/reward)
     }
 
     // ============ Position Tracking ============
 
     struct YieldPosition {
-        uint256 tokenId;        // Invoice token ID
-        YieldSource source;     // Active yield source
-        address asset;          // Deposited asset
-        uint256 amount;         // Amount deposited
-        uint256 depositTime;    // Timestamp of deposit
-        uint256 estimatedAPY;   // Estimated APY at deposit time (basis points)
+        uint256 tokenId; // Invoice token ID
+        YieldSource source; // Active yield source
+        address asset; // Deposited asset
+        uint256 amount; // Amount deposited
+        uint256 depositTime; // Timestamp of deposit
+        uint256 estimatedAPY; // Estimated APY at deposit time (basis points)
     }
 
     mapping(uint256 => YieldPosition) public positions;
@@ -58,7 +58,9 @@ contract MantleYieldStrategy is Ownable {
 
     // ============ Events ============
 
-    event PositionOpened(uint256 indexed tokenId, YieldSource source, address asset, uint256 amount, uint256 estimatedAPY);
+    event PositionOpened(
+        uint256 indexed tokenId, YieldSource source, address asset, uint256 amount, uint256 estimatedAPY
+    );
     event PositionClosed(uint256 indexed tokenId, uint256 returnedAmount, uint256 yieldEarned);
     event YieldSourceChanged(uint256 indexed tokenId, YieldSource oldSource, YieldSource newSource);
 
@@ -81,13 +83,10 @@ contract MantleYieldStrategy is Ownable {
     }
 
     /// @notice Configure testnet token addresses (owner only)
-    function setTestnetAddresses(
-        address _meth,
-        address _usdc,
-        address _usdt,
-        address _weth,
-        address _wmnt
-    ) external onlyOwner {
+    function setTestnetAddresses(address _meth, address _usdc, address _usdt, address _weth, address _wmnt)
+        external
+        onlyOwner
+    {
         if (_meth != address(0)) methTestnet = _meth;
         if (_usdc != address(0)) usdcTestnet = _usdc;
         if (_usdt != address(0)) usdtTestnet = _usdt;
@@ -100,10 +99,10 @@ contract MantleYieldStrategy is Ownable {
     /// @notice Get estimated APY for each yield source
     /// @dev Returns APY in basis points (100 = 1%)
     function getEstimatedAPY(YieldSource source) public pure returns (uint256) {
-        if (source == YieldSource.METH_STAKING) return 350;     // ~3.5% from ETH staking
-        if (source == YieldSource.CMETH_RESTAKING) return 600;  // ~6% with restaking rewards
-        if (source == YieldSource.LENDLE_LENDING) return 400;   // ~4% variable
-        if (source == YieldSource.AGNI_LP) return 1200;         // ~12% but higher risk
+        if (source == YieldSource.METH_STAKING) return 350; // ~3.5% from ETH staking
+        if (source == YieldSource.CMETH_RESTAKING) return 600; // ~6% with restaking rewards
+        if (source == YieldSource.LENDLE_LENDING) return 400; // ~4% variable
+        if (source == YieldSource.AGNI_LP) return 1200; // ~12% but higher risk
         return 0;
     }
 
@@ -118,10 +117,10 @@ contract MantleYieldStrategy is Ownable {
 
     /// @notice Get risk level for yield source (1-5, higher = riskier)
     function getYieldSourceRisk(YieldSource source) public pure returns (uint8) {
-        if (source == YieldSource.METH_STAKING) return 1;      // Very low - just staking
-        if (source == YieldSource.CMETH_RESTAKING) return 2;   // Low - restaking with slashing risk
-        if (source == YieldSource.LENDLE_LENDING) return 2;    // Low - overcollateralized lending
-        if (source == YieldSource.AGNI_LP) return 4;           // Higher - impermanent loss risk
+        if (source == YieldSource.METH_STAKING) return 1; // Very low - just staking
+        if (source == YieldSource.CMETH_RESTAKING) return 2; // Low - restaking with slashing risk
+        if (source == YieldSource.LENDLE_LENDING) return 2; // Low - overcollateralized lending
+        if (source == YieldSource.AGNI_LP) return 4; // Higher - impermanent loss risk
         return 3;
     }
 
@@ -130,10 +129,11 @@ contract MantleYieldStrategy is Ownable {
     /// @notice Recommend best yield source based on risk tolerance and time horizon
     /// @param riskScore Invoice risk score (0-100, higher = safer)
     /// @param daysUntilDue Days until invoice payment is due
-    function recommendYieldSource(
-        uint8 riskScore,
-        uint256 daysUntilDue
-    ) external pure returns (YieldSource recommended, string memory reasoning) {
+    function recommendYieldSource(uint8 riskScore, uint256 daysUntilDue)
+        external
+        pure
+        returns (YieldSource recommended, string memory reasoning)
+    {
         // Very short term (< 7 days) or high risk invoices -> Conservative
         if (daysUntilDue < 7 || riskScore < 40) {
             return (YieldSource.LENDLE_LENDING, "Short duration or high risk - using liquid lending for quick exit");
@@ -166,19 +166,16 @@ contract MantleYieldStrategy is Ownable {
         uint256 ethMainnetCost = 30 * 1e9 * typicalGas;
         uint256 savingsPercent = 100 - (gasCostWei * 100 / ethMainnetCost);
 
-        comparison = string(abi.encodePacked(
-            "Mantle: ~$0.002 vs Ethereum: ~$15 (",
-            _toString(savingsPercent),
-            "% savings)"
-        ));
+        comparison =
+            string(abi.encodePacked("Mantle: ~$0.002 vs Ethereum: ~$15 (", _toString(savingsPercent), "% savings)"));
     }
 
     /// @notice Get Mantle ecosystem stats for display
-    function getMantleStats() external pure returns (
-        string memory networkName,
-        string memory mETHDescription,
-        string memory valueProposition
-    ) {
+    function getMantleStats()
+        external
+        pure
+        returns (string memory networkName, string memory mETHDescription, string memory valueProposition)
+    {
         networkName = "Mantle Network (L2)";
         mETHDescription = "mETH: $1B+ TVL liquid staking token with ~3.5% yield";
         valueProposition = "Sub-cent transaction costs enable frequent AI agent operations";

@@ -34,19 +34,12 @@ contract BuyerConfirmationTest is Test {
         dueDate = block.timestamp + 30 days;
     }
 
-    function _createSignature(
-        uint256 invoiceId,
-        uint256 amount,
-        uint256 _dueDate,
-        address _issuer
-    ) internal view returns (bytes memory) {
-        bytes32 messageHash = keccak256(abi.encodePacked(
-            invoiceId,
-            amount,
-            _dueDate,
-            _issuer,
-            block.chainid
-        ));
+    function _createSignature(uint256 invoiceId, uint256 amount, uint256 _dueDate, address _issuer)
+        internal
+        view
+        returns (bytes memory)
+    {
+        bytes32 messageHash = keccak256(abi.encodePacked(invoiceId, amount, _dueDate, _issuer, block.chainid));
         bytes32 ethSignedHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(buyerPrivateKey, ethSignedHash);
         return abi.encodePacked(r, s, v);
@@ -135,14 +128,14 @@ contract BuyerConfirmationTest is Test {
 
     function test_GetTrustTier() public {
         // Before confirmation
-        assertEq(uint(confirmation.getTrustTier(INVOICE_ID)), uint(BuyerConfirmation.TrustTier.Unverified));
+        assertEq(uint256(confirmation.getTrustTier(INVOICE_ID)), uint256(BuyerConfirmation.TrustTier.Unverified));
 
         // After confirmation
         bytes memory signature = _createSignature(INVOICE_ID, AMOUNT, dueDate, issuer);
         vm.prank(buyer);
         confirmation.confirmInvoice(INVOICE_ID, AMOUNT, dueDate, issuer, signature);
 
-        assertEq(uint(confirmation.getTrustTier(INVOICE_ID)), uint(BuyerConfirmation.TrustTier.BuyerConfirmed));
+        assertEq(uint256(confirmation.getTrustTier(INVOICE_ID)), uint256(BuyerConfirmation.TrustTier.BuyerConfirmed));
     }
 
     function test_GetBuyerReliabilityScore_NewBuyer() public {

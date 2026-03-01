@@ -10,23 +10,22 @@ import "./YieldVault.sol";
 /// @notice Routes agent actions to appropriate contracts
 /// @dev Part of Faktory Protocol - Agent service calls this contract to execute yield strategies
 contract AgentRouter is Ownable, Pausable {
-
     // ============ Structs ============
 
     struct AgentDecision {
         uint256 tokenId;
         YieldVault.Strategy recommendedStrategy;
         string reasoning;
-        uint256 confidence;        // 0-100
+        uint256 confidence; // 0-100
         uint256 timestamp;
         bool executed;
     }
 
     struct AgentConfig {
-        uint256 minConfidence;     // Minimum confidence to auto-execute
-        uint256 maxGasPrice;       // Maximum gas price for execution
-        bool autoExecute;          // Whether to auto-execute decisions
-        bool active;               // Is agent active
+        uint256 minConfidence; // Minimum confidence to auto-execute
+        uint256 maxGasPrice; // Maximum gas price for execution
+        bool autoExecute; // Whether to auto-execute decisions
+        bool active; // Is agent active
     }
 
     // ============ State ============
@@ -55,29 +54,13 @@ contract AgentRouter is Ownable, Pausable {
     event AgentAuthorized(address indexed agent);
     event AgentDeauthorized(address indexed agent);
 
-    event DecisionRecorded(
-        uint256 indexed tokenId,
-        YieldVault.Strategy strategy,
-        uint256 confidence,
-        string reasoning
-    );
+    event DecisionRecorded(uint256 indexed tokenId, YieldVault.Strategy strategy, uint256 confidence, string reasoning);
 
-    event DecisionExecuted(
-        uint256 indexed tokenId,
-        YieldVault.Strategy strategy,
-        address indexed executor
-    );
+    event DecisionExecuted(uint256 indexed tokenId, YieldVault.Strategy strategy, address indexed executor);
 
-    event AnalysisRequested(
-        uint256 indexed tokenId,
-        address indexed requester
-    );
+    event AnalysisRequested(uint256 indexed tokenId, address indexed requester);
 
-    event ConfigUpdated(
-        uint256 minConfidence,
-        uint256 maxGasPrice,
-        bool autoExecute
-    );
+    event ConfigUpdated(uint256 minConfidence, uint256 maxGasPrice, bool autoExecute);
 
     // ============ Modifiers ============
 
@@ -92,12 +75,7 @@ contract AgentRouter is Ownable, Pausable {
         invoiceNFT = InvoiceNFT(_invoiceNFT);
         yieldVault = YieldVault(_yieldVault);
 
-        config = AgentConfig({
-            minConfidence: 70,
-            maxGasPrice: 100 gwei,
-            autoExecute: true,
-            active: true
-        });
+        config = AgentConfig({minConfidence: 70, maxGasPrice: 100 gwei, autoExecute: true, active: true});
 
         // Owner is first authorized agent
         authorizedAgents[msg.sender] = true;
@@ -115,11 +93,7 @@ contract AgentRouter is Ownable, Pausable {
         emit AgentDeauthorized(agent);
     }
 
-    function updateConfig(
-        uint256 minConfidence,
-        uint256 maxGasPrice,
-        bool autoExecute
-    ) external onlyOwner {
+    function updateConfig(uint256 minConfidence, uint256 maxGasPrice, bool autoExecute) external onlyOwner {
         require(minConfidence <= 100, "Invalid confidence");
         config.minConfidence = minConfidence;
         config.maxGasPrice = maxGasPrice;
@@ -161,10 +135,7 @@ contract AgentRouter is Ownable, Pausable {
     ) external onlyAuthorizedAgent whenNotPaused returns (uint256 decisionIndex) {
         require(config.active, "Agent not active");
         require(confidence <= 100, "Invalid confidence");
-        require(
-            block.timestamp >= lastAnalysis[tokenId] + decisionCooldown,
-            "Decision cooldown not elapsed"
-        );
+        require(block.timestamp >= lastAnalysis[tokenId] + decisionCooldown, "Decision cooldown not elapsed");
 
         AgentDecision memory decision = AgentDecision({
             tokenId: tokenId,
@@ -183,9 +154,7 @@ contract AgentRouter is Ownable, Pausable {
         emit DecisionRecorded(tokenId, strategy, confidence, reasoning);
 
         // Auto-execute if conditions met
-        if (config.autoExecute &&
-            confidence >= config.minConfidence &&
-            tx.gasprice <= config.maxGasPrice) {
+        if (config.autoExecute && confidence >= config.minConfidence && tx.gasprice <= config.maxGasPrice) {
             _executeDecision(tokenId, decisionIndex);
         }
     }
@@ -207,19 +176,13 @@ contract AgentRouter is Ownable, Pausable {
     ) external onlyAuthorizedAgent whenNotPaused {
         require(config.active, "Agent not active");
         require(
-            tokenIds.length == strategies.length &&
-            tokenIds.length == confidences.length &&
-            tokenIds.length == reasonings.length,
+            tokenIds.length == strategies.length && tokenIds.length == confidences.length
+                && tokenIds.length == reasonings.length,
             "Array length mismatch"
         );
 
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            uint256 decisionIndex = _recordDecisionInternal(
-                tokenIds[i],
-                strategies[i],
-                confidences[i],
-                reasonings[i]
-            );
+            uint256 decisionIndex = _recordDecisionInternal(tokenIds[i], strategies[i], confidences[i], reasonings[i]);
 
             if (confidences[i] >= config.minConfidence) {
                 _executeDecision(tokenIds[i], decisionIndex);
@@ -242,11 +205,7 @@ contract AgentRouter is Ownable, Pausable {
 
         if (deposit.active) {
             // Execute strategy change via YieldVault
-            yieldVault.executeAgentAction(
-                tokenId,
-                decision.recommendedStrategy,
-                decision.reasoning
-            );
+            yieldVault.executeAgentAction(tokenId, decision.recommendedStrategy, decision.reasoning);
         }
 
         decision.executed = true;
@@ -261,10 +220,7 @@ contract AgentRouter is Ownable, Pausable {
     ) internal returns (uint256 decisionIndex) {
         require(confidence <= 100, "Invalid confidence");
         // Check cooldown to prevent spam (also catches duplicates in same batch since timestamp updates)
-        require(
-            block.timestamp >= lastAnalysis[tokenId] + decisionCooldown,
-            "Decision cooldown not elapsed"
-        );
+        require(block.timestamp >= lastAnalysis[tokenId] + decisionCooldown, "Decision cooldown not elapsed");
 
         AgentDecision memory decision = AgentDecision({
             tokenId: tokenId,
@@ -285,19 +241,11 @@ contract AgentRouter is Ownable, Pausable {
 
     // ============ View Functions ============
 
-    function getDecisionHistory(uint256 tokenId)
-        external
-        view
-        returns (AgentDecision[] memory)
-    {
+    function getDecisionHistory(uint256 tokenId) external view returns (AgentDecision[] memory) {
         return decisionHistory[tokenId];
     }
 
-    function getLatestDecision(uint256 tokenId)
-        external
-        view
-        returns (AgentDecision memory)
-    {
+    function getLatestDecision(uint256 tokenId) external view returns (AgentDecision memory) {
         uint256 length = decisionHistory[tokenId].length;
         require(length > 0, "No decisions");
         return decisionHistory[tokenId][length - 1];
@@ -315,11 +263,7 @@ contract AgentRouter is Ownable, Pausable {
         return config;
     }
 
-    function needsAnalysis(uint256 tokenId, uint256 maxAge)
-        external
-        view
-        returns (bool)
-    {
+    function needsAnalysis(uint256 tokenId, uint256 maxAge) external view returns (bool) {
         return block.timestamp - lastAnalysis[tokenId] > maxAge;
     }
 }

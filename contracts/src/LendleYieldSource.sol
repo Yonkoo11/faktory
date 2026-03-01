@@ -7,29 +7,19 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title ILendingPool - Lendle/Aave v2 lending pool interface
 interface ILendingPool {
-    function deposit(
-        address asset,
-        uint256 amount,
-        address onBehalfOf,
-        uint16 referralCode
-    ) external;
+    function deposit(address asset, uint256 amount, address onBehalfOf, uint16 referralCode) external;
 
-    function withdraw(
-        address asset,
-        uint256 amount,
-        address to
-    ) external returns (uint256);
+    function withdraw(address asset, uint256 amount, address to) external returns (uint256);
 
     // Note: getReserveData is called via low-level call to avoid stack issues
 }
 
 /// @title IProtocolDataProvider - Lendle data provider interface
 interface IProtocolDataProvider {
-    function getReserveTokensAddresses(address asset) external view returns (
-        address aTokenAddress,
-        address stableDebtTokenAddress,
-        address variableDebtTokenAddress
-    );
+    function getReserveTokensAddresses(address asset)
+        external
+        view
+        returns (address aTokenAddress, address stableDebtTokenAddress, address variableDebtTokenAddress);
 }
 
 /// @title LendleYieldSource - Real yield integration with Lendle on Mantle
@@ -108,11 +98,7 @@ contract LendleYieldSource is Ownable {
 
         // Record position with owner
         positions[tokenId] = YieldPosition({
-            asset: asset,
-            principal: amount,
-            depositTime: block.timestamp,
-            aToken: aToken,
-            owner: msg.sender
+            asset: asset, principal: amount, depositTime: block.timestamp, aToken: aToken, owner: msg.sender
         });
 
         emit Deposited(tokenId, asset, amount, aToken, msg.sender);
@@ -163,9 +149,8 @@ contract LendleYieldSource is Ownable {
     /// @return apy The current supply APY in basis points (100 = 1%)
     function getCurrentAPY(address asset) external view returns (uint256 apy) {
         // Use low-level call to avoid stack too deep with complex Aave v2 structs
-        (bool success, bytes memory data) = lendingPool.staticcall(
-            abi.encodeWithSignature("getReserveData(address)", asset)
-        );
+        (bool success, bytes memory data) =
+            lendingPool.staticcall(abi.encodeWithSignature("getReserveData(address)", asset));
         require(success, "Failed to get reserve data");
 
         // Aave v2 / Lendle ReserveData struct layout:
@@ -189,12 +174,11 @@ contract LendleYieldSource is Ownable {
     }
 
     /// @notice Get position details
-    function getPosition(uint256 tokenId) external view returns (
-        address asset,
-        uint256 principal,
-        uint256 currentValue,
-        uint256 depositTime
-    ) {
+    function getPosition(uint256 tokenId)
+        external
+        view
+        returns (address asset, uint256 principal, uint256 currentValue, uint256 depositTime)
+    {
         YieldPosition memory pos = positions[tokenId];
         asset = pos.asset;
         principal = pos.principal;

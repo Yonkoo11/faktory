@@ -122,8 +122,7 @@ contract ReputationStaking is Ownable, ReentrancyGuard {
         uint256 remainingStake = profile.stakedAmount - amount;
         uint256 activeInvoiceVolume = getActiveInvoiceVolume(msg.sender);
         require(
-            remainingStake * maxLeverageRatio >= activeInvoiceVolume,
-            "Cannot unstake: active invoices exceed capacity"
+            remainingStake * maxLeverageRatio >= activeInvoiceVolume, "Cannot unstake: active invoices exceed capacity"
         );
 
         profile.stakedAmount = remainingStake;
@@ -142,18 +141,13 @@ contract ReputationStaking is Ownable, ReentrancyGuard {
     /// @param issuer The invoice issuer
     /// @param invoiceId The invoice token ID
     /// @param amount The invoice amount
-    function recordInvoiceIssued(
-        address issuer,
-        uint256 invoiceId,
-        uint256 amount
-    ) external {
+    function recordInvoiceIssued(address issuer, uint256 invoiceId, uint256 amount) external {
         require(authorizedReporters[msg.sender] || msg.sender == owner(), "Not authorized");
 
         IssuerProfile storage profile = profiles[issuer];
         require(profile.active, "Issuer not active");
         require(
-            profile.stakedAmount * maxLeverageRatio >= profile.totalVolumeIssued + amount,
-            "Exceeds leverage capacity"
+            profile.stakedAmount * maxLeverageRatio >= profile.totalVolumeIssued + amount, "Exceeds leverage capacity"
         );
 
         profile.invoicesIssued++;
@@ -236,9 +230,8 @@ contract ReputationStaking is Ownable, ReentrancyGuard {
         uint256 tenureBonus = tenureDays > 365 ? 200 : (tenureDays * 200) / 365;
 
         // Volume bonus (0-200, based on stake ratio)
-        uint256 volumeBonus = profile.stakedAmount > minStake * 10
-            ? 200
-            : (profile.stakedAmount * 200) / (minStake * 10);
+        uint256 volumeBonus =
+            profile.stakedAmount > minStake * 10 ? 200 : (profile.stakedAmount * 200) / (minStake * 10);
 
         // Penalties
         uint256 fraudPenalty = profile.fraudPenalties * 200; // -200 per fraud
@@ -274,8 +267,8 @@ contract ReputationStaking is Ownable, ReentrancyGuard {
         IssuerProfile memory profile = profiles[issuer];
         // Simplified: assume 50% of issued volume is still active
         // Real implementation would track individual invoices
-        uint256 paidVolume = (profile.totalVolumeIssued * profile.invoicesPaid) /
-            (profile.invoicesIssued > 0 ? profile.invoicesIssued : 1);
+        uint256 paidVolume = (profile.totalVolumeIssued * profile.invoicesPaid)
+            / (profile.invoicesIssued > 0 ? profile.invoicesIssued : 1);
         return profile.totalVolumeIssued - paidVolume;
     }
 
