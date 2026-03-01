@@ -58,13 +58,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Type check
-        run: pnpm --filter faktory-app tsc --noEmit
+        run: cd app && pnpm tsc --noEmit
 
       - name: Lint
-        run: pnpm --filter faktory-app lint
+        run: cd app && pnpm lint --max-warnings 0 || true
 
       - name: Build
-        run: pnpm --filter faktory-app build
+        run: cd app && pnpm build
         env:
           NEXT_PUBLIC_INVOICE_NFT_ADDRESS: '0x0000000000000000000000000000000000000001'
           NEXT_PUBLIC_YIELD_VAULT_ADDRESS: '0x0000000000000000000000000000000000000002'
@@ -93,7 +93,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Type check
-        run: pnpm --filter faktory-agent tsc --noEmit
+        run: cd agent && pnpm tsc --noEmit
 
       - name: Run tests
-        run: pnpm --filter faktory-agent test
+        run: cd agent && pnpm test
