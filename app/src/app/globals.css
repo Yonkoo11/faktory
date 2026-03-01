@@ -293,6 +293,64 @@
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 4px;
+    transition: border-color 0.25s ease,
+                box-shadow 0.25s ease,
+                transform 0.25s ease;
+  }
+
+  .terminal-card:hover {
+    border-color: var(--green-dim);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.08),
+                0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+  }
+
+  /* Green top-border accent that grows on hover */
+  .terminal-card-accent {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .terminal-card-accent::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 0;
+    height: 1px;
+    background: var(--green);
+    transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                left 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .terminal-card-accent:hover::before {
+    width: 100%;
+    left: 0;
+  }
+
+  /* Terminal card with persistent border glow for CTA */
+  .terminal-card-cta {
+    border-color: var(--green-dim);
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.06),
+                inset 0 1px 0 rgba(16, 185, 129, 0.1);
+    animation: cta-breathe 4s ease-in-out infinite;
+  }
+
+  .terminal-card-cta:hover {
+    animation: none;
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.12),
+                inset 0 1px 0 rgba(16, 185, 129, 0.2);
+  }
+
+  @keyframes cta-breathe {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.06),
+                  inset 0 1px 0 rgba(16, 185, 129, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(16, 185, 129, 0.1),
+                  inset 0 1px 0 rgba(16, 185, 129, 0.15);
+    }
   }
 
   /* Stats Grid - Bloomberg style */
@@ -308,6 +366,15 @@
   .stat-cell {
     background: var(--bg);
     padding: 16px 20px;
+    transition: background-color 0.2s ease;
+  }
+
+  .stat-cell:hover {
+    background: rgba(16, 185, 129, 0.03);
+  }
+
+  .stat-cell:hover .stat-value {
+    text-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
   }
 
   .stat-label {
@@ -945,8 +1012,54 @@
   60% { opacity: 0.4; }
 }
 
+/* ==============================================
+   SCROLL-TRIGGERED REVEALS
+   ============================================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-reveal-left {
+  transform: translateX(-24px) translateY(0);
+}
+
+.scroll-reveal-left.is-visible {
+  transform: translateX(0) translateY(0);
+}
+
+.scroll-reveal-right {
+  transform: translateX(24px) translateY(0);
+}
+
+.scroll-reveal-right.is-visible {
+  transform: translateX(0) translateY(0);
+}
+
+/* Staggered delays for grouped elements */
+.scroll-reveal-delay-1 { transition-delay: 0.1s; }
+.scroll-reveal-delay-2 { transition-delay: 0.2s; }
+.scroll-reveal-delay-3 { transition-delay: 0.3s; }
+.scroll-reveal-delay-4 { transition-delay: 0.4s; }
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
@@ -959,5 +1072,11 @@
   .noise-overlay::before,
   .glow-accent::after {
     display: none;
+  }
+
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

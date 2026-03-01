@@ -10,11 +10,12 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { injected } from 'wagmi/connectors'
-import { ArrowRight } from "lucide-react"
+import { ArrowRight, FileText, TrendingUp, Zap } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { StatusBar } from "@/components/ui/status-bar"
 import { TickerValue } from "@/components/ticker-value"
+import { ScrollReveal } from "@/components/scroll-reveal"
 import { useLendleMarkets } from '@/hooks/use-lendle'
 
 export default function LandingPage() {
@@ -140,37 +141,43 @@ export default function LandingPage() {
       {/* How It Works - Terminal Steps */}
       <section className="max-w-4xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Step 1 */}
-          <div className="terminal-card p-6 stagger-1">
-            <div className="text-[10px] text-[#666666] uppercase tracking-wider mb-3">01</div>
-            <h3 className="text-[14px] font-semibold mb-2">TOKENIZE</h3>
-            <p className="text-[12px] text-[#666666] leading-relaxed">
-              Agent mints your invoice as a privacy-preserving NFT on Cronos.
-            </p>
-          </div>
+          <ScrollReveal delay={0}>
+            <div className="terminal-card terminal-card-accent p-6">
+              <div className="text-[10px] text-[#666666] uppercase tracking-wider mb-3">01</div>
+              <FileText className="w-5 h-5 text-[#10b981] mb-3" />
+              <h3 className="text-[14px] font-semibold mb-2">TOKENIZE</h3>
+              <p className="text-[12px] text-[#666666] leading-relaxed">
+                Agent mints your invoice as a privacy-preserving NFT on Cronos.
+              </p>
+            </div>
+          </ScrollReveal>
 
-          {/* Step 2 */}
-          <div className="terminal-card p-6 stagger-2">
-            <div className="text-[10px] text-[#666666] uppercase tracking-wider mb-3">02</div>
-            <h3 className="text-[14px] font-semibold mb-2">OPTIMIZE</h3>
-            <p className="text-[12px] text-[#666666] leading-relaxed">
-              AI deploys capital to yield strategies. Rebalances 24/7 autonomously.
-            </p>
-          </div>
+          <ScrollReveal delay={1}>
+            <div className="terminal-card terminal-card-accent p-6">
+              <div className="text-[10px] text-[#666666] uppercase tracking-wider mb-3">02</div>
+              <TrendingUp className="w-5 h-5 text-[#10b981] mb-3" />
+              <h3 className="text-[14px] font-semibold mb-2">OPTIMIZE</h3>
+              <p className="text-[12px] text-[#666666] leading-relaxed">
+                AI deploys capital to yield strategies. Rebalances 24/7 autonomously.
+              </p>
+            </div>
+          </ScrollReveal>
 
-          {/* Step 3 */}
-          <div className="terminal-card p-6 stagger-3">
-            <div className="text-[10px] text-[#666666] uppercase tracking-wider mb-3">03</div>
-            <h3 className="text-[14px] font-semibold mb-2">SETTLE</h3>
-            <p className="text-[12px] text-[#666666] leading-relaxed">
-              Client pays on-chain via x402. Instant settlement, no intermediaries.
-            </p>
-          </div>
+          <ScrollReveal delay={2}>
+            <div className="terminal-card terminal-card-accent p-6">
+              <div className="text-[10px] text-[#666666] uppercase tracking-wider mb-3">03</div>
+              <Zap className="w-5 h-5 text-[#10b981] mb-3" />
+              <h3 className="text-[14px] font-semibold mb-2">SETTLE</h3>
+              <p className="text-[12px] text-[#666666] leading-relaxed">
+                Client pays on-chain via x402. Instant settlement, no intermediaries.
+              </p>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
       {/* Stats Grid */}
-      <section className="max-w-4xl mx-auto px-6 py-8 stagger-4">
+      <ScrollReveal as="section" className="max-w-4xl mx-auto px-6 py-8">
         <div className="stats-grid grid-cols-3">
           <div className="stat-cell">
             <div className="stat-label">Target APY</div>
@@ -185,24 +192,45 @@ export default function LandingPage() {
             <div className="stat-value">CRONOS</div>
           </div>
         </div>
-      </section>
+      </ScrollReveal>
 
       {/* Trust Bar */}
-      <section className="max-w-4xl mx-auto px-6 py-16 stagger-5">
+      <ScrollReveal as="section" className="max-w-4xl mx-auto px-6 py-16">
         <div className="text-center">
           <div className="text-[10px] text-[#666666] uppercase tracking-wider mb-8">Powered by</div>
           <div className="flex items-center justify-center gap-10">
-            <div className="text-[14px] font-semibold text-[#666666] hover:text-[#0052ff] transition-colors cursor-default">CRONOS</div>
-            <div className="text-[14px] font-semibold text-[#666666] hover:text-[#10b981] transition-colors cursor-default">x402</div>
-            <div className="text-[14px] font-semibold text-[#666666] hover:text-[#8b5cf6] transition-colors cursor-default">PYTH</div>
-            <div className="text-[14px] font-semibold text-[#666666] hover:text-[#f59e0b] transition-colors cursor-default">LENDLE</div>
+            {[
+              { name: 'CRONOS', color: '#0052ff' },
+              { name: 'x402', color: '#10b981' },
+              { name: 'PYTH', color: '#8b5cf6' },
+              { name: 'LENDLE', color: '#f59e0b' },
+            ].map((logo) => (
+              <div
+                key={logo.name}
+                className="text-[14px] font-semibold text-[#666666] transition-all duration-300 cursor-default hover:scale-110"
+                style={{
+                  // @ts-expect-error CSS custom properties
+                  '--logo-color': logo.color,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = logo.color
+                  e.currentTarget.style.filter = `drop-shadow(0 0 8px ${logo.color})`
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = ''
+                  e.currentTarget.style.filter = ''
+                }}
+              >
+                {logo.name}
+              </div>
+            ))}
           </div>
         </div>
-      </section>
+      </ScrollReveal>
 
       {/* Final CTA */}
-      <section className="max-w-3xl mx-auto px-6 py-16 text-center stagger-6">
-        <div className="terminal-card p-8">
+      <ScrollReveal as="section" className="max-w-3xl mx-auto px-6 py-16 text-center">
+        <div className="terminal-card terminal-card-cta p-8">
           <h2 className="text-[24px] font-bold mb-4">
             Let AI manage your treasury
           </h2>
@@ -218,7 +246,7 @@ export default function LandingPage() {
             </Link>
           </div>
         </div>
-      </section>
+      </ScrollReveal>
 
       {/* Footer */}
       <footer className="max-w-4xl mx-auto px-6 py-8 border-t border-[#1f1f1f]">
