@@ -44,7 +44,7 @@ export function ResultState({
             </p>
             {depositHash && (
               <a
-                href={`https://explorer.cronos.org/testnet3/tx/${depositHash}`}
+                href={`https://etherscan.io/tx/${depositHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm text-primary hover:underline mb-6"

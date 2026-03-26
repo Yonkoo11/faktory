@@ -1,7 +1,7 @@
 "use client"
 
-// Simulated APY data for Cronos x402 PayTech Hackathon demo
-// In production, this would integrate with a real Cronos DeFi protocol
+// Simulated APY data (replaced by Aave V3 in production)
+// In production, uses Aave V3 for real yield
 
 export function useLendleAPY(asset: string = "USDC") {
   // Return simulated APY data for demo

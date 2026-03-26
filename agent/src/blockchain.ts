@@ -107,11 +107,11 @@ const PYTH_ORACLE_ABI = [
   'function getRiskAssessment(uint256 tokenId) view returns (uint8 riskScore, uint8 paymentProbability, uint256 lastUpdated, int64 collateralPrice)',
   'function assessRisk(uint256 tokenId, uint256 dueDate, uint256 invoiceValue, uint256 collateralValue, bytes[] calldata priceUpdateData) payable',
   'function getEthUsdPrice() view returns (int64)',
-  'function getMntUsdPrice() view returns (int64)',
+  'function getNativeUsdPrice() view returns (int64)',
 ];
 
-// Lendle Yield Source ABI (for production)
-const LENDLE_YIELD_ABI = [
+// Aave V3 Yield Source ABI (for production)
+const AAVE_YIELD_ABI = [
   'function getCurrentAPY(address asset) view returns (uint256)',
   'function getPosition(uint256 tokenId) view returns (address asset, uint256 principal, uint256 currentValue, uint256 depositTime)',
   'function deposit(uint256 tokenId, address asset, uint256 amount)',
@@ -125,7 +125,7 @@ export interface ContractAddresses {
   mockOracle: string;
   // Optional production addresses
   pythOracle?: string;
-  lendleYieldSource?: string;
+  aaveYieldSource?: string;
 }
 
 export class BlockchainService {
@@ -137,15 +137,15 @@ export class BlockchainService {
   private agentRouter: ethers.Contract;
   private mockOracle: ethers.Contract;
   private pythOracle: ethers.Contract | null = null;
-  private lendleYieldSource: ethers.Contract | null = null;
+  private aaveYieldSource: ethers.Contract | null = null;
 
-  // Real APY cache (fetched from Lendle)
+  // Real APY cache (fetched from Aave V3)
   private cachedAPY: { [strategy: number]: number } = {};
   private apyCacheTime = 0;
   private APY_CACHE_DURATION = 60000; // 1 minute
 
   // Market monitoring
-  private priceHistory: { timestamp: number; ethPrice: number; mntPrice: number }[] = [];
+  private priceHistory: { timestamp: number; ethPrice: number; nativePrice: number }[] = [];
   private lastMarketConditions: MarketConditions | null = null;
   private PRICE_HISTORY_DURATION = 4 * 60 * 60 * 1000; // 4 hours
 
@@ -168,9 +168,9 @@ export class BlockchainService {
       this.pythOracle = new ethers.Contract(addresses.pythOracle, PYTH_ORACLE_ABI, signerOrProvider);
       console.log('Using Pyth Oracle for real price data');
     }
-    if (addresses.lendleYieldSource) {
-      this.lendleYieldSource = new ethers.Contract(addresses.lendleYieldSource, LENDLE_YIELD_ABI, signerOrProvider);
-      console.log('Using Lendle for real yield data');
+    if (addresses.aaveYieldSource) {
+      this.aaveYieldSource = new ethers.Contract(addresses.aaveYieldSource, AAVE_YIELD_ABI, signerOrProvider);
+      console.log('Using Aave V3 for real yield data');
     }
   }
 
@@ -180,7 +180,7 @@ export class BlockchainService {
   }
 
   isUsingRealYield(): boolean {
-    return this.lendleYieldSource !== null;
+    return this.aaveYieldSource !== null;
   }
 
   async getActiveInvoices(): Promise<{ ids: string[]; error?: string }> {
@@ -363,15 +363,15 @@ export class BlockchainService {
       2: 700,  // Aggressive: 7%
     };
 
-    if (!this.lendleYieldSource) {
+    if (!this.aaveYieldSource) {
       return fallbackAPY[strategy] || 0;
     }
 
     try {
-      // Fetch real APY from Lendle for USDC/USDT (common stablecoins)
-      // In production, this would use actual asset addresses
-      const USDC_ADDRESS = '0x09Bc4E0D864854c6aFB6eB9A9cdF58aC190D0dF9'; // USDC placeholder (simulated yields on Cronos)
-      const apy = await this.lendleYieldSource.getCurrentAPY(USDC_ADDRESS);
+      // Fetch real APY from Aave V3 for USDC/USDT (common stablecoins)
+      // In production, this would use the chain-specific USDC address
+      const USDC_ADDRESS = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'; // USDC on Ethereum (overridden per chain)
+      const apy = await this.aaveYieldSource.getCurrentAPY(USDC_ADDRESS);
 
       // Scale based on strategy (Conservative = base APY, Aggressive = 2x)
       const baseAPY = Number(apy);
@@ -385,7 +385,7 @@ export class BlockchainService {
       }
 
       this.apyCacheTime = Date.now();
-      console.log(`Real APY fetched from Lendle: ${baseAPY} basis points`);
+      console.log(`Real APY fetched from Aave V3: ${baseAPY} basis points`);
 
       return this.cachedAPY[strategy] || fallbackAPY[strategy];
     } catch (error) {
@@ -395,7 +395,7 @@ export class BlockchainService {
   }
 
   /// Get real price from Pyth Oracle
-  async getRealPrice(feed: 'ETH' | 'MNT'): Promise<number | null> {
+  async getRealPrice(feed: 'ETH' | 'NATIVE'): Promise<number | null> {
     if (!this.pythOracle) {
       return null;
     }
@@ -403,7 +403,7 @@ export class BlockchainService {
     try {
       const price = feed === 'ETH'
         ? await this.pythOracle.getEthUsdPrice()
-        : await this.pythOracle.getMntUsdPrice();
+        : await this.pythOracle.getNativeUsdPrice();
 
       // Price has 8 decimals
       return Number(price) / 1e8;
@@ -417,7 +417,7 @@ export class BlockchainService {
   getDataSourceInfo(): { oracle: string; yield: string } {
     return {
       oracle: this.pythOracle ? 'Pyth Network (Real-time)' : 'Mock Oracle (Simulated)',
-      yield: this.lendleYieldSource ? 'Lendle Protocol (Real DeFi)' : 'Simulated Yield',
+      yield: this.aaveYieldSource ? 'Aave V3 (Real DeFi)' : 'Simulated Yield',
     };
   }
 
@@ -427,14 +427,14 @@ export class BlockchainService {
 
     // Get current prices
     const ethPrice = await this.getRealPrice('ETH');
-    const mntPrice = await this.getRealPrice('MNT');
+    const nativePrice = await this.getRealPrice('NATIVE');
 
     // Store price in history
     if (ethPrice !== null) {
       this.priceHistory.push({
         timestamp: now,
         ethPrice: ethPrice,
-        mntPrice: mntPrice || 0,
+        nativePrice: nativePrice || 0,
       });
 
       // Clean old entries
@@ -449,7 +449,7 @@ export class BlockchainService {
 
     this.lastMarketConditions = {
       ethPrice,
-      mntPrice,
+      nativePrice,
       ethPriceChange24h: priceChange,
       volatilityLevel,
       lastUpdated: now,
@@ -523,19 +523,19 @@ export class BlockchainService {
     return null;
   }
 
-  /// Get estimated transaction cost on Mantle
+  /// Get estimated transaction cost on the connected chain
   async getEstimatedTxCost(): Promise<{ costWei: bigint; costUsd: string }> {
     try {
       const feeData = await this.provider.getFeeData();
-      const gasPrice = feeData.gasPrice || 50000000n; // 0.05 gwei default for Mantle
+      const gasPrice = feeData.gasPrice || 1000000000n; // 1 gwei default
       const estimatedGas = 150000n; // Typical gas for recordDecision
 
       const costWei = gasPrice * estimatedGas;
 
-      // Convert to USD using MNT price or default
-      const mntPrice = await this.getRealPrice('MNT');
-      const costMnt = Number(costWei) / 1e18;
-      const costUsd = mntPrice ? (costMnt * mntPrice).toFixed(4) : '0.002';
+      // Convert to USD using ETH price or default
+      const ethPrice = await this.getRealPrice('ETH');
+      const costEth = Number(costWei) / 1e18;
+      const costUsd = ethPrice ? (costEth * ethPrice).toFixed(4) : '~0.01';
 
       return {
         costWei,
@@ -543,8 +543,8 @@ export class BlockchainService {
       };
     } catch {
       return {
-        costWei: 7500000000000n, // ~0.0000075 MNT
-        costUsd: '$0.002',
+        costWei: 150000000000000n, // ~0.00015 ETH
+        costUsd: '$~0.01',
       };
     }
   }
@@ -556,11 +556,11 @@ export class BlockchainService {
 
     // Clear history and add simulated drop
     this.priceHistory = [
-      { timestamp: now - 4 * 60 * 60 * 1000, ethPrice: basePrice, mntPrice: 0.5 },
-      { timestamp: now - 3 * 60 * 60 * 1000, ethPrice: basePrice * 0.98, mntPrice: 0.49 },
-      { timestamp: now - 2 * 60 * 60 * 1000, ethPrice: basePrice * 0.95, mntPrice: 0.48 },
-      { timestamp: now - 1 * 60 * 60 * 1000, ethPrice: basePrice * (1 - percentage / 200), mntPrice: 0.46 },
-      { timestamp: now, ethPrice: basePrice * (1 - percentage / 100), mntPrice: 0.45 },
+      { timestamp: now - 4 * 60 * 60 * 1000, ethPrice: basePrice, nativePrice: 0.5 },
+      { timestamp: now - 3 * 60 * 60 * 1000, ethPrice: basePrice * 0.98, nativePrice: 0.49 },
+      { timestamp: now - 2 * 60 * 60 * 1000, ethPrice: basePrice * 0.95, nativePrice: 0.48 },
+      { timestamp: now - 1 * 60 * 60 * 1000, ethPrice: basePrice * (1 - percentage / 200), nativePrice: 0.46 },
+      { timestamp: now, ethPrice: basePrice * (1 - percentage / 100), nativePrice: 0.45 },
     ];
 
     console.log(`📉 Simulated ${percentage}% market drop for demo`);

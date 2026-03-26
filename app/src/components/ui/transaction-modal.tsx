@@ -45,7 +45,7 @@ export function TransactionModal({
   onClose,
   successTitle = 'Transaction Successful',
   successMessage = 'Your transaction was completed successfully',
-  explorerUrl = 'https://explorer.cronos.org/testnet3',
+  explorerUrl = '',
 }: TransactionModalProps) {
   const handleClose = () => {
     onClose?.()

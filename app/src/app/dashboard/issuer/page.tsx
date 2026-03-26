@@ -366,7 +366,7 @@ export default function IssuerDashboardPage() {
         </DialogContent>
       </Dialog>
 
-      <StatusBar network="CRONOS TESTNET" />
+      <StatusBar network="MULTICHAIN" />
     </div>
   )
 }

@@ -193,7 +193,7 @@ function MintInvoiceContent() {
               INVOICE MINTED
             </h1>
             <p className="text-[13px] text-[#666666] mb-6">
-              Your invoice has been tokenized on Cronos
+              Your invoice has been tokenized on-chain
             </p>
             <div className="inline-flex items-center gap-2 text-sm bg-[#10b981]/10 border border-[#10b981]/30 px-6 py-3 rounded mb-6">
               <span className="text-[#666666]">token_id:</span>
@@ -203,7 +203,7 @@ function MintInvoiceContent() {
             {hash && (
               <div className="mb-8">
                 <a
-                  href={`https://explorer.cronos.org/testnet3/tx/${hash}`}
+                  href={`https://etherscan.io/tx/${hash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-xs text-[#10b981] hover:underline"
@@ -227,7 +227,7 @@ function MintInvoiceContent() {
             </div>
           </div>
         </main>
-        <StatusBar status="online" network="CRONOS TESTNET" />
+        <StatusBar status="online" network="MULTICHAIN" />
       </div>
     )
   }
@@ -448,7 +448,7 @@ function MintInvoiceContent() {
                 </div>
                 <div className="flex items-center justify-between text-[11px]">
                   <span className="text-[#666666]">network</span>
-                  <span>Cronos Testnet</span>
+                  <span>Connected Chain</span>
                 </div>
               </div>
 
@@ -489,7 +489,7 @@ function MintInvoiceContent() {
         )}
       </main>
 
-      <StatusBar status="online" network="CRONOS TESTNET" />
+      <StatusBar status="online" network="MULTICHAIN" />
     </div>
   )
 }

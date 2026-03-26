@@ -2,9 +2,9 @@
 
 import { useReadContract, useChainId } from 'wagmi';
 import { formatEther } from 'viem';
-import { getContractAddresses, areContractsDeployed } from '@/lib/wagmi';
+import { getContractAddresses, areContractsDeployed, getChainMeta } from '@/lib/wagmi';
 import { YieldVaultABI, InvoiceNFTABI, AgentRouterABI } from '@/lib/abi';
-import { FileText, Lock, Coins, Bot, Link2, AlertTriangle } from 'lucide-react';
+import { FileText, Lock, Coins, Bot, AlertTriangle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 function StatSkeleton() {
@@ -56,9 +56,8 @@ export function Stats() {
   const hasError = invoicesError || tvlError || yieldError || decisionsError;
   const notDeployed = !contractsDeployed;
 
-  // Determine if we're on a Cronos network
-  const isCronos = chainId === 25 || chainId === 338;
-  const networkName = chainId === 25 ? 'Cronos' : chainId === 338 ? 'Cronos Testnet' : 'Local';
+  const meta = getChainMeta(chainId);
+  const networkName = meta?.name || (chainId === 31337 ? 'Local' : `Chain ${chainId}`);
 
   const stats = [
     {
@@ -93,46 +92,12 @@ export function Stats() {
 
   return (
     <div className="space-y-4">
-      {/* Cronos Network Banner */}
-      <div className="bg-gradient-to-r from-gray-900 via-blue-900/20 to-gray-900 rounded-xl border border-blue-800/50 p-4 hover:border-blue-700/60 transition-colors">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center">
-              <Link2 className="w-5 h-5 text-blue-400" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">Powered by Cronos</span>
-                <span className="text-xs px-2 py-0.5 bg-blue-600/30 border border-blue-600 rounded-full text-blue-300">
-                  {networkName}
-                </span>
-              </div>
-              <p className="text-xs text-gray-400">Sub-cent transactions enable real-time AI optimization</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-6 text-sm">
-            <div className="text-center">
-              <div className="text-blue-400 font-semibold">~$0.002</div>
-              <div className="text-xs text-gray-500">Per TX</div>
-            </div>
-            <div className="text-center">
-              <div className="text-green-400 font-semibold">3-7%</div>
-              <div className="text-xs text-gray-500">Yield APY</div>
-            </div>
-            <div className="text-center">
-              <div className="text-purple-400 font-semibold">mETH</div>
-              <div className="text-xs text-gray-500">Staking</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Contracts Not Deployed Banner */}
       {notDeployed && (
         <div className="bg-yellow-900/20 border border-yellow-800 rounded-xl p-3" role="alert">
           <div className="flex items-center gap-2 text-yellow-400 text-sm">
             <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-            <span>Contracts not deployed on this network. Start Anvil locally or switch to Cronos Testnet.</span>
+            <span>Contracts not deployed on {networkName}. Deploy contracts or switch networks.</span>
           </div>
         </div>
       )}

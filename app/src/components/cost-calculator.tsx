@@ -15,11 +15,11 @@ export function CostCalculator({ className }: CostCalculatorProps) {
 
   // Cost estimates (conservative)
   const L1_COST_PER_TX = 0.50 // $0.50 average on Ethereum
-  const CRONOS_COST_PER_TX = 0.001 // $0.001 on Cronos
+  const L2_COST_PER_TX = 0.001 // $0.001 on L2/alt-L1
 
   const dailyCostL1 = txPerDay * L1_COST_PER_TX
-  const dailyCostCronos = txPerDay * CRONOS_COST_PER_TX
-  const dailySavings = dailyCostL1 - dailyCostCronos
+  const dailyCostL2 = txPerDay * L2_COST_PER_TX
+  const dailySavings = dailyCostL1 - dailyCostL2
   const monthlySavings = dailySavings * 30
   const savingsPercent = ((dailySavings / dailyCostL1) * 100).toFixed(0)
 
@@ -31,7 +31,7 @@ export function CostCalculator({ className }: CostCalculatorProps) {
         </div>
         <div>
           <h3 className="font-semibold">Cost Savings Calculator</h3>
-          <p className="text-xs text-muted-foreground">See how much Cronos saves you</p>
+          <p className="text-xs text-muted-foreground">See how much L2 saves you</p>
         </div>
       </div>
 
@@ -65,9 +65,9 @@ export function CostCalculator({ className }: CostCalculatorProps) {
           <div className="text-xs text-muted-foreground">per day</div>
         </div>
         <div className="p-4 rounded-lg bg-success/10 border border-success/20">
-          <div className="text-xs text-muted-foreground mb-1">Cronos</div>
+          <div className="text-xs text-muted-foreground mb-1">L2</div>
           <div className="text-2xl font-bold text-success">
-            ${dailyCostCronos.toFixed(2)}
+            ${dailyCostL2.toFixed(2)}
           </div>
           <div className="text-xs text-muted-foreground">per day</div>
         </div>

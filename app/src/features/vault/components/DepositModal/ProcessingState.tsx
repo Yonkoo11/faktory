@@ -156,7 +156,7 @@ export function ProcessingState({
           {/* Explorer link */}
           {currentHash && (
             <a
-              href={`https://explorer.cronos.org/testnet3/tx/${currentHash}`}
+              href={`https://etherscan.io/tx/${currentHash}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm text-primary hover:underline mb-4"

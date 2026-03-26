@@ -1,9 +1,8 @@
 'use client';
 
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
-import { SUPPORTED_CHAINS, anvil } from '@/lib/wagmi';
-import { cronosTestnet } from 'wagmi/chains';
-import { areContractsDeployed } from '@/lib/contracts/addresses';
+import { SUPPORTED_CHAINS } from '@/lib/wagmi';
+import { areContractsDeployed, getChainMeta } from '@/lib/contracts/addresses';
 
 export function NetworkWarning() {
   const { isConnected } = useAccount();
@@ -14,6 +13,8 @@ export function NetworkWarning() {
 
   const isSupported = (SUPPORTED_CHAINS as readonly number[]).includes(chainId);
   const contractsDeployed = areContractsDeployed(chainId);
+  const meta = getChainMeta(chainId);
+  const chainName = meta?.name || `Chain ${chainId}`;
 
   // Show contract deployment warning if on supported network but contracts not deployed
   if (isSupported && !contractsDeployed) {
@@ -23,16 +24,9 @@ export function NetworkWarning() {
           <div className="flex items-center gap-2 text-red-400">
             <span>⚠️</span>
             <span className="text-sm">
-              Contracts not deployed on this network. Please deploy contracts or switch to Cronos Testnet.
+              Contracts not deployed on {chainName}. Please deploy contracts or switch networks.
             </span>
           </div>
-          <button
-            onClick={() => switchChain({ chainId: cronosTestnet.id })}
-            disabled={isPending}
-            className="px-3 py-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 rounded text-xs font-medium transition-colors"
-          >
-            {isPending ? 'Switching...' : 'Switch to Cronos'}
-          </button>
         </div>
       </div>
     );
@@ -46,26 +40,8 @@ export function NetworkWarning() {
         <div className="flex items-center gap-2 text-yellow-400">
           <span>⚠️</span>
           <span className="text-sm">
-            Please switch to a supported network (Anvil Local, Cronos Testnet, or Cronos)
+            Unsupported network. Please switch to a supported chain.
           </span>
-        </div>
-        <div className="flex gap-2" role="group" aria-label="Network selection">
-          <button
-            onClick={() => switchChain({ chainId: anvil.id })}
-            disabled={isPending}
-            aria-label="Switch to Anvil local development network"
-            className="px-3 py-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 rounded text-xs font-medium transition-colors"
-          >
-            {isPending ? 'Switching...' : 'Anvil (Local)'}
-          </button>
-          <button
-            onClick={() => switchChain({ chainId: cronosTestnet.id })}
-            disabled={isPending}
-            aria-label="Switch to Cronos testnet"
-            className="px-3 py-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 rounded text-xs font-medium transition-colors"
-          >
-            {isPending ? 'Switching...' : 'Cronos Testnet'}
-          </button>
         </div>
       </div>
     </div>
@@ -78,23 +54,11 @@ export function CurrentNetwork() {
 
   if (!isConnected) return null;
 
-  const networkNames: Record<number, string> = {
-    31337: 'Anvil Local',
-    338: 'Cronos Testnet',
-    25: 'Cronos',
-  };
-
-  const networkColors: Record<number, string> = {
-    31337: 'bg-purple-900/50 text-purple-400 border-purple-800',
-    338: 'bg-blue-900/50 text-blue-400 border-blue-800',
-    25: 'bg-green-900/50 text-green-400 border-green-800',
-  };
-
-  const name = networkNames[chainId] || `Chain ${chainId}`;
-  const color = networkColors[chainId] || 'bg-gray-800 text-gray-400 border-gray-700';
+  const meta = getChainMeta(chainId);
+  const name = meta?.name || (chainId === 31337 ? 'Anvil Local' : `Chain ${chainId}`);
 
   return (
-    <span className={`px-2 py-1 text-xs rounded border ${color}`}>
+    <span className="px-2 py-1 text-xs rounded border bg-gray-800 text-gray-400 border-gray-700">
       {name}
     </span>
   );

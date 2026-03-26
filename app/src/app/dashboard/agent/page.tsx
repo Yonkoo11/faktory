@@ -163,7 +163,7 @@ export default function AgentPage() {
       </main>
 
       {/* Status Bar */}
-      <StatusBar status="online" network="CRONOS TESTNET" />
+      <StatusBar status="online" network="MULTICHAIN" />
     </div>
   )
 }

@@ -83,7 +83,7 @@ export interface WebSocketMessage {
 // Market conditions for real-time risk assessment
 export interface MarketConditions {
   ethPrice: number | null;
-  mntPrice: number | null;
+  nativePrice: number | null;
   ethPriceChange24h: number; // percentage
   volatilityLevel: 'low' | 'medium' | 'high' | 'extreme';
   lastUpdated: number;

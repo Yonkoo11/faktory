@@ -9,7 +9,7 @@ import "./InvoiceNFT.sol";
 
 /// @title FaktoryVault - Manages yield strategies for tokenized invoices
 /// @notice Holds invoice NFTs and simulates yield accrual based on strategies
-/// @dev Part of Faktory Protocol - In production, integrates with Lendle on Mantle
+/// @dev Part of Faktory Protocol - In production, integrates with Aave V3
 contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
     // ============ Enums ============
 
@@ -36,7 +36,7 @@ contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
 
     InvoiceNFT public invoiceNFT;
     address public agentRouter;
-    address public yieldSource; // Optional: LendleYieldSource for real yields
+    address public yieldSource; // Optional: AaveV3YieldSource for real yields
 
     mapping(uint256 => Deposit) public deposits;
     uint256[] public activeDeposits;
@@ -95,7 +95,7 @@ contract YieldVault is Ownable, ReentrancyGuard, Pausable, IERC721Receiver {
     }
 
     /// @notice Set yield source for real DeFi yields (optional)
-    /// @param _yieldSource LendleYieldSource contract address (0x0 for simulated yields)
+    /// @param _yieldSource AaveV3YieldSource contract address (0x0 for simulated yields)
     function setYieldSource(address _yieldSource) external onlyOwner {
         yieldSource = _yieldSource;
     }

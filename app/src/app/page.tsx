@@ -147,7 +147,7 @@ export default function LandingPage() {
               <FileText className="w-5 h-5 text-[#10b981] mb-3" />
               <h3 className="text-[14px] font-semibold mb-2">TOKENIZE</h3>
               <p className="text-[12px] text-[#666666] leading-relaxed">
-                Agent mints your invoice as a privacy-preserving NFT on Cronos.
+                Agent mints your invoice as a privacy-preserving NFT on-chain.
               </p>
             </div>
           </ScrollReveal>
@@ -189,7 +189,7 @@ export default function LandingPage() {
           </div>
           <div className="stat-cell">
             <div className="stat-label">Network</div>
-            <div className="stat-value">CRONOS</div>
+            <div className="stat-value">MULTICHAIN</div>
           </div>
         </div>
       </ScrollReveal>
@@ -200,10 +200,10 @@ export default function LandingPage() {
           <div className="text-[10px] text-[#666666] uppercase tracking-wider mb-8">Powered by</div>
           <div className="flex items-center justify-center gap-10">
             {[
-              { name: 'CRONOS', color: '#0052ff' },
+              { name: 'AAVE V3', color: '#B6509E' },
               { name: 'x402', color: '#10b981' },
               { name: 'PYTH', color: '#8b5cf6' },
-              { name: 'LENDLE', color: '#f59e0b' },
+              { name: 'EVM', color: '#627EEA' },
             ].map((logo) => (
               <div
                 key={logo.name}
@@ -256,7 +256,7 @@ export default function LandingPage() {
             <span><span className="text-[#10b981]">f</span>aktory protocol</span>
           </div>
           <div className="flex items-center gap-4">
-            <span>Built for Cronos x402 PayTech Hackathon</span>
+            <span>Multichain AI Treasury</span>
             <span>|</span>
             <span>Open Source</span>
           </div>
@@ -264,7 +264,7 @@ export default function LandingPage() {
       </footer>
 
       {/* Status Bar */}
-      <StatusBar status="online" network="CRONOS TESTNET" />
+      <StatusBar status="online" network="MULTICHAIN" />
     </div>
   )
 }

@@ -2,10 +2,8 @@
 
 import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain } from 'wagmi';
 import { injected } from 'wagmi/connectors';
-import { CHAIN_IDS, areContractsDeployed } from '@/lib/contracts/addresses';
-
-// Supported chains for the app (in order of preference)
-const SUPPORTED_CHAINS = [CHAIN_IDS.CRONOS_TESTNET, CHAIN_IDS.LOCAL, CHAIN_IDS.CRONOS_MAINNET];
+import { areContractsDeployed } from '@/lib/contracts/addresses';
+import { SUPPORTED_CHAINS } from '@/lib/wagmi';
 
 export function ConnectWallet() {
   const { address, isConnected } = useAccount();
@@ -14,13 +12,13 @@ export function ConnectWallet() {
   const chainId = useChainId();
   const { switchChain, isPending: isSwitching } = useSwitchChain();
 
-  const isWrongChain = isConnected && !SUPPORTED_CHAINS.includes(chainId as typeof SUPPORTED_CHAINS[number]);
+  const isWrongChain = isConnected && !(SUPPORTED_CHAINS as readonly number[]).includes(chainId);
   const contractsDeployed = areContractsDeployed(chainId);
 
-  // Handle switching to the correct chain
+  // Handle switching to the first supported chain
   const handleSwitchChain = () => {
-    // Prefer testnet for demo
-    switchChain({ chainId: CHAIN_IDS.CRONOS_TESTNET });
+    const target = SUPPORTED_CHAINS[0];
+    if (target) switchChain({ chainId: target });
   };
 
   if (isConnected && address) {
@@ -34,7 +32,7 @@ export function ConnectWallet() {
             disabled={isSwitching}
             className="px-4 py-2 text-sm bg-yellow-600 hover:bg-yellow-500 rounded-lg transition-colors disabled:opacity-50"
           >
-            {isSwitching ? 'Switching...' : 'Switch to Cronos'}
+            {isSwitching ? 'Switching...' : 'Switch Network'}
           </button>
           <button
             onClick={() => disconnect()}

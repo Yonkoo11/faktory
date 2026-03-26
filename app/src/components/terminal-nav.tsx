@@ -2,11 +2,12 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useAccount, useConnect, useDisconnect } from "wagmi"
+import { useAccount, useConnect, useDisconnect, useChainId } from "wagmi"
 import { injected } from "wagmi/connectors"
 import { useState, useEffect } from "react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
+import { getChainMeta } from "@/lib/contracts/addresses"
 
 const navItems = [
   { href: "/dashboard", label: "portfolio" },
@@ -20,7 +21,11 @@ export function TerminalNav() {
   const { address, isConnected } = useAccount()
   const { connect, isPending } = useConnect()
   const { disconnect } = useDisconnect()
+  const chainId = useChainId()
   const [mounted, setMounted] = useState(false)
+
+  const meta = getChainMeta(chainId)
+  const chainLabel = meta?.shortName || (chainId === 31337 ? 'LOCAL' : 'EVM')
 
   useEffect(() => {
     setMounted(true)
@@ -82,7 +87,7 @@ export function TerminalNav() {
           </button>
         )}
 
-        <div className="network-badge">CRONOS</div>
+        <div className="network-badge">{chainLabel}</div>
       </div>
     </nav>
   )

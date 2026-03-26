@@ -1,17 +1,17 @@
 // Server-side contract interaction utilities
 import { createPublicClient, http, type Address } from "viem"
-import { cronosTestnet, cronos } from "viem/chains"
+import { base, baseSepolia } from "viem/chains"
 import { InvoiceNFTABI, YieldVaultABI, AgentRouterABI, type Invoice, type Deposit, InvoiceStatus, Strategy } from "./abis"
 import { CHAIN_IDS, getContractAddresses } from "./addresses"
 
-// Get chain based on environment
-const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID || CHAIN_IDS.CRONOS_TESTNET)
-const chain = chainId === CHAIN_IDS.CRONOS_MAINNET ? cronos : cronosTestnet
+// Get chain based on environment (defaults to Base Sepolia for testnet)
+const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID || CHAIN_IDS.BASE_SEPOLIA)
+const chain = chainId === CHAIN_IDS.BASE ? base : baseSepolia
 
 // Create public client for reading contracts
 export const publicClient = createPublicClient({
   chain,
-  transport: http(process.env.NEXT_PUBLIC_CRONOS_RPC || chain.rpcUrls.default.http[0]),
+  transport: http(process.env.NEXT_PUBLIC_RPC_URL || chain.rpcUrls.default.http[0]),
 })
 
 const addresses = getContractAddresses(chainId)

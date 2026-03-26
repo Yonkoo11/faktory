@@ -13,7 +13,7 @@ interface StatusBarProps extends React.HTMLAttributes<HTMLDivElement> {
 function StatusBar({
   className,
   status = 'online',
-  network = 'CRONOS',
+  network = '',
   ...props
 }: StatusBarProps) {
   const [blockNumber, setBlockNumber] = useState<number | null>(null)

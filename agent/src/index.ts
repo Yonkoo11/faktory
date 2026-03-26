@@ -17,7 +17,7 @@ function validateEnvironment(): { valid: boolean; warnings: string[]; errors: st
   const errors: string[] = [];
 
   const envVars: EnvValidation[] = [
-    { name: 'CRONOS_RPC_URL', value: process.env.CRONOS_RPC_URL, required: false, description: 'RPC endpoint' },
+    { name: 'RPC_URL', value: process.env.RPC_URL || process.env.CHAIN_RPC_URL, required: false, description: 'RPC endpoint' },
     { name: 'AGENT_PRIVATE_KEY', value: process.env.AGENT_PRIVATE_KEY, required: false, description: 'Agent wallet key' },
     { name: 'ANTHROPIC_API_KEY', value: process.env.ANTHROPIC_API_KEY, required: false, description: 'LLM API key' },
     { name: 'WS_PORT', value: process.env.WS_PORT, required: false, description: 'WebSocket port' },
@@ -40,9 +40,9 @@ function validateEnvironment(): { valid: boolean; warnings: string[]; errors: st
   }
 
   // Validate RPC URL format
-  const rpcUrl = process.env.CRONOS_RPC_URL || 'https://evm-t3.cronos.org';
+  const rpcUrl = process.env.RPC_URL || process.env.CHAIN_RPC_URL || 'http://127.0.0.1:8545';
   if (!rpcUrl.startsWith('http://') && !rpcUrl.startsWith('https://')) {
-    errors.push('CRONOS_RPC_URL must be a valid HTTP(S) URL');
+    errors.push('RPC_URL must be a valid HTTP(S) URL');
   }
 
   // Validate private key format if provided
@@ -61,7 +61,7 @@ function validateEnvironment(): { valid: boolean; warnings: string[]; errors: st
 }
 
 // Load configuration from environment
-const RPC_URL = process.env.CRONOS_RPC_URL || 'https://evm-t3.cronos.org';
+const RPC_URL = process.env.RPC_URL || process.env.CHAIN_RPC_URL || 'http://127.0.0.1:8545';
 const PRIVATE_KEY = process.env.AGENT_PRIVATE_KEY;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const WS_PORT = parseInt(process.env.WS_PORT || '8080');
@@ -74,11 +74,11 @@ const ADDRESSES: ContractAddresses = {
   mockOracle: process.env.MOCK_ORACLE_ADDRESS || '0x0000000000000000000000000000000000000000',
   // Production addresses (optional - enables real data)
   pythOracle: process.env.PYTH_ORACLE_ADDRESS,
-  lendleYieldSource: process.env.LENDLE_YIELD_ADDRESS,
+  aaveYieldSource: process.env.AAVE_YIELD_ADDRESS || process.env.LENDLE_YIELD_ADDRESS,
 };
 
 // Check if using production data sources
-const isProduction = !!ADDRESSES.pythOracle || !!ADDRESSES.lendleYieldSource;
+const isProduction = !!ADDRESSES.pythOracle || !!ADDRESSES.aaveYieldSource;
 
 async function main() {
   console.log('');
@@ -107,7 +107,7 @@ async function main() {
     console.error('See .env.example for reference.');
     process.exit(1);
   }
-  console.log('  x402 AI-Managed B2B Payments on Cronos');
+  console.log('  x402 AI-Managed B2B Payments');
   console.log('');
   console.log('='.repeat(60));
   console.log(`  📡 RPC: ${RPC_URL}`);
@@ -118,11 +118,11 @@ async function main() {
   console.log('');
   console.log('  Data Sources:');
   console.log(`  📊 Oracle: ${ADDRESSES.pythOracle ? '✅ Pyth Network (Real-time)' : '⚠️  Mock Oracle (Simulated)'}`);
-  console.log(`  💰 Yield: ${ADDRESSES.lendleYieldSource ? '✅ Lendle (Real DeFi)' : '⚠️  Simulated Yield'}`);
+  console.log(`  💰 Yield: ${ADDRESSES.aaveYieldSource ? '✅ Aave V3 (Real DeFi)' : '⚠️  Simulated Yield'}`);
   if (!isProduction) {
     console.log('');
     console.log('  ⚠️  Running with SIMULATED data for demo.');
-    console.log('  Set PYTH_ORACLE_ADDRESS and LENDLE_YIELD_ADDRESS for production.');
+    console.log('  Set PYTH_ORACLE_ADDRESS and AAVE_YIELD_ADDRESS for production.');
   }
   console.log('='.repeat(60));
 

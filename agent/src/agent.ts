@@ -342,13 +342,13 @@ export class FaktoryAgent {
 
       await Promise.allSettled(analysisPromises);
 
-      // Get transaction cost for Mantle value prop
+      // Get transaction cost
       const txCost = await this.blockchain.getEstimatedTxCost();
 
       this.broadcastThought({
         type: 'thinking',
         tokenId: 'system',
-        message: `✅ Cycle complete. Next scan in ${this.config.analysisInterval / 1000}s | Tx cost on Cronos: ${txCost.costUsd}`,
+        message: `✅ Cycle complete. Next scan in ${this.config.analysisInterval / 1000}s | Tx cost: ${txCost.costUsd}`,
         timestamp: Date.now(),
         data: { txCostUsd: txCost.costUsd },
       });
