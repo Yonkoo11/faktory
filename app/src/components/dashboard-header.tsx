@@ -1,21 +1,26 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Wallet, Plus, Bot, Menu, X } from "lucide-react"
+import { Wallet, Plus, Bot, Menu, X, ChevronDown } from "lucide-react"
 import Link from "next/link"
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
+import { useAccount, useConnect, useDisconnect, useChainId, useSwitchChain } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import { toast } from "sonner"
 import { usePathname } from "next/navigation"
+import { getChainMeta, areContractsDeployed } from '@/lib/wagmi'
 
 export function DashboardHeader() {
   const [mounted, setMounted] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [chainMenuOpen, setChainMenuOpen] = useState(false)
   const { address, isConnected } = useAccount()
   const { connect, isPending } = useConnect()
   const { disconnect } = useDisconnect()
+  const chainId = useChainId()
+  const { chains, switchChain } = useSwitchChain()
   const previouslyConnected = useRef(false)
   const pathname = usePathname()
+  const chainMenuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -25,8 +30,9 @@ export function DashboardHeader() {
     if (!mounted) return
 
     if (isConnected && address && !previouslyConnected.current) {
+      const meta = getChainMeta(chainId)
       toast.success("Wallet connected!", {
-        description: `${address.slice(0, 6)}...${address.slice(-4)} connected to Cronos`,
+        description: `${address.slice(0, 6)}...${address.slice(-4)} on ${meta?.name || 'Unknown Chain'}`,
       })
       previouslyConnected.current = true
     } else if (!isConnected && previouslyConnected.current) {
@@ -39,7 +45,19 @@ export function DashboardHeader() {
 
   useEffect(() => {
     setMobileMenuOpen(false)
+    setChainMenuOpen(false)
   }, [pathname])
+
+  // Close chain menu on click outside
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (chainMenuRef.current && !chainMenuRef.current.contains(e.target as Node)) {
+        setChainMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
 
   const navLinks = [
     { href: "/dashboard", label: "Portfolio" },
@@ -89,9 +107,42 @@ export function DashboardHeader() {
 
           {/* Right: Actions */}
           <div className="flex items-center gap-3">
-            {/* Network Badge */}
-            <div className="network-badge hidden sm:flex">
-              Cronos Testnet
+            {/* Chain Switcher */}
+            <div className="relative hidden sm:block" ref={chainMenuRef}>
+              <button
+                onClick={() => setChainMenuOpen(!chainMenuOpen)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-muted rounded-md text-xs font-mono hover:bg-muted/80 transition-colors"
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${areContractsDeployed(chainId) ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                {getChainMeta(chainId)?.shortName || `Chain ${chainId}`}
+                <ChevronDown className="w-3 h-3 text-muted-foreground" />
+              </button>
+              {chainMenuOpen && (
+                <div className="absolute right-0 top-full mt-1 w-48 bg-background border border-border rounded-md shadow-lg py-1 z-50">
+                  {chains.map((chain) => {
+                    const meta = getChainMeta(chain.id)
+                    const deployed = areContractsDeployed(chain.id)
+                    return (
+                      <button
+                        key={chain.id}
+                        onClick={() => {
+                          switchChain({ chainId: chain.id })
+                          setChainMenuOpen(false)
+                        }}
+                        className={`w-full text-left px-3 py-2 text-xs font-mono hover:bg-muted transition-colors flex items-center justify-between ${
+                          chain.id === chainId ? 'bg-muted text-foreground' : 'text-muted-foreground'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className={`w-1.5 h-1.5 rounded-full ${deployed ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                          {meta?.name || chain.name}
+                        </span>
+                        <span className="text-[10px] opacity-60">{meta?.gasLabel || ''}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Wallet */}
