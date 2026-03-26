@@ -1,0 +1,15 @@
+{
+  "chainName": "SKALE Europa",
+  "chainId": 2046399126,
+  "testnetChainId": 1444673419,
+  "pyth": {
+    "mainnet": "0x0000000000000000000000000000000000000000",
+    "testnet": "0x0000000000000000000000000000000000000000"
+  },
+  "aave": {
+    "pool": "0x0000000000000000000000000000000000000000",
+    "poolDataProvider": "0x0000000000000000000000000000000000000000",
+    "usdc": "0x0000000000000000000000000000000000000000"
+  },
+  "note": "SKALE has no Aave V3 or Pyth. Uses Hold strategy only (no yield). Zero gas fees."
+}

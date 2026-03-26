@@ -1,0 +1,19 @@
+{
+  "chainName": "Ethereum",
+  "chainId": 1,
+  "testnetChainId": 11155111,
+  "pyth": {
+    "mainnet": "0x4305FB66699C3B2702D4d05CF36551390A4c69C6",
+    "testnet": "0xDd24F84d36BF92C65F92307595335bdFab5Bbd21"
+  },
+  "aave": {
+    "pool": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+    "poolDataProvider": "0x7B4EB56E7CD4b454BA8ff71E4518426c7385241A",
+    "usdc": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+  },
+  "testnetAave": {
+    "pool": "0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951",
+    "poolDataProvider": "0x3e9708d80f7B3e43118013075F7e95CE3AB31F31",
+    "usdc": "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8"
+  }
+}
