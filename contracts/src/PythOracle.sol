@@ -5,21 +5,17 @@ import "@pythnetwork/pyth-sdk-solidity/IPyth.sol";
 import "@pythnetwork/pyth-sdk-solidity/PythStructs.sol";
 
 /// @title PythOracle - Real-time oracle integration for Faktory Protocol
-/// @notice Uses Pyth Network for real price feeds on Mantle
-/// @dev Replaces MockOracle with real on-chain data
+/// @notice Uses Pyth Network for real price feeds on any supported chain
+/// @dev Chain-agnostic: deployed with chain-specific Pyth contract address
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract PythOracle is Ownable {
     IPyth public pyth;
 
-    // Pyth price feed IDs (from Pyth documentation)
-    // ETH/USD: 0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace
-    // USDC/USD: 0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a
-    // MNT/USD: 0x4e3037c822d852d79af3ac80e35eb420ee3b870dca49f9344a38ef4773fb0585
-
+    // Pyth price feed IDs (same across all chains)
     bytes32 public constant ETH_USD_FEED = 0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace;
     bytes32 public constant USDC_USD_FEED = 0xeaa020c61cc479712813461ce153894a96a6c00b21ed0cfc2798d1f9a9e9c94a;
-    bytes32 public constant MNT_USD_FEED = 0x4e3037c822d852d79af3ac80e35eb420ee3b870dca49f9344a38ef4773fb0585;
+    bytes32 public constant BNB_USD_FEED = 0x2f95862b045670cd22bee3114c39763a4a08beeb663b145d283c31d7d1101c4f;
 
     // Risk assessment data per invoice
     struct RiskData {
@@ -36,7 +32,7 @@ contract PythOracle is Ownable {
 
     // Fallback prices (used when Pyth is unavailable)
     int64 public fallbackEthPrice = 200000000000; // $2000 with 8 decimals
-    int64 public fallbackMntPrice = 80000000; // $0.80 with 8 decimals
+    // BNB_USD_FEED available for BSC chain if needed
     bool public useFallback = false;
 
     // Circuit breaker - pause if too many failures
@@ -49,7 +45,7 @@ contract PythOracle is Ownable {
 
     event FallbackActivated(string reason);
     event FallbackDeactivated();
-    event FallbackPricesUpdated(int64 ethPrice, int64 mntPrice);
+    event FallbackPricesUpdated(int64 ethPrice);
     event RiskAssessed(uint256 indexed tokenId, uint8 riskScore, uint8 paymentProbability, int64 collateralPrice);
 
     constructor(address _pyth) Ownable(msg.sender) {
@@ -69,16 +65,17 @@ contract PythOracle is Ownable {
         }
     }
 
-    /// @notice Get the current MNT/USD price from Pyth with fallback
+    /// @notice Get the native token price in USD from Pyth with fallback
+    /// @dev Uses ETH/USD on most chains. Override for non-ETH native tokens.
     /// @return price The price with 8 decimal places
-    function getMntUsdPrice() public view returns (int64) {
+    function getNativeUsdPrice() public view returns (int64) {
         if (isFallbackActive()) {
-            return fallbackMntPrice;
+            return fallbackEthPrice;
         }
-        try pyth.getPriceNoOlderThan(MNT_USD_FEED, MAX_PRICE_AGE) returns (PythStructs.Price memory price) {
+        try pyth.getPriceNoOlderThan(ETH_USD_FEED, MAX_PRICE_AGE) returns (PythStructs.Price memory price) {
             return price.price;
         } catch {
-            return fallbackMntPrice;
+            return fallbackEthPrice;
         }
     }
 
@@ -117,12 +114,11 @@ contract PythOracle is Ownable {
         return true;
     }
 
-    /// @notice Update fallback prices (owner only)
-    function setFallbackPrices(int64 _ethPrice, int64 _mntPrice) external onlyOwner {
-        require(_ethPrice > 0 && _mntPrice > 0, "Invalid prices");
+    /// @notice Update fallback ETH price (owner only)
+    function setFallbackPrice(int64 _ethPrice) external onlyOwner {
+        require(_ethPrice > 0, "Invalid price");
         fallbackEthPrice = _ethPrice;
-        fallbackMntPrice = _mntPrice;
-        emit FallbackPricesUpdated(_ethPrice, _mntPrice);
+        emit FallbackPricesUpdated(_ethPrice);
     }
 
     /// @notice Check if prices are available from Pyth
@@ -152,8 +148,8 @@ contract PythOracle is Ownable {
         pyth.updatePriceFeeds{value: fee}(priceUpdateData);
 
         // Get real-time collateral price
-        PythStructs.Price memory mntPrice = pyth.getPriceNoOlderThan(MNT_USD_FEED, MAX_PRICE_AGE);
-        int64 collateralPrice = mntPrice.price;
+        PythStructs.Price memory nativePrice = pyth.getPriceNoOlderThan(ETH_USD_FEED, MAX_PRICE_AGE);
+        int64 collateralPrice = nativePrice.price;
 
         // Calculate collateral value in USD
         // Price has 8 decimals, collateral has 18 decimals
