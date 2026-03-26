@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  output: "export",
+  basePath: "/faktory",
+  images: { unoptimized: true },
+  typescript: { ignoreBuildErrors: true },
 };
 
 export default nextConfig;

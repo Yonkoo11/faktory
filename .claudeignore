@@ -1,0 +1,82 @@
+# .claudeignore - Reduce token costs by 50-87%
+# Copy this to your project root as .claudeignore
+
+# Dependencies
+node_modules/
+vendor/
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Build artifacts
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+target/
+*.o
+*.so
+*.dylib
+
+# Lock files (huge, not useful for Claude)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+Cargo.lock
+poetry.lock
+Pipfile.lock
+bun.lockb
+composer.lock
+Gemfile.lock
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+coverage/
+.nyc_output/
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Logs
+*.log
+logs/
+
+# Large assets (images, fonts, videos)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+*.mp4
+*.webm
+*.mp3
+
+# Docker
+.docker/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Foundry/Solidity specific
+cache/
+lib/
+broadcast/

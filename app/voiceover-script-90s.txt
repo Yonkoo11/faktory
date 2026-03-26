@@ -1,0 +1,125 @@
+FAKTORY DEMO - 90 SECOND VOICEOVER SCRIPT
+==========================================
+Voice: Brian (ElevenLabs)
+Speed: Slow/natural pace with pauses
+Target duration: 90 seconds
+
+---
+
+[0-8s - INTRO]
+Meet Faktory. Your AI treasury agent for B2B commerce.
+
+[PAUSE 2 SECONDS]
+
+[8-14s - DASHBOARD OVERVIEW]
+This is your portfolio dashboard. Track total value, yield earned, and active invoices in real time. Live data streams keep you updated twenty-four-seven.
+
+[PAUSE 1 SECOND]
+
+[14-18s - MINT PAGE]
+Let's tokenize an invoice. Click mint to create an invoice NFT on Cronos blockchain.
+
+[PAUSE 1 SECOND]
+
+[18-22s - QUICKBOOKS]
+Import directly from QuickBooks, or enter details manually. Your choice.
+
+[PAUSE 1 SECOND]
+
+[22-30s - FILL FORM]
+Enter client details. TechFlow Industries. Seventy-five thousand dollars. Due in thirty days. Select your currency. Set the due date.
+
+[PAUSE 1 SECOND]
+
+[30-38s - PRIVACY & ENCRYPTION]
+Your invoice data is encrypted on-chain using commitment hashes. Selective disclosure means you control exactly who sees what. Privacy by design.
+
+[PAUSE 2 SECONDS]
+
+[38-44s - AGENT OVERVIEW]
+Now let's meet your AI agent. It monitors your portfolio continuously. Checking Lendle rates. Watching Pyth price feeds. Analyzing market conditions.
+
+[PAUSE 1 SECOND]
+
+[44-50s - AGENT CONTROLS]
+Configure how autonomous you want it. Toggle auto-execute to let the agent act when confidence exceeds seventy percent.
+
+[PAUSE 1 SECOND]
+
+[50-56s - AUTO-EXECUTE]
+When enabled, the agent can rebalance your positions automatically. Moving funds to higher-yield strategies when conditions are right.
+
+[PAUSE 1 SECOND]
+
+[56-62s - SAFETY LIMITS]
+Built-in safety limits protect you. Maximum fifty percent in aggressive strategies. Manual override always available. You stay in control.
+
+[PAUSE 1 SECOND]
+
+[62-68s - AGENT ACTIVITY]
+Watch the live activity feed. Every action logged. Every decision transparent. The agent is always working, even while you sleep.
+
+[PAUSE 1 SECOND]
+
+[68-74s - DASHBOARD FINAL]
+Back on your dashboard, see your portfolio growing. Yield accruing in real time. Your invoices working harder than they ever did in a bank account.
+
+[PAUSE 1 SECOND]
+
+[74-80s - ISSUER DASHBOARD]
+The issuer dashboard gives you complete control over privacy settings. Manage authorized viewers. Revoke access anytime.
+
+[PAUSE 2 SECONDS]
+
+[80-90s - OUTRO]
+Faktory. Because your B2B treasury should never sleep.
+
+Built on Cronos. Powered by x402 protocol, Pyth oracles, and Lendle DeFi.
+
+Start earning yield on your invoices today.
+
+---
+
+INSTRUCTIONS FOR ELEVENLABS:
+1. Go to elevenlabs.io
+2. Select voice: Brian (or similar professional male voice)
+3. Set stability: 0.5
+4. Set clarity: 0.75
+5. Paste the script text (not the timing markers)
+6. Generate and download as MP3
+7. Save to: public/audio/voiceover.mp3
+
+CLEAN SCRIPT (copy this for ElevenLabs):
+---
+
+Meet Faktory. Your AI treasury agent for B2B commerce.
+
+This is your portfolio dashboard. Track total value, yield earned, and active invoices in real time. Live data streams keep you updated twenty-four-seven.
+
+Let's tokenize an invoice. Click mint to create an invoice NFT on Cronos blockchain.
+
+Import directly from QuickBooks, or enter details manually. Your choice.
+
+Enter client details. TechFlow Industries. Seventy-five thousand dollars. Due in thirty days. Select your currency. Set the due date.
+
+Your invoice data is encrypted on-chain using commitment hashes. Selective disclosure means you control exactly who sees what. Privacy by design.
+
+Now let's meet your AI agent. It monitors your portfolio continuously. Checking Lendle rates. Watching Pyth price feeds. Analyzing market conditions.
+
+Configure how autonomous you want it. Toggle auto-execute to let the agent act when confidence exceeds seventy percent.
+
+When enabled, the agent can rebalance your positions automatically. Moving funds to higher-yield strategies when conditions are right.
+
+Built-in safety limits protect you. Maximum fifty percent in aggressive strategies. Manual override always available. You stay in control.
+
+Watch the live activity feed. Every action logged. Every decision transparent. The agent is always working, even while you sleep.
+
+Back on your dashboard, see your portfolio growing. Yield accruing in real time. Your invoices working harder than they ever did in a bank account.
+
+The issuer dashboard gives you complete control over privacy settings. Manage authorized viewers. Revoke access anytime.
+
+Faktory. Because your B2B treasury should never sleep.
+
+Built on Cronos. Powered by x402 protocol, Pyth oracles, and Lendle DeFi.
+
+Start earning yield on your invoices today.

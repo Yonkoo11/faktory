@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faktory - Swiss Minimalist Direction</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #ffffff;
+      --bg-muted: #fafafa;
+      --border: #e5e5e5;
+      --text: #0a0a0a;
+      --text-muted: #737373;
+      --blue: #2563eb;
+      --green: #16a34a;
+      --amber: #d97706;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Navigation */
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 0 48px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--text);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-outline {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      padding: 8px 16px;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* Main */
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 64px 48px;
+    }
+
+    /* Header */
+    .page-header {
+      margin-bottom: 64px;
+    }
+
+    .page-title {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .page-value {
+      font-size: 56px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    /* Stats */
+    .stats-row {
+      display: flex;
+      gap: 64px;
+      padding: 32px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 64px;
+    }
+
+    .stat {
+      flex: 1;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-value.green { color: var(--green); }
+
+    /* Section */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 500;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 16px 0;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tr:hover {
+      background: var(--bg-muted);
+    }
+
+    .invoice-id {
+      font-weight: 600;
+    }
+
+    .amount {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .due-date {
+      color: var(--text-muted);
+    }
+
+    .strategy {
+      display: inline-block;
+      padding: 4px 10px;
+      background: var(--bg-muted);
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .apy {
+      font-weight: 600;
+      color: var(--blue);
+    }
+
+    .yield {
+      font-weight: 600;
+      color: var(--green);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .status.active .status-indicator {
+      background: var(--green);
+    }
+
+    .status.pending .status-indicator {
+      background: var(--amber);
+    }
+
+    .arrow {
+      color: var(--text-muted);
+      font-size: 18px;
+    }
+
+    /* Empty state hint */
+    .hint {
+      margin-top: 48px;
+      padding: 24px;
+      background: var(--bg-muted);
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .hint-text {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .hint-text strong {
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo">Faktory</div>
+    <div class="nav-links">
+      <a href="#" class="nav-link active">Portfolio</a>
+      <a href="#" class="nav-link">Mint</a>
+      <a href="#" class="nav-link">Agent</a>
+      <a href="#" class="nav-link">Settings</a>
+    </div>
+    <div class="nav-right">
+      <button class="btn-outline">0x1a2b...3c4d</button>
+      <button class="btn-primary">Mint Invoice</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-header">
+      <div class="page-title">Portfolio Value</div>
+      <div class="page-value">$47,250.00</div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-label">Yield Earned</div>
+        <div class="stat-value green">+$1,247.50</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Active Invoices</div>
+        <div class="stat-value">12</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Current APY</div>
+        <div class="stat-value">3.5 - 7.0%</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Agent Status</div>
+        <div class="stat-value">Active</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <span class="section-title">Invoices</span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Invoice</th>
+          <th>Amount</th>
+          <th>Due</th>
+          <th>Strategy</th>
+          <th>APY</th>
+          <th>Yield</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="invoice-id">INV-0001</td>
+          <td class="amount">$12,500.00</td>
+          <td class="due-date">Jan 28, 2026</td>
+          <td><span class="strategy">Aggressive</span></td>
+          <td class="apy">7.0%</td>
+          <td class="yield">+$42.50</td>
+          <td><span class="status active"><span class="status-indicator"></span>Active</span></td>
+          <td class="arrow">&rarr;</td>
+        </tr>
+        <tr>
+          <td class="invoice-id">INV-0002</td>
+          <td class="amount">$8,750.00</td>
+          <td class="due-date">Feb 15, 2026</td>
+          <td><span class="strategy">Conservative</span></td>
+          <td class="apy">3.5%</td>
+          <td class="yield">+$18.20</td>
+          <td><span class="status active"><span class="status-indicator"></span>Active</span></td>
+          <td class="arrow">&rarr;</td>
+        </tr>
+        <tr>
+          <td class="invoice-id">INV-0003</td>
+          <td class="amount">$25,000.00</td>
+          <td class="due-date">Feb 01, 2026</td>
+          <td><span class="strategy">Aggressive</span></td>
+          <td class="apy">7.0%</td>
+          <td class="yield">+$95.80</td>
+          <td><span class="status pending"><span class="status-indicator"></span>Pending</span></td>
+          <td class="arrow">&rarr;</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="hint">
+      <p class="hint-text">
+        <strong>AI Agent is monitoring your invoices.</strong> Strategy changes above 70% confidence are auto-executed.
+      </p>
+    </div>
+  </main>
+</body>
+</html>

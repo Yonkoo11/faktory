@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Faktory - Dark Premium Direction</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #09090b;
+      --bg-elevated: #18181b;
+      --bg-hover: #27272a;
+      --border: #27272a;
+      --border-subtle: #1f1f23;
+      --text: #fafafa;
+      --text-muted: #71717a;
+      --violet: #8b5cf6;
+      --violet-dim: #7c3aed;
+      --green: #22c55e;
+      --amber: #f59e0b;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Navigation */
+    nav {
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(9, 9, 11, 0.8);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-icon {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, var(--violet) 0%, var(--violet-dim) 100%);
+      border-radius: 6px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 4px;
+    }
+
+    .nav-link {
+      padding: 6px 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--text);
+      background: var(--bg-elevated);
+    }
+
+    .nav-link.active {
+      color: var(--text);
+      background: var(--bg-elevated);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .network-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      background: var(--bg-elevated);
+      border-radius: 100px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .network-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+    }
+
+    .wallet-btn {
+      padding: 6px 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .wallet-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--border);
+    }
+
+    .btn-primary {
+      padding: 6px 14px;
+      background: var(--violet);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      background: var(--violet-dim);
+    }
+
+    /* Main */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 40px;
+    }
+
+    .page-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .page-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .agent-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      background: rgba(34, 197, 94, 0.1);
+      border-radius: 100px;
+      font-size: 11px;
+      color: var(--green);
+      font-weight: 500;
+    }
+
+    .agent-dot {
+      width: 5px;
+      height: 5px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .page-value {
+      font-size: 42px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+
+    .page-value .cents {
+      color: var(--text-muted);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.15s ease;
+    }
+
+    .stat-card:hover {
+      border-color: var(--border);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-value.green { color: var(--green); }
+    .stat-value.violet { color: var(--violet); }
+
+    .stat-subtext {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Table Section */
+    .section {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .search-box:focus-within {
+      border-color: var(--violet);
+    }
+
+    .search-box input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      width: 160px;
+    }
+
+    .search-box input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px 20px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--bg);
+    }
+
+    td {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 13px;
+    }
+
+    tr {
+      transition: background 0.1s ease;
+    }
+
+    tr:hover td {
+      background: var(--bg-hover);
+    }
+
+    .invoice-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .invoice-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .invoice-id {
+      font-weight: 600;
+    }
+
+    .invoice-client {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .amount {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .due-date {
+      color: var(--text-muted);
+    }
+
+    .strategy-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: var(--bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .apy {
+      font-weight: 600;
+      color: var(--violet);
+    }
+
+    .yield {
+      font-weight: 600;
+      color: var(--green);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .status.active .status-dot {
+      background: var(--green);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    }
+
+    .status.pending .status-dot {
+      background: var(--amber);
+    }
+
+    .row-action {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      border-radius: 6px;
+      transition: all 0.1s ease;
+      cursor: pointer;
+    }
+
+    .row-action:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-left">
+      <div class="logo">
+        <div class="logo-icon"></div>
+        <span>Faktory</span>
+      </div>
+      <div class="nav-links">
+        <a href="#" class="nav-link active">Portfolio</a>
+        <a href="#" class="nav-link">Mint</a>
+        <a href="#" class="nav-link">Agent</a>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="network-pill">
+        <span class="network-dot"></span>
+        Cronos
+      </div>
+      <button class="wallet-btn">0x1a2b...3c4d</button>
+      <button class="btn-primary">+ Mint</button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-header">
+      <div>
+        <div class="page-meta">
+          <span class="page-label">Portfolio Value</span>
+          <span class="agent-status">
+            <span class="agent-dot"></span>
+            Agent Active
+          </span>
+        </div>
+        <div class="page-value">$47,250<span class="cents">.00</span></div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Yield</div>
+        <div class="stat-value green">+$1,247</div>
+        <div class="stat-subtext">+2.64% all time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active Invoices</div>
+        <div class="stat-value">12</div>
+        <div class="stat-subtext">3 pending payment</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Current APY</div>
+        <div class="stat-value violet">3-7%</div>
+        <div class="stat-subtext">Based on strategy</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Agent Decisions</div>
+        <div class="stat-value">24</div>
+        <div class="stat-subtext">18 auto-executed</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Invoices</span>
+        <div class="search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" placeholder="Search invoices...">
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Invoice</th>
+            <th>Amount</th>
+            <th>Due</th>
+            <th>Strategy</th>
+            <th>APY</th>
+            <th>Yield</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="invoice-cell">
+                <div class="invoice-icon">📄</div>
+                <div>
+                  <div class="invoice-id">INV-0001</div>
+                  <div class="invoice-client">Acme Corp</div>
+                </div>
+              </div>
+            </td>
+            <td class="amount">$12,500.00</td>
+            <td class="due-date">Jan 28</td>
+            <td><span class="strategy-badge">Aggressive</span></td>
+            <td class="apy">7.0%</td>
+            <td class="yield">+$42.50</td>
+            <td><span class="status active"><span class="status-dot"></span>Active</span></td>
+            <td><div class="row-action">→</div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="invoice-cell">
+                <div class="invoice-icon">📄</div>
+                <div>
+                  <div class="invoice-id">INV-0002</div>
+                  <div class="invoice-client">TechStart Inc</div>
+                </div>
+              </div>
+            </td>
+            <td class="amount">$8,750.00</td>
+            <td class="due-date">Feb 15</td>
+            <td><span class="strategy-badge">Conservative</span></td>
+            <td class="apy">3.5%</td>
+            <td class="yield">+$18.20</td>
+            <td><span class="status active"><span class="status-dot"></span>Active</span></td>
+            <td><div class="row-action">→</div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="invoice-cell">
+                <div class="invoice-icon">📄</div>
+                <div>
+                  <div class="invoice-id">INV-0003</div>
+                  <div class="invoice-client">Global Systems</div>
+                </div>
+              </div>
+            </td>
+            <td class="amount">$25,000.00</td>
+            <td class="due-date">Feb 01</td>
+            <td><span class="strategy-badge">Aggressive</span></td>
+            <td class="apy">7.0%</td>
+            <td class="yield">+$95.80</td>
+            <td><span class="status pending"><span class="status-dot"></span>Pending</span></td>
+            <td><div class="row-action">→</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>
