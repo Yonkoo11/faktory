@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDepositToVault, useYieldVault } from '@/hooks/use-yield-vault';
-import { useLendleAPY } from '@/hooks/use-lendle';
+import { useYieldAPY } from '@/hooks/use-yield';
 import { Strategy } from '@/lib/contracts/abis';
 import { parseUnits } from 'viem';
 
@@ -37,7 +37,7 @@ export function useDepositFlow({ tokenId, invoiceAmount, onSuccess }: UseDeposit
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { conservativeAPY, aggressiveAPY } = useYieldVault();
-  const { supplyAPY: lendleAPY, isLive: hasLendleData } = useLendleAPY('USDC');
+  const { supplyAPY: lendleAPY, isLive: hasLendleData } = useYieldAPY('USDC');
 
   // Use real Lendle APY if available, otherwise fall back to contract values
   const displayConservativeAPY = hasLendleData && lendleAPY ? parseFloat(lendleAPY) : conservativeAPY;

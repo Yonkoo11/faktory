@@ -24,7 +24,7 @@ function validateEnvironment(): { valid: boolean; warnings: string[]; errors: st
     { name: 'INVOICE_NFT_ADDRESS', value: process.env.INVOICE_NFT_ADDRESS, required: true, description: 'InvoiceNFT contract' },
     { name: 'YIELD_VAULT_ADDRESS', value: process.env.YIELD_VAULT_ADDRESS, required: true, description: 'YieldVault contract' },
     { name: 'AGENT_ROUTER_ADDRESS', value: process.env.AGENT_ROUTER_ADDRESS, required: true, description: 'AgentRouter contract' },
-    { name: 'MOCK_ORACLE_ADDRESS', value: process.env.MOCK_ORACLE_ADDRESS, required: true, description: 'Oracle contract' },
+    { name: 'MOCK_ORACLE_ADDRESS', value: process.env.MOCK_ORACLE_ADDRESS || process.env.PYTH_ORACLE_ADDRESS, required: false, description: 'Oracle contract (MockOracle or PythOracle)' },
   ];
 
   const zeroAddress = '0x0000000000000000000000000000000000000000';
@@ -71,10 +71,11 @@ const ADDRESSES: ContractAddresses = {
   invoiceNFT: process.env.INVOICE_NFT_ADDRESS || '0x0000000000000000000000000000000000000000',
   yieldVault: process.env.YIELD_VAULT_ADDRESS || '0x0000000000000000000000000000000000000000',
   agentRouter: process.env.AGENT_ROUTER_ADDRESS || '0x0000000000000000000000000000000000000000',
-  mockOracle: process.env.MOCK_ORACLE_ADDRESS || '0x0000000000000000000000000000000000000000',
-  // Production addresses (optional - enables real data)
+  // Oracle: Pyth for production, MockOracle for local dev
+  mockOracle: process.env.MOCK_ORACLE_ADDRESS,
   pythOracle: process.env.PYTH_ORACLE_ADDRESS,
-  aaveYieldSource: process.env.AAVE_YIELD_ADDRESS || process.env.LENDLE_YIELD_ADDRESS,
+  // Yield source: Aave V3 for real DeFi yields
+  aaveYieldSource: process.env.AAVE_YIELD_ADDRESS,
 };
 
 // Check if using production data sources

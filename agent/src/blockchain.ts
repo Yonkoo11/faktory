@@ -122,8 +122,8 @@ export interface ContractAddresses {
   invoiceNFT: string;
   yieldVault: string;
   agentRouter: string;
-  mockOracle: string;
-  // Optional production addresses
+  // Oracle: use pythOracle in production, mockOracle for local dev
+  mockOracle?: string;
   pythOracle?: string;
   aaveYieldSource?: string;
 }
@@ -135,7 +135,7 @@ export class BlockchainService {
   private invoiceNFT: ethers.Contract;
   private yieldVault: ethers.Contract;
   private agentRouter: ethers.Contract;
-  private mockOracle: ethers.Contract;
+  private mockOracle: ethers.Contract | null = null;
   private pythOracle: ethers.Contract | null = null;
   private aaveYieldSource: ethers.Contract | null = null;
 
@@ -161,13 +161,17 @@ export class BlockchainService {
     this.invoiceNFT = new ethers.Contract(addresses.invoiceNFT, INVOICE_NFT_ABI, signerOrProvider);
     this.yieldVault = new ethers.Contract(addresses.yieldVault, YIELD_VAULT_ABI, signerOrProvider);
     this.agentRouter = new ethers.Contract(addresses.agentRouter, AGENT_ROUTER_ABI, signerOrProvider);
-    this.mockOracle = new ethers.Contract(addresses.mockOracle, MOCK_ORACLE_ABI, signerOrProvider);
 
-    // Initialize production contracts if addresses provided
+    // Oracle: prefer Pyth (production), fall back to MockOracle (local dev)
     if (addresses.pythOracle) {
       this.pythOracle = new ethers.Contract(addresses.pythOracle, PYTH_ORACLE_ABI, signerOrProvider);
       console.log('Using Pyth Oracle for real price data');
+    } else if (addresses.mockOracle) {
+      this.mockOracle = new ethers.Contract(addresses.mockOracle, MOCK_ORACLE_ABI, signerOrProvider);
+      console.log('Using Mock Oracle (local dev)');
     }
+
+    // Yield source: Aave V3 for real yield
     if (addresses.aaveYieldSource) {
       this.aaveYieldSource = new ethers.Contract(addresses.aaveYieldSource, AAVE_YIELD_ABI, signerOrProvider);
       console.log('Using Aave V3 for real yield data');
@@ -251,10 +255,16 @@ export class BlockchainService {
   }
 
   async getRiskData(tokenId: string): Promise<{ riskScore: number; paymentProbability: number }> {
+    // Use whichever oracle is available (prefer Pyth)
+    const oracle = this.pythOracle || this.mockOracle;
+    if (!oracle) {
+      return { riskScore: 50, paymentProbability: 50 };
+    }
+
     try {
       const [riskScore, paymentProbability] = await Promise.all([
-        this.mockOracle.getRiskScore(tokenId),
-        this.mockOracle.getPaymentProbability(tokenId),
+        oracle.getRiskScore(tokenId),
+        oracle.getPaymentProbability(tokenId),
       ]);
 
       return {
@@ -268,8 +278,7 @@ export class BlockchainService {
   }
 
   async simulateRiskAssessment(tokenId: string): Promise<boolean> {
-    if (!this.signer) {
-      console.warn('No signer available for risk simulation');
+    if (!this.signer || !this.mockOracle) {
       return false;
     }
 

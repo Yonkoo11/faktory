@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button"
 import { StatusBar } from "@/components/ui/status-bar"
 import { TickerValue } from "@/components/ticker-value"
 import { ScrollReveal } from "@/components/scroll-reveal"
-import { useLendleMarkets } from '@/hooks/use-lendle'
+import { useYieldMarkets } from '@/hooks/use-yield'
 
 export default function LandingPage() {
   const [mounted, setMounted] = useState(false)
@@ -24,7 +24,7 @@ export default function LandingPage() {
   const { address, isConnected } = useAccount()
   const { connect, isPending } = useConnect()
   const { disconnect } = useDisconnect()
-  const lendleMarkets = useLendleMarkets()
+  const lendleMarkets = useYieldMarkets()
 
   const fullText = 'YOUR AI TREASURY AGENT'
 
