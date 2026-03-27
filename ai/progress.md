@@ -1,52 +1,78 @@
 # Faktory - Progress
 
 ## Current State (2026-03-27)
-Phases 0-3 complete (code changes). Phase 4 (E2E testing) and Phase 5 (deployment) require real RPCs and chain access.
+All code phases complete. Ready for testnet deployment.
 
-## What's Done
+## Completed
 
 ### Phase 0: Clean Slate
-- Moved from ~/Archive to ~/Projects/faktory
-- Removed: Remotion, disabled API routes, MantleYieldStrategy, old deploy scripts, stale docs
-- Updated PITCH.md, DEMO.md, DEMO_SCRIPT.md
+- Removed: Remotion, disabled APIs, MantleYieldStrategy, old deploy scripts, stale docs
 
 ### Phase 1: Multichain Contracts
-- AaveV3YieldSource.sol: real Aave V3 yield (deposit/withdraw/getCurrentAPY)
-- DeployMultichain.s.sol: chain-agnostic deployer (env-configured)
-- 6 chain configs: Ethereum, BSC, Base, Arbitrum, Polygon, SKALE
-- PythOracle: chain-agnostic, 70 tests passing
+- AaveV3YieldSource.sol: real Aave V3 deposit/withdraw/getCurrentAPY
+- DeployMultichain.s.sol: chain-agnostic deployer via env vars
+- 6 chain configs (Ethereum, BSC, Base, Arbitrum, Polygon, SKALE)
+- PythOracle: chain-agnostic, BNB feed added
+- Fork tests: AaveV3Integration.t.sol (runs against Base mainnet fork)
+- 70 unit tests pass, fork tests skip gracefully without RPC
 
 ### Phase 2: Frontend Multichain
-- wagmi.ts: 6 mainnets + 4 testnets
-- addresses.ts: per-chain registry with ChainMeta
-- Chain switcher dropdown in header
-- All Cronos/Mantle references purged
+- wagmi: 6 mainnets + 4 testnets
+- Per-chain address registry with ChainMeta
+- Chain switcher in header
+- Dynamic explorer URLs per chain
+- use-yield.ts: reads real Aave V3 APY via getReserveData, falls back to simulated
 
 ### Phase 3: Agent Production
-- Killed demo mode: removed 38 fake DEMO_THOUGHTS, triggerDemoScenario, simulateMarketDrop
-- UI shows "Agent offline" honestly when agent is down
-- Railway config: Dockerfile, railway.toml, health endpoint at /health
-- Dynamic explorer URLs per chain
+- Demo mode killed (38 fake thoughts, market simulation removed)
+- Agent shows "offline" honestly
+- Railway config: Dockerfile, railway.toml, health endpoint
+- Oracle: prefers Pyth, falls back to MockOracle
+- mockOracle now optional in ContractAddresses
 
-## What's Next
+## Deployment Steps
 
-### Phase 4: E2E Testing (needs real RPCs)
-1. Deploy contracts to Base Sepolia with: PYTH=... AAVE_POOL=... forge script DeployMultichain -f $BASE_SEPOLIA_RPC --broadcast
-2. Update addresses.ts with deployed addresses
-3. Test full mint->deposit->yield->withdraw flow
-4. Run fork tests: forge test --fork-url $BASE_RPC
+### 1. Deploy to Base Sepolia
+```bash
+cd contracts
+export PRIVATE_KEY=0x...
+export BASE_SEPOLIA_RPC=https://...
 
-### Phase 5: Mainnet Deploy
-1. Deploy to each mainnet
-2. Start agent on Railway
-3. Record demo video
+# Deploy with Pyth + Aave
+PYTH=0xA2aa501b19aff244D90cc15a4Cf739D2725B5729 \
+AAVE_POOL=0x07eA79F68B2B3df564D0A34F8e19D9B1e339814b \
+forge script script/DeployMultichain.s.sol -f $BASE_SEPOLIA_RPC --broadcast
 
-## Git Log
+# Copy addresses to app/src/lib/contracts/addresses.ts
 ```
-4255bac Phase 3: Kill demo mode, add Railway deploy, fix explorer URLs
-978621e Remove all Cronos/Mantle references, make codebase chain-agnostic
-d4897bb Make PythOracle chain-agnostic, remove Mantle-specific feeds
-ae623fc Add multichain contract infrastructure and frontend chain support
-8af2cbc Phase 0: Clean slate for production rebuild
-026f620 Snapshot hackathon state before production rebuild
+
+### 2. Run fork tests
+```bash
+BASE_RPC=https://... forge test --match-contract AaveV3Integration -vv
+```
+
+### 3. Start agent
+```bash
+cd agent
+RPC_URL=$BASE_SEPOLIA_RPC \
+INVOICE_NFT_ADDRESS=0x... \
+YIELD_VAULT_ADDRESS=0x... \
+AGENT_ROUTER_ADDRESS=0x... \
+PYTH_ORACLE_ADDRESS=0x... \
+AAVE_YIELD_ADDRESS=0x... \
+pnpm dev
+```
+
+### 4. Start frontend
+```bash
+cd app
+NEXT_PUBLIC_BASE_SEPOLIA_RPC=$BASE_SEPOLIA_RPC \
+NEXT_PUBLIC_NETWORK_MODE=testnet \
+pnpm dev
+```
+
+### 5. Deploy agent to Railway
+```bash
+cd agent && railway up
+# Set env vars in Railway dashboard
 ```
