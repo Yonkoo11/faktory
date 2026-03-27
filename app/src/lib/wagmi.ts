@@ -64,7 +64,7 @@ export const config = createConfig({
   connectors: [
     injected({ shimDisconnect: true }),
     walletConnect({
-      projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'dummy-project-id',
+      projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '',
       showQrModal: true,
     }),
   ],

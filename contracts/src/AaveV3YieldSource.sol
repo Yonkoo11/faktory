@@ -36,7 +36,7 @@ interface IAaveV3Pool {
 
 /// @title AaveV3YieldSource - Real yield via Aave V3 on multiple chains
 /// @notice Deposits assets to Aave V3 lending pools for real yield generation
-/// @dev Replaces LendleYieldSource (Aave V2 fork) with native Aave V3 integration
+/// @dev Native Aave V3 integration for real yield generation
 contract AaveV3YieldSource is Ownable {
     using SafeERC20 for IERC20;
 
