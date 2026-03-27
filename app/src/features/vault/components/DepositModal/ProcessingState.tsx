@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle2, ExternalLink, AlertTriangle } from 'lucide-react';
-import { usePublicClient } from 'wagmi';
+import { usePublicClient, useChainId } from 'wagmi';
+import { getChainMeta } from '@/lib/contracts/addresses';
 
 interface ProcessingStateProps {
   open: boolean;
@@ -24,6 +25,8 @@ export function ProcessingState({
   confirmationStartTime = null,
 }: ProcessingStateProps) {
   const publicClient = usePublicClient();
+  const chainId = useChainId();
+  const explorerUrl = getChainMeta(chainId)?.explorerUrl || 'https://etherscan.io';
   const [manualCheckLoading, setManualCheckLoading] = useState(false);
   const [manualCheckResult, setManualCheckResult] = useState<string | null>(null);
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -156,7 +159,7 @@ export function ProcessingState({
           {/* Explorer link */}
           {currentHash && (
             <a
-              href={`https://etherscan.io/tx/${currentHash}`}
+              href={`${explorerUrl}/tx/${currentHash}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm text-primary hover:underline mb-4"

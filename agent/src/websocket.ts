@@ -182,18 +182,10 @@ export class AgentWebSocket {
       this.onAnalysisRequest?.(message.tokenId as string);
     }
 
-    // Handle demo scenario triggers
-    if (message.type === 'triggerDemo' && message.scenario) {
-      const scenario = message.scenario as 'market_crash' | 'market_rally' | 'reset';
-      this.onDemoScenario?.(scenario);
-    }
   }
 
   // Callback for analysis requests
   onAnalysisRequest?: (tokenId: string) => void;
-
-  // Callback for demo scenarios
-  onDemoScenario?: (scenario: 'market_crash' | 'market_rally' | 'reset') => void;
 
   broadcast(message: WebSocketMessage): void {
     const data = JSON.stringify(message);

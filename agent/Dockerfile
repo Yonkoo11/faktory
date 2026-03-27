@@ -32,8 +32,8 @@ COPY --from=base /app/dist ./dist
 COPY --from=base /app/node_modules ./node_modules
 COPY --from=base /app/package.json ./
 
-# Expose WebSocket port
-EXPOSE 8080
+# Expose WebSocket + health check ports
+EXPOSE 8080 3001
 
 # Run the agent service
 CMD ["node", "dist/index.js"]

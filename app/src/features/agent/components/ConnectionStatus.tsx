@@ -4,14 +4,14 @@ import { RotateCcw } from 'lucide-react';
 interface ConnectionStatusProps {
   connected: boolean;
   connecting: boolean;
-  maxRetriesReached: boolean;
+  offline: boolean;
   onReconnect: () => void;
 }
 
 export function ConnectionStatus({
   connected,
   connecting,
-  maxRetriesReached,
+  offline,
   onReconnect,
 }: ConnectionStatusProps) {
   return (
@@ -22,9 +22,9 @@ export function ConnectionStatus({
         }`}
       />
       <span className="text-sm text-muted-foreground">
-        {connected ? 'Live' : connecting ? 'Connecting...' : maxRetriesReached ? 'Failed' : 'Reconnecting...'}
+        {connected ? 'Live' : connecting ? 'Connecting...' : offline ? 'Offline' : 'Reconnecting...'}
       </span>
-      {maxRetriesReached && (
+      {offline && (
         <Button size="sm" variant="outline" onClick={onReconnect} className="h-6 px-2 text-xs">
           <RotateCcw className="w-3 h-3 mr-1" />
           Retry

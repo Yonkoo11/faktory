@@ -149,6 +149,27 @@ async function main() {
   // Start the agent
   await agent.start();
 
+  // HTTP health check endpoint for Railway/Docker
+  const http = await import('http');
+  const healthPort = parseInt(process.env.HEALTH_PORT || '3001');
+  const healthServer = http.createServer((req, res) => {
+    if (req.url === '/health') {
+      const status = agent.getStatus();
+      res.writeHead(status.running ? 200 : 503, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        status: status.running ? 'healthy' : 'unhealthy',
+        clients: status.connectedClients,
+        uptime: process.uptime(),
+      }));
+    } else {
+      res.writeHead(404);
+      res.end();
+    }
+  });
+  healthServer.listen(healthPort, () => {
+    console.log(`  🏥 Health check: http://localhost:${healthPort}/health`);
+  });
+
   // Handle graceful shutdown
   const shutdown = () => {
     console.log('\n🛑 Shutting down Faktory Agent...');

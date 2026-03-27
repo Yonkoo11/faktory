@@ -3,17 +3,13 @@
 import { useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Bot, TrendingDown, TrendingUp, RotateCcw, AlertCircle, Sparkles } from 'lucide-react';
+import { Bot, RotateCcw, AlertCircle, WifiOff } from 'lucide-react';
 import { useAgentWebSocket } from '../../hooks/useAgentWebSocket';
 import { ConnectionStatus } from '../ConnectionStatus';
 import { ActivityCard } from '../ActivityCard';
 
-interface AgentActivityProps {
-  showDemoControls?: boolean;
-}
-
-export function AgentActivity({ showDemoControls = false }: AgentActivityProps) {
-  const { thoughts, connected, connecting, maxRetriesReached, demoMode, manualReconnect, triggerDemo } = useAgentWebSocket();
+export function AgentActivity() {
+  const { thoughts, connected, connecting, offline, manualReconnect } = useAgentWebSocket();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -31,83 +27,36 @@ export function AgentActivity({ showDemoControls = false }: AgentActivityProps) 
           </div>
           <h2 className="font-semibold">Agent Activity</h2>
         </div>
-        {demoMode ? (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30">
-            <Sparkles className="w-3 h-3 text-primary" />
-            <span className="text-xs font-medium text-primary">Demo Mode</span>
-          </div>
-        ) : (
-          <ConnectionStatus
-            connected={connected}
-            connecting={connecting}
-            maxRetriesReached={maxRetriesReached}
-            onReconnect={manualReconnect}
-          />
-        )}
+        <ConnectionStatus
+          connected={connected}
+          connecting={connecting}
+          offline={offline}
+          onReconnect={manualReconnect}
+        />
       </div>
 
-      {demoMode && (
-        <div className="px-4 py-2 border-b border-primary/20 bg-primary/5">
-          <p className="text-xs text-muted-foreground">
-            Simulating AI agent activity. In production, the agent analyzes invoices and optimizes strategies in real-time.
-          </p>
-        </div>
-      )}
-
-      {showDemoControls && connected && (
-        <div className="px-4 py-2 border-b border-glass-border bg-muted/30">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Demo:</span>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => triggerDemo('market_crash')}
-              className="h-7 px-2 text-xs border-destructive/30 hover:bg-destructive/10"
-            >
-              <TrendingDown className="w-3 h-3 mr-1" />
-              Crash
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => triggerDemo('market_rally')}
-              className="h-7 px-2 text-xs border-success/30 hover:bg-success/10"
-            >
-              <TrendingUp className="w-3 h-3 mr-1" />
-              Rally
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => triggerDemo('reset')}
-              className="h-7 px-2 text-xs"
-            >
-              <RotateCcw className="w-3 h-3 mr-1" />
-              Reset
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {!connected && !connecting && !demoMode && (
+      {offline && (
         <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/30 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-destructive">
-            <AlertCircle className="w-4 h-4" />
-            <span>
-              Connection lost. {maxRetriesReached ? 'Agent service may be offline.' : 'Attempting to reconnect...'}
-            </span>
+            <WifiOff className="w-4 h-4" />
+            <span>Agent service is offline. Start the agent or check your connection.</span>
           </div>
-          {maxRetriesReached && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={manualReconnect}
-              className="h-7 px-3 text-xs border-destructive/30 hover:bg-destructive/10"
-            >
-              <RotateCcw className="w-3 h-3 mr-1" />
-              Try Again
-            </Button>
-          )}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={manualReconnect}
+            className="h-7 px-3 text-xs border-destructive/30 hover:bg-destructive/10"
+          >
+            <RotateCcw className="w-3 h-3 mr-1" />
+            Retry
+          </Button>
+        </div>
+      )}
+
+      {!connected && !connecting && !offline && (
+        <div className="px-4 py-3 bg-yellow-900/20 border-b border-yellow-800/30 flex items-center gap-2 text-sm text-yellow-400">
+          <AlertCircle className="w-4 h-4" />
+          <span>Reconnecting to agent...</span>
         </div>
       )}
 
@@ -117,8 +66,14 @@ export function AgentActivity({ showDemoControls = false }: AgentActivityProps) 
             <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
               <Bot className="w-8 h-8" />
             </div>
-            <p className="font-medium">Waiting for agent activity...</p>
-            <p className="text-sm">The agent analyzes invoices automatically</p>
+            <p className="font-medium">
+              {offline ? 'Agent offline' : 'Waiting for agent activity...'}
+            </p>
+            <p className="text-sm">
+              {offline
+                ? 'Start the agent service to see real-time analysis'
+                : 'The agent analyzes invoices automatically'}
+            </p>
           </div>
         ) : (
           thoughts.map((thought, index) => (

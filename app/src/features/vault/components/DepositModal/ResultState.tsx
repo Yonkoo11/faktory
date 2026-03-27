@@ -1,6 +1,8 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, AlertCircle, ExternalLink } from 'lucide-react';
+import { useChainId } from 'wagmi';
+import { getChainMeta } from '@/lib/contracts/addresses';
 import type { StrategyType } from '../../hooks/useDepositFlow';
 
 interface ResultStateProps {
@@ -22,6 +24,9 @@ export function ResultState({
   onClose,
   onRetry,
 }: ResultStateProps) {
+  const chainId = useChainId();
+  const explorerUrl = getChainMeta(chainId)?.explorerUrl || 'https://etherscan.io';
+
   if (isSuccess) {
     const strategyName = selectedStrategy
       ? selectedStrategy.charAt(0).toUpperCase() + selectedStrategy.slice(1)
@@ -44,7 +49,7 @@ export function ResultState({
             </p>
             {depositHash && (
               <a
-                href={`https://etherscan.io/tx/${depositHash}`}
+                href={`${explorerUrl}/tx/${depositHash}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm text-primary hover:underline mb-6"

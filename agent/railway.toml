@@ -1,8 +1,8 @@
 [build]
-builder = "nixpacks"
-buildCommand = "pnpm install && pnpm build"
+builder = "dockerfile"
 
 [deploy]
-startCommand = "pnpm start"
+healthcheckPath = "/health"
+healthcheckTimeout = 10
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10

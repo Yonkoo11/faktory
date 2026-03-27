@@ -549,23 +549,6 @@ export class BlockchainService {
     }
   }
 
-  /// Simulate market conditions for demo (when Pyth not available)
-  simulateMarketDrop(percentage: number): void {
-    const now = Date.now();
-    const basePrice = 3500; // Simulated ETH base price
-
-    // Clear history and add simulated drop
-    this.priceHistory = [
-      { timestamp: now - 4 * 60 * 60 * 1000, ethPrice: basePrice, nativePrice: 0.5 },
-      { timestamp: now - 3 * 60 * 60 * 1000, ethPrice: basePrice * 0.98, nativePrice: 0.49 },
-      { timestamp: now - 2 * 60 * 60 * 1000, ethPrice: basePrice * 0.95, nativePrice: 0.48 },
-      { timestamp: now - 1 * 60 * 60 * 1000, ethPrice: basePrice * (1 - percentage / 200), nativePrice: 0.46 },
-      { timestamp: now, ethPrice: basePrice * (1 - percentage / 100), nativePrice: 0.45 },
-    ];
-
-    console.log(`📉 Simulated ${percentage}% market drop for demo`);
-  }
-
   getLastMarketConditions(): MarketConditions | null {
     return this.lastMarketConditions;
   }

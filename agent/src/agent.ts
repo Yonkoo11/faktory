@@ -53,10 +53,6 @@ export class FaktoryAgent {
       this.analyzeInvoice(tokenId);
     };
 
-    // Handle demo scenario triggers from frontend
-    this.ws.onDemoScenario = (scenario) => {
-      this.triggerDemoScenario(scenario);
-    };
   }
 
   async start(): Promise<void> {
@@ -220,7 +216,7 @@ export class FaktoryAgent {
     }
 
     try {
-      // Step 1: Check market conditions FIRST (the killer demo moment)
+      // Step 1: Check market conditions via oracle
       this.broadcastThought({
         type: 'thinking',
         tokenId: 'system',
@@ -405,7 +401,7 @@ export class FaktoryAgent {
       const currentTimestamp = Math.floor(Date.now() / 1000);
       let analysis = analyzeInvoice(invoice, deposit || undefined, currentTimestamp);
 
-      // Apply market adjustments (THE KILLER DEMO FEATURE)
+      // Apply market adjustments based on oracle data
       const originalStrategy = analysis.recommendedStrategy;
       analysis = applyMarketAdjustment(analysis, this.currentMarketConditions, this.currentMarketAlert);
 
@@ -576,65 +572,6 @@ export class FaktoryAgent {
       connectedClients: this.ws.getConnectedClients(),
       config: this.config,
     };
-  }
-
-  // DEMO MODE: Simulate a market crash for presentations
-  async triggerDemoScenario(scenario: 'market_crash' | 'market_rally' | 'reset'): Promise<void> {
-    this.broadcastThought({
-      type: 'thinking',
-      tokenId: 'demo',
-      message: `🎬 DEMO MODE: Triggering ${scenario} scenario...`,
-      timestamp: Date.now(),
-    });
-
-    await this.delay(500);
-
-    switch (scenario) {
-      case 'market_crash':
-        // Simulate 7% drop - triggers WARNING level
-        this.blockchain.simulateMarketDrop(7);
-        this.broadcastThought({
-          type: 'error',
-          tokenId: 'demo',
-          message: '📉 Simulating market stress: ETH -7% in 4 hours...',
-          timestamp: Date.now(),
-        });
-        break;
-
-      case 'market_rally':
-        // Simulate positive movement
-        this.blockchain.simulateMarketDrop(-5); // negative drop = rally
-        this.broadcastThought({
-          type: 'analysis',
-          tokenId: 'demo',
-          message: '📈 Simulating market rally: ETH +5% in 4 hours...',
-          timestamp: Date.now(),
-        });
-        break;
-
-      case 'reset':
-        // Reset to neutral
-        this.blockchain.simulateMarketDrop(0);
-        this.broadcastThought({
-          type: 'thinking',
-          tokenId: 'demo',
-          message: '🔄 Market conditions reset to stable...',
-          timestamp: Date.now(),
-        });
-        break;
-    }
-
-    await this.delay(1000);
-
-    // Trigger immediate analysis cycle to show the effect
-    this.broadcastThought({
-      type: 'thinking',
-      tokenId: 'demo',
-      message: '⚡ Running immediate analysis to show agent response...',
-      timestamp: Date.now(),
-    });
-
-    await this.runAnalysisCycle();
   }
 
   // NOTE: Direct blockchain service access removed for security
