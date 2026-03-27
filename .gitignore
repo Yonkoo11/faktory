@@ -45,3 +45,4 @@ coverage/
 COMPREHENSIVE_CRITIQUE.md
 .vercel
 .env*.local
+contracts/out_fast/

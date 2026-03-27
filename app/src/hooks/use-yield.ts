@@ -75,12 +75,12 @@ function rayToAPYPercent(ray: bigint): string {
   return scaled.toFixed(2)
 }
 
-// Simulated fallback rates used when Aave is unavailable or read fails
+// Simulated fallback rates (shown when Aave read unavailable or returns garbage)
 const SIMULATED_RATES: Record<string, { supply: string; borrow: string }> = {
   USDC: { supply: "4.25", borrow: "6.50" },
   USDT: { supply: "3.80", borrow: "5.90" },
   WETH: { supply: "2.10", borrow: "4.20" },
-  CRO:  { supply: "5.50", borrow: "8.00" },
+  DAI:  { supply: "4.00", borrow: "6.00" },
 }
 
 export function useYieldAPY(asset: string = "USDC") {
@@ -113,15 +113,22 @@ export function useYieldAPY(asset: string = "USDC") {
     const supplyAPY = rayToAPYPercent(reserveData.currentLiquidityRate)
     const borrowAPY = rayToAPYPercent(reserveData.currentVariableBorrowRate)
 
-    return {
-      supplyAPY,
-      borrowAPY,
-      availableLiquidity: "0.00", // Not fetched from this call; use poolDataProvider for this
-      isLoading,
-      error: null,
-      refetch,
-      isLive: true,
-      isSimulated: false,
+    // Sanity check: testnet Aave pools often have absurd rates.
+    // If supply APY > 20%, treat as unreliable and fall back to simulated.
+    const supplyNum = parseFloat(supplyAPY)
+    if (supplyNum > 20 || supplyNum < 0) {
+      // Fall through to simulated data below
+    } else {
+      return {
+        supplyAPY,
+        borrowAPY,
+        availableLiquidity: "0.00",
+        isLoading,
+        error: null,
+        refetch,
+        isLive: true,
+        isSimulated: false,
+      }
     }
   }
 
@@ -144,19 +151,16 @@ export function useYieldMarkets() {
   const usdc = useYieldAPY("USDC")
   const usdt = useYieldAPY("USDT")
   const weth = useYieldAPY("WETH")
-  const cro  = useYieldAPY("CRO")
+  const dai  = useYieldAPY("DAI")
 
   return {
     USDC: usdc,
     USDT: usdt,
     WETH: weth,
-    CRO:  cro,
+    DAI:  dai,
     isLoading: usdc.isLoading,
     hasLiveData: usdc.isLive,
     isSimulated: usdc.isSimulated,
   }
 }
 
-// Backward-compatible aliases so consumers that haven't been updated yet still compile
-export const useLendleAPY = useYieldAPY
-export const useLendleMarkets = useYieldMarkets

@@ -128,8 +128,8 @@ export default function LandingPage() {
           {/* Live Ticker */}
           <div className="live-ticker inline-flex stagger-5">
             <div className="flex items-center gap-2 mr-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] status-pulse" />
-              <span className="text-[#666666]">LIVE</span>
+              <span className={`w-1.5 h-1.5 rounded-full ${yieldMarkets.hasLiveData ? 'bg-[#10b981] status-pulse' : 'bg-[#666666]'}`} />
+              <span className="text-[#666666]">{yieldMarkets.hasLiveData ? 'LIVE' : 'EST'}</span>
             </div>
             <TickerValue label="USDC" value={yieldMarkets.USDC.supplyAPY || '0.00'} />
             <TickerValue label="USDT" value={yieldMarkets.USDT.supplyAPY || '0.00'} />
