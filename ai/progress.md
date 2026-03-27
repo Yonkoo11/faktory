@@ -1,49 +1,52 @@
 # Faktory - Progress
 
 ## Current State (2026-03-27)
-Phases 0-2 complete. Phase 3 (agent production) is next.
+Phases 0-3 complete (code changes). Phase 4 (E2E testing) and Phase 5 (deployment) require real RPCs and chain access.
 
 ## What's Done
 
-### Phase 0: Clean Slate (commit 8af2cbc)
+### Phase 0: Clean Slate
 - Moved from ~/Archive to ~/Projects/faktory
-- Committed hackathon snapshot (026f620)
-- Removed: Remotion, disabled API routes, MantleYieldStrategy, DeployProduction, DeployCronos, mockups, stale docs
+- Removed: Remotion, disabled API routes, MantleYieldStrategy, old deploy scripts, stale docs
+- Updated PITCH.md, DEMO.md, DEMO_SCRIPT.md
 
-### Phase 1: Multichain Contracts (commits ae623fc, d4897bb)
-- AaveV3YieldSource.sol: real yield via Aave V3 deposits (deposit/withdraw/getCurrentYield/getCurrentAPY)
-- DeployMultichain.s.sol: chain-agnostic deployer (PythOracle + AaveV3, env-configured)
-- Chain configs: contracts/script/config/{ethereum,bsc,base,arbitrum,polygon,skale}.json
-- PythOracle: chain-agnostic (removed MNT, added BNB feed, getNativeUsdPrice)
-- aave-v3-core installed as git submodule
-- All 70 tests passing across 5 suites
+### Phase 1: Multichain Contracts
+- AaveV3YieldSource.sol: real Aave V3 yield (deposit/withdraw/getCurrentAPY)
+- DeployMultichain.s.sol: chain-agnostic deployer (env-configured)
+- 6 chain configs: Ethereum, BSC, Base, Arbitrum, Polygon, SKALE
+- PythOracle: chain-agnostic, 70 tests passing
 
-### Phase 2: Frontend Multichain (commits ae623fc, 978621e)
-- wagmi.ts: 6 mainnet chains (ETH, BSC, Base, Arbitrum, Polygon, SKALE) + 4 testnets
-- addresses.ts: per-chain registry with ChainMeta (explorer URLs, gas labels, Aave/Pyth flags)
-- dashboard-header.tsx: chain switcher dropdown with status indicators
-- All Cronos/Mantle/Lendle references removed from app/src and agent/src
-- Frontend builds clean
+### Phase 2: Frontend Multichain
+- wagmi.ts: 6 mainnets + 4 testnets
+- addresses.ts: per-chain registry with ChainMeta
+- Chain switcher dropdown in header
+- All Cronos/Mantle references purged
+
+### Phase 3: Agent Production
+- Killed demo mode: removed 38 fake DEMO_THOUGHTS, triggerDemoScenario, simulateMarketDrop
+- UI shows "Agent offline" honestly when agent is down
+- Railway config: Dockerfile, railway.toml, health endpoint at /health
+- Dynamic explorer URLs per chain
 
 ## What's Next
 
-### Phase 3: Agent Production
-- Kill demo mode (remove DEMO_THOUGHTS, demo fallbacks)
-- Multichain agent (WebSocket per chain, route decisions to correct AgentRouter)
-- Real LLM analysis (stop falling back to templates)
-- Deploy to Railway
-- Agent persistence (PostgreSQL for decision history)
-
-### Phase 4: E2E Verification
-- Test full flow per chain on testnets
-- Fork tests against real Aave V3
+### Phase 4: E2E Testing (needs real RPCs)
+1. Deploy contracts to Base Sepolia with: PYTH=... AAVE_POOL=... forge script DeployMultichain -f $BASE_SEPOLIA_RPC --broadcast
+2. Update addresses.ts with deployed addresses
+3. Test full mint->deposit->yield->withdraw flow
+4. Run fork tests: forge test --fork-url $BASE_RPC
 
 ### Phase 5: Mainnet Deploy
-- Deploy to mainnets, verify, demo video
+1. Deploy to each mainnet
+2. Start agent on Railway
+3. Record demo video
 
-## Architecture
-- 6 chains: Ethereum, BSC, Base, Arbitrum, Polygon, SKALE
-- Yield: Aave V3 only (SKALE = Hold only)
-- Oracle: Pyth Network (SKALE = no oracle)
-- Agent: Railway deployment target
-- Frontend: Next.js 15 + wagmi multichain
+## Git Log
+```
+4255bac Phase 3: Kill demo mode, add Railway deploy, fix explorer URLs
+978621e Remove all Cronos/Mantle references, make codebase chain-agnostic
+d4897bb Make PythOracle chain-agnostic, remove Mantle-specific feeds
+ae623fc Add multichain contract infrastructure and frontend chain support
+8af2cbc Phase 0: Clean slate for production rebuild
+026f620 Snapshot hackathon state before production rebuild
+```
