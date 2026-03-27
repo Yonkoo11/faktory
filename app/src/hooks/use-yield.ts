@@ -1,8 +1,7 @@
 "use client"
 
 import { useReadContract, useChainId } from 'wagmi'
-import { CHAIN_IDS } from '@/lib/wagmi'
-import { CHAIN_META, type ChainMeta } from '@/lib/contracts/addresses'
+import { CHAIN_IDS, getChainMeta } from '@/lib/wagmi'
 
 // Aave V3 Pool addresses per chain ID
 // Source: contracts/script/config/*.json
@@ -86,7 +85,7 @@ const SIMULATED_RATES: Record<string, { supply: string; borrow: string }> = {
 
 export function useYieldAPY(asset: string = "USDC") {
   const chainId = useChainId()
-  const meta = (CHAIN_META as Record<number, ChainMeta | undefined>)[chainId]
+  const meta = getChainMeta(chainId)
   const supportsAave = meta?.hasAave ?? false
 
   const poolAddress = AAVE_POOL_ADDRESSES[chainId]
