@@ -1,78 +1,52 @@
 # Faktory - Progress
 
 ## Current State (2026-03-27)
-All code phases complete. Ready for testnet deployment.
+Deployed to Base Sepolia. All flows verified on-chain and in UI. Agent runs with real Pyth + Claude analysis.
 
-## Completed
+## Verified Working (with evidence)
 
-### Phase 0: Clean Slate
-- Removed: Remotion, disabled APIs, MantleYieldStrategy, old deploy scripts, stale docs
+### On-chain (Base Sepolia, chain 84532)
+- **Mint**: InvoiceNFT.mint() -> token 0 created, ownerOf confirmed
+- **Deposit**: approve + deposit -> NFT transferred to vault, status InYield, TVL updated
+- **Yield accrual**: getAccruedYield returned 355149670218163 wei after ~30s
+- **Withdraw**: NFT returned to owner, TVL back to 0, status Active
+- **All contracts wired**: InvoiceNFT <-> YieldVault <-> AgentRouter confirmed via cast calls
 
-### Phase 1: Multichain Contracts
-- AaveV3YieldSource.sol: real Aave V3 deposit/withdraw/getCurrentAPY
-- DeployMultichain.s.sol: chain-agnostic deployer via env vars
-- 6 chain configs (Ethereum, BSC, Base, Arbitrum, Polygon, SKALE)
-- PythOracle: chain-agnostic, BNB feed added
-- Fork tests: AaveV3Integration.t.sol (runs against Base mainnet fork)
-- 70 unit tests pass, fork tests skip gracefully without RPC
+### Agent
+- Connects to Base Sepolia, reads contracts, detects invoices
+- Pyth Oracle: fetched real ETH price ($2063-2064)
+- Claude Haiku 4.5: generates real analysis (not templates)
+- Health endpoint works at :3001/health
+- No errors (event filters disabled, polling-only)
 
-### Phase 2: Frontend Multichain
-- wagmi: 6 mainnets + 4 testnets
-- Per-chain address registry with ChainMeta
-- Chain switcher in header
-- Dynamic explorer URLs per chain
-- use-yield.ts: reads real Aave V3 APY via getReserveData, falls back to simulated
+### Frontend
+- All 5 routes return 200: /, /dashboard, /dashboard/agent, /dashboard/mint, /dashboard/issuer
+- Landing page renders with terminal aesthetic
+- Dashboard shows portfolio stats from on-chain data
+- Agent page shows ONLINE status, LIVE activity feed
+- basePath issue fixed (was serving under /faktory/ prefix from GitHub Pages config)
 
-### Phase 3: Agent Production
-- Demo mode killed (38 fake thoughts, market simulation removed)
-- Agent shows "offline" honestly
-- Railway config: Dockerfile, railway.toml, health endpoint
-- Oracle: prefers Pyth, falls back to MockOracle
-- mockOracle now optional in ContractAddresses
-
-## Deployment Steps
-
-### 1. Deploy to Base Sepolia
-```bash
-cd contracts
-export PRIVATE_KEY=0x...
-export BASE_SEPOLIA_RPC=https://...
-
-# Deploy with Pyth + Aave
-PYTH=0xA2aa501b19aff244D90cc15a4Cf739D2725B5729 \
-AAVE_POOL=0x07eA79F68B2B3df564D0A34F8e19D9B1e339814b \
-forge script script/DeployMultichain.s.sol -f $BASE_SEPOLIA_RPC --broadcast
-
-# Copy addresses to app/src/lib/contracts/addresses.ts
+## Deployed Addresses (Base Sepolia)
+```
+InvoiceNFT:       0x515ab226DD7917612eeDd439A9Cfb0b4b1731440
+YieldVault:       0xacBeB5f58604A4A9A8B9a74EC39ebCA1117bC326
+PrivacyRegistry:  0xaA9e2C3DF776c3d552E2358AcF8155C91929EF1B
+AgentRouter:      0xEe9AD131A155E7669004056F01fFb26964637Fd4
+PythOracle:       0xA0E9510fBe1Ee857B255B2960438122fdA0b32E3
+AaveV3YieldSource:0x447De96C1c3E15af485a41fb1B5Fde888B02d9eF
 ```
 
-### 2. Run fork tests
-```bash
-BASE_RPC=https://... forge test --match-contract AaveV3Integration -vv
-```
+## Remaining Issues (honest)
+- USDC APY on landing page shows 57.59% (simulated fallback, not real Aave data)
+  - Root cause: wallet not connected, so Aave read is disabled, falls back to simulated
+  - Fix: either show "simulated" label clearly, or fetch APY without wallet connection
+- CRO asset in useYieldMarkets() is a leftover from Cronos
+- use-yield.ts backward-compat aliases (useLendleAPY, useLendleMarkets) still exist
+- LendleYieldSource.sol still in contracts/src/ (unused but present)
+- No mainnet deployments yet
+- Agent persistence (PostgreSQL) not implemented
+- WalletConnect projectId is "dummy-project-id" (needs real one for production)
 
-### 3. Start agent
-```bash
-cd agent
-RPC_URL=$BASE_SEPOLIA_RPC \
-INVOICE_NFT_ADDRESS=0x... \
-YIELD_VAULT_ADDRESS=0x... \
-AGENT_ROUTER_ADDRESS=0x... \
-PYTH_ORACLE_ADDRESS=0x... \
-AAVE_YIELD_ADDRESS=0x... \
-pnpm dev
-```
-
-### 4. Start frontend
-```bash
-cd app
-NEXT_PUBLIC_BASE_SEPOLIA_RPC=$BASE_SEPOLIA_RPC \
-NEXT_PUBLIC_NETWORK_MODE=testnet \
-pnpm dev
-```
-
-### 5. Deploy agent to Railway
-```bash
-cd agent && railway up
-# Set env vars in Railway dashboard
-```
+## Deployer Wallet
+Address: 0x8dd7b3f45695Fe6a7C03183F5E3AE5237fb957e8
+Balance: ~0.000946 ETH (Base Sepolia)
