@@ -39,7 +39,8 @@ contract AaveV3IntegrationTest is Test {
         IAaveV3Pool.ReserveData memory reserve = IAaveV3Pool(AAVE_V3_POOL).getReserveData(USDC);
         uint256 aTokenBalance = IERC20(reserve.aTokenAddress).balanceOf(address(yieldSource));
 
-        assertGe(aTokenBalance, DEPOSIT_AMOUNT, "aToken balance should be >= principal");
+        // Aave V3 mints aTokens scaled by the liquidity index; 1 wei of rounding loss on deposit is expected
+        assertGe(aTokenBalance + 1, DEPOSIT_AMOUNT, "aToken balance should be >= principal minus 1 wei rounding");
     }
 
     function test_GetCurrentAPY() public view {
@@ -84,7 +85,8 @@ contract AaveV3IntegrationTest is Test {
 
         assertEq(asset, USDC, "Asset should be USDC");
         assertEq(principal, DEPOSIT_AMOUNT, "Principal should match deposit");
-        assertGe(currentValue, DEPOSIT_AMOUNT, "Current value should be >= principal");
+        // currentValue reads aToken balance which may be 1 wei below principal due to index rounding on deposit
+        assertGe(currentValue + 1, DEPOSIT_AMOUNT, "Current value should be >= principal minus 1 wei rounding");
         assertGt(depositTime, 0, "Deposit time should be set");
     }
 }

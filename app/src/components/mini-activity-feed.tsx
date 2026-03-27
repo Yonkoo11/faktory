@@ -11,7 +11,7 @@ interface ActivityItem {
 }
 
 const ACTIVITY_MESSAGES = [
-  { message: 'scanning lendle markets...', type: 'info' as const },
+  { message: 'scanning aave v3 markets...', type: 'info' as const },
   { message: 'USDC supply APY: 4.25%', type: 'success' as const },
   { message: 'monitoring vault positions', type: 'info' as const },
   { message: 'yield +$0.003 accrued', type: 'yield' as const },

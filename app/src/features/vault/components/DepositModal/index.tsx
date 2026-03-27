@@ -39,7 +39,7 @@ export function DepositModal({
     errorMessage,
     displayConservativeAPY,
     displayAggressiveAPY,
-    hasLendleData,
+    hasAaveData,
     approveHash,
     depositHash,
     isProcessing,
@@ -55,7 +55,7 @@ export function DepositModal({
   const strategies = useStrategyConfig({
     conservativeAPY: displayConservativeAPY,
     aggressiveAPY: displayAggressiveAPY,
-    hasLendleData,
+    hasAaveData,
   });
 
   const selectedStrategyConfig = strategies.find((s) => s.id === selectedStrategy);

@@ -162,7 +162,7 @@ export default function Dashboard() {
               <span className="w-1 h-1 rounded-full bg-[#f59e0b]" />
             </div>
             <div className="stat-value stat-value-amber tabular-nums">{conservativeAPY}-{aggressiveAPY}%</div>
-            <div className="text-[10px] text-[#666666] mt-1">via Lendle</div>
+            <div className="text-[10px] text-[#666666] mt-1">via Aave V3</div>
           </div>
         </div>
 

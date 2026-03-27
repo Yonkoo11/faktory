@@ -24,7 +24,7 @@ export default function LandingPage() {
   const { address, isConnected } = useAccount()
   const { connect, isPending } = useConnect()
   const { disconnect } = useDisconnect()
-  const lendleMarkets = useYieldMarkets()
+  const yieldMarkets = useYieldMarkets()
 
   const fullText = 'YOUR AI TREASURY AGENT'
 
@@ -131,9 +131,9 @@ export default function LandingPage() {
               <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] status-pulse" />
               <span className="text-[#666666]">LIVE</span>
             </div>
-            <TickerValue label="USDC" value={lendleMarkets.USDC.supplyAPY || '0.00'} />
-            <TickerValue label="USDT" value={lendleMarkets.USDT.supplyAPY || '0.00'} />
-            <TickerValue label="WETH" value={lendleMarkets.WETH.supplyAPY || '0.00'} />
+            <TickerValue label="USDC" value={yieldMarkets.USDC.supplyAPY || '0.00'} />
+            <TickerValue label="USDT" value={yieldMarkets.USDT.supplyAPY || '0.00'} />
+            <TickerValue label="WETH" value={yieldMarkets.WETH.supplyAPY || '0.00'} />
           </div>
         </div>
       </section>

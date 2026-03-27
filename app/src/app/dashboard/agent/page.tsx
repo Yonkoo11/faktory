@@ -114,7 +114,7 @@ export default function AgentPage() {
             <div className="space-y-2 text-[12px]">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] status-pulse" />
-                <span className="text-[#e5e5e5]">Monitoring Lendle supply rates</span>
+                <span className="text-[#e5e5e5]">Monitoring Aave V3 supply rates</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] status-pulse" />

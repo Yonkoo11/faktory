@@ -37,11 +37,11 @@ export function useDepositFlow({ tokenId, invoiceAmount, onSuccess }: UseDeposit
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { conservativeAPY, aggressiveAPY } = useYieldVault();
-  const { supplyAPY: lendleAPY, isLive: hasLendleData } = useYieldAPY('USDC');
+  const { supplyAPY: aaveAPY, isLive: hasAaveData } = useYieldAPY('USDC');
 
-  // Use real Lendle APY if available, otherwise fall back to contract values
-  const displayConservativeAPY = hasLendleData && lendleAPY ? parseFloat(lendleAPY) : conservativeAPY;
-  const displayAggressiveAPY = hasLendleData && lendleAPY ? parseFloat(lendleAPY) * 1.8 : aggressiveAPY;
+  // Use real Aave V3 APY if available, otherwise fall back to contract values
+  const displayConservativeAPY = hasAaveData && aaveAPY ? parseFloat(aaveAPY) : conservativeAPY;
+  const displayAggressiveAPY = hasAaveData && aaveAPY ? parseFloat(aaveAPY) * 1.8 : aggressiveAPY;
 
   const {
     approve,
@@ -224,7 +224,7 @@ export function useDepositFlow({ tokenId, invoiceAmount, onSuccess }: UseDeposit
     // APY data
     displayConservativeAPY,
     displayAggressiveAPY,
-    hasLendleData,
+    hasAaveData,
 
     // Transaction data
     approveHash,

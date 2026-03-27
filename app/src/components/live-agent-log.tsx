@@ -11,7 +11,7 @@ interface LogEntry {
 }
 
 const AGENT_MESSAGES = [
-  { message: 'checking lendle supply rates...', type: 'info' as const },
+  { message: 'checking aave v3 supply rates...', type: 'info' as const },
   { message: 'USDC APY: 4.25% (stable)', type: 'success' as const },
   { message: 'monitoring active deposits...', type: 'info' as const },
   { message: 'pyth price feed healthy', type: 'success' as const },

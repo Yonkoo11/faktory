@@ -18,13 +18,13 @@ export interface StrategyConfig {
 interface UseStrategyConfigParams {
   conservativeAPY: number;
   aggressiveAPY: number;
-  hasLendleData: boolean;
+  hasAaveData: boolean;
 }
 
 export function useStrategyConfig({
   conservativeAPY,
   aggressiveAPY,
-  hasLendleData,
+  hasAaveData,
 }: UseStrategyConfigParams): StrategyConfig[] {
   return [
     {
@@ -44,12 +44,12 @@ export function useStrategyConfig({
       name: 'Conservative',
       apy: `${conservativeAPY.toFixed(1)}%`,
       apyValue: conservativeAPY,
-      description: 'Lend USDC on Lendle. Lower yield, battle-tested protocol.',
+      description: 'Lend USDC on Aave V3. Lower yield, established protocol.',
       risk: 'Low',
       icon: Shield,
       color: 'primary',
       recommended: true,
-      isLive: hasLendleData,
+      isLive: hasAaveData,
     },
     {
       id: 'aggressive' as StrategyType,
@@ -61,7 +61,7 @@ export function useStrategyConfig({
       icon: TrendingUp,
       color: 'accent',
       recommended: false,
-      isLive: hasLendleData,
+      isLive: hasAaveData,
     },
   ];
 }
