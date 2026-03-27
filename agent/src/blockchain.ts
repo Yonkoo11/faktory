@@ -346,16 +346,14 @@ export class BlockchainService {
     return (this.signer as ethers.Wallet).address;
   }
 
-  onDecisionRecorded(callback: (tokenId: string, strategy: Strategy, confidence: number) => void): void {
-    this.agentRouter.on('DecisionRecorded', (tokenId, strategy, confidence) => {
-      callback(tokenId.toString(), Number(strategy) as Strategy, Number(confidence));
-    });
+  // Event listeners disabled - public RPCs don't support eth_newFilter.
+  // The agent polls every 30s instead, which is more reliable.
+  onDecisionRecorded(_callback: (tokenId: string, strategy: Strategy, confidence: number) => void): void {
+    // No-op: polling handles this
   }
 
-  onDecisionExecuted(callback: (tokenId: string, strategy: Strategy) => void): void {
-    this.agentRouter.on('DecisionExecuted', (tokenId, strategy) => {
-      callback(tokenId.toString(), Number(strategy) as Strategy);
-    });
+  onDecisionExecuted(_callback: (tokenId: string, strategy: Strategy) => void): void {
+    // No-op: polling handles this
   }
 
   /// Get real APY for a strategy (from Lendle if available, otherwise hardcoded)

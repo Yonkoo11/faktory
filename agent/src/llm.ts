@@ -6,7 +6,7 @@ import { STRATEGY_NAMES } from './constants.js';
 
 // Configuration
 const LLM_CONFIG = {
-  model: 'claude-3-5-haiku-20241022', // Latest fast model
+  model: 'claude-haiku-4-5-20251001', // Claude Haiku 4.5
   maxTokens: 300,
   timeoutMs: 30000, // 30 second timeout
   maxRetries: 2,
