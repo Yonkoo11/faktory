@@ -356,7 +356,7 @@ export class BlockchainService {
     // No-op: polling handles this
   }
 
-  /// Get real APY for a strategy (from Lendle if available, otherwise hardcoded)
+  /// Get real APY for a strategy (from Aave V3 if available, otherwise hardcoded)
   async getRealAPY(strategy: Strategy): Promise<number> {
     // Return cached if fresh
     if (Date.now() - this.apyCacheTime < this.APY_CACHE_DURATION && this.cachedAPY[strategy] !== undefined) {
