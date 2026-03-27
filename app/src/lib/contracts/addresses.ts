@@ -44,7 +44,14 @@ const emptyAddresses: ContractAddresses = {
 // Contract addresses per chain - populated after deployment
 const addresses: Partial<Record<ChainId, ContractAddresses>> = {
   // Testnets - will be populated after deployment
-  [CHAIN_IDS.BASE_SEPOLIA]: { ...emptyAddresses },
+  [CHAIN_IDS.BASE_SEPOLIA]: {
+    invoiceNFT: "0x515ab226DD7917612eeDd439A9Cfb0b4b1731440",
+    yieldVault: "0xacBeB5f58604A4A9A8B9a74EC39ebCA1117bC326",
+    agentRouter: "0xEe9AD131A155E7669004056F01fFb26964637Fd4",
+    privacyRegistry: "0xaA9e2C3DF776c3d552E2358AcF8155C91929EF1B",
+    pythOracle: "0xA0E9510fBe1Ee857B255B2960438122fdA0b32E3",
+    aaveYieldSource: "0x447De96C1c3E15af485a41fb1B5Fde888B02d9eF",
+  },
   [CHAIN_IDS.ARBITRUM_SEPOLIA]: { ...emptyAddresses },
   [CHAIN_IDS.POLYGON_AMOY]: { ...emptyAddresses },
   [CHAIN_IDS.SEPOLIA]: { ...emptyAddresses },
