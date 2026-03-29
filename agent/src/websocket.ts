@@ -1,8 +1,8 @@
 // WebSocket server for streaming agent thoughts to frontend
 
 import { WebSocketServer, WebSocket } from 'ws';
+import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { AgentThought, WebSocketMessage, AgentDecision } from './types.js';
-import { IncomingMessage } from 'http';
 
 // Heartbeat configuration
 const HEARTBEAT_INTERVAL_MS = 30000; // 30 seconds
@@ -34,20 +34,45 @@ interface ClientInfo {
 
 export class AgentWebSocket {
   private wss: WebSocketServer | null = null;
+  private httpServer: ReturnType<typeof createServer> | null = null;
   private clients: Map<WebSocket, ClientInfo> = new Map();
   private messageQueue: WebSocketMessage[] = [];
   private isRunning = false;
   private heartbeatInterval: NodeJS.Timeout | null = null;
+  private statusCallback: (() => { running: boolean; connectedClients: number }) | null = null;
 
   constructor(private port: number = 8080) {}
+
+  // Allow agent to register a status callback for health endpoint
+  setStatusCallback(cb: () => { running: boolean; connectedClients: number }): void {
+    this.statusCallback = cb;
+  }
 
   start(): void {
     if (this.isRunning) return;
 
-    this.wss = new WebSocketServer({ port: this.port });
+    // Create HTTP server for health checks + WebSocket upgrades
+    this.httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
+      if (req.url === '/health') {
+        const status = this.statusCallback?.() || { running: this.isRunning, connectedClients: this.clients.size };
+        res.writeHead(status.running ? 200 : 503, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          status: status.running ? 'healthy' : 'unhealthy',
+          clients: status.connectedClients,
+          uptime: process.uptime(),
+        }));
+      } else {
+        res.writeHead(404);
+        res.end();
+      }
+    });
+
+    // Attach WebSocket to the HTTP server (shares the same port)
+    this.wss = new WebSocketServer({ server: this.httpServer });
+    this.httpServer.listen(this.port);
     this.isRunning = true;
 
-    console.log(`🔌 WebSocket server started on ws://localhost:${this.port}`);
+    console.log(`🔌 WebSocket + Health server on port ${this.port}`);
 
     this.wss.on('connection', (ws, req) => {
       const clientIp = req.socket.remoteAddress;
@@ -119,7 +144,7 @@ export class AgentWebSocket {
       });
     });
 
-    this.wss.on('error', (error) => {
+    this.wss.on('error', (error: Error) => {
       console.error('WebSocket server error:', error);
     });
 
@@ -156,9 +181,8 @@ export class AgentWebSocket {
   }
 
   stop(): void {
-    if (!this.isRunning || !this.wss) return;
+    if (!this.isRunning) return;
 
-    // Stop heartbeat
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
@@ -169,7 +193,8 @@ export class AgentWebSocket {
     });
     this.clients.clear();
 
-    this.wss.close();
+    this.wss?.close();
+    this.httpServer?.close();
     this.isRunning = false;
 
     console.log('🔌 WebSocket server stopped');
