@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   ...(isGitHubPages ? {
     output: "export",
     basePath: "/faktory",
+    trailingSlash: true,
   } : {}),
   images: { unoptimized: true },
   typescript: { ignoreBuildErrors: true },

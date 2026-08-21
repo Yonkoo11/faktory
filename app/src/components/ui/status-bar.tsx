@@ -100,10 +100,10 @@ function StatusBar({
       {...props}
     >
       <div className="flex items-center gap-4">
-        {/* Agent Status */}
+        {/* Chain RPC status */}
         <StatusBarItem>
           <StatusDot status={connectionStatus} />
-          <span>agent: {connectionStatus}</span>
+          <span>chain: {connectionStatus}</span>
         </StatusBarItem>
 
         {/* Block Number with tick animation */}

@@ -115,7 +115,7 @@ export default function LandingPage() {
               </Button>
             </Link>
             <a
-              href="https://github.com/anthropics/x402-faktory"
+              href="https://github.com/Yonkoo11/faktory"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -257,6 +257,15 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-4">
             <span>Multichain AI Treasury</span>
+            <span>|</span>
+            <a
+              href="https://x.com/soligxbt"
+              target="_blank"
+              rel="me noopener noreferrer"
+              className="hover:text-[#10b981] transition-colors"
+            >
+              X: @soligxbt
+            </a>
             <span>|</span>
             <span>Open Source</span>
           </div>
