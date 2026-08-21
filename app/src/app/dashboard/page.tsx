@@ -168,7 +168,7 @@ export default function Dashboard() {
 
         {/* Mini Activity Feed */}
         <div className="terminal-card p-4 mb-8 stagger-3">
-          <MiniActivityFeed />
+          <MiniActivityFeed activeDepositsCount={activeDepositsCount} />
         </div>
 
         {/* Invoices Table */}
